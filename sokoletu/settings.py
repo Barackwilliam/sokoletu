@@ -53,6 +53,9 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
+WSGI_APPLICATION = 'sokoletu.wsgi.application'
+
+
 ROOT_URLCONF = 'sokoletu.urls'
 
 TEMPLATES = [
