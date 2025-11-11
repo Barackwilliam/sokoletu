@@ -1,80 +1,592 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-deep-green text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        {% trans "Welcome Back" %}
-                    </h3>
-                    <p class="mb-0 mt-2">{% trans "Sign in to your SokoLetu account" %}</p>
+<div class="login-container">
+    <!-- Background Elements -->
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row min-vh-100 align-items-center">
+            <!-- Left Side - Brand/Image Section -->
+            <div class="col-lg-6 d-none d-lg-block login-hero-section">
+                <div class="hero-content">
+                    <div class="brand-logo mb-4">
+                        <div class="logo-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h1 class="brand-name">SokoLetu</h1>
+                    </div>
+                    
+                    <div class="hero-text">
+                        <h2 class="hero-title">{% trans "Welcome Back!" %}</h2>
+                        <p class="hero-subtitle">
+                            {% trans "Continue your shopping journey with thousands of products at your fingertips." %}
+                        </p>
+                    </div>
+
+                    <!-- Features List -->
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fas fa-bolt text-warning"></i>
+                            <span>{% trans "Fast & Secure Checkout" %}</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shipping-fast text-info"></i>
+                            <span>{% trans "Free Delivery in Dar" %}</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt text-success"></i>
+                            <span>{% trans "Buyer Protection" %}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-5">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                            {{ error }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+            </div>
 
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">
-                                <i class="fas fa-envelope me-2 text-gold"></i>{% trans "Email Address" %}
-                            </label>
-                            {{ form.username }}
-                        </div>
-
-                        <!-- Password -->
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">
-                                <i class="fas fa-lock me-2 text-gold"></i>{% trans "Password" %}
-                            </label>
-                            {{ form.password }}
-                        </div>
-
-                        <!-- Remember Me & Forgot Password -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                                <label class="form-check-label" for="remember">
-                                    {% trans "Remember me" %}
-                                </label>
+            <!-- Right Side - Login Form -->
+            <div class="col-lg-6">
+                <div class="login-form-wrapper">
+                    <div class="login-card">
+                        <!-- Mobile Brand -->
+                        <div class="mobile-brand d-lg-none text-center mb-4">
+                            <div class="logo-icon-sm">
+                                <i class="fas fa-shopping-bag"></i>
                             </div>
-                            <a href="{% url 'accounts:password_reset' %}" class="text-gold text-decoration-none">
-                                {% trans "Forgot Password?" %}
-                            </a>
+                            <h3 class="brand-name-sm">SokoLetu</h3>
                         </div>
 
-                        <!-- Submit Button -->
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-gold btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>
-                                {% trans "Sign In" %}
-                            </button>
-                        </div>
-
-                        <!-- Register Link -->
-                        <div class="text-center">
-                            <p class="mb-0">
-                                {% trans "Don't have an account?" %}
-                                <a href="{% url 'accounts:register' %}" class="text-gold text-decoration-none">
-                                    {% trans "Register here" %}
-                                </a>
+                        <!-- Form Header -->
+                        <div class="form-header text-center mb-5">
+                            <h2 class="form-title">{% trans "Sign In" %}</h2>
+                            <p class="form-subtitle text-muted">
+                                {% trans "Access your account to continue shopping" %}
                             </p>
                         </div>
-                    </form>
+
+                        <form method="post" novalidate class="needs-validation">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                {{ error }}
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endif %}
+
+                            <!-- Email Field -->
+                            <div class="form-group mb-4">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    {% trans "Email Address" %}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope text-primary"></i>
+                                    </span>
+                                    {{ form.username }}
+                                </div>
+                                {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Password Field -->
+                            <div class="form-group mb-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                                        {% trans "Password" %}
+                                    </label>
+                                    <a href="{% url 'accounts:password_reset' %}" class="forgot-password-link">
+                                        {% trans "Forgot Password?" %}
+                                    </a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    {{ form.password }}
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Remember Me -->
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                <label class="form-check-label" for="remember">
+                                    {% trans "Keep me signed in" %}
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-primary btn-lg login-btn">
+                                    <span class="btn-text">{% trans "Sign In" %}</span>
+                                    <div class="btn-loader d-none">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">{% trans "Loading..." %}</span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="divider mb-4">
+                                <span class="divider-text">{% trans "or continue with" %}</span>
+                            </div>
+
+                            <!-- Social Login (Optional) -->
+                            <div class="social-login mb-4">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-dark w-100 social-btn">
+                                            <i class="fab fa-google me-2"></i>
+                                            Google
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-primary w-100 social-btn">
+                                            <i class="fab fa-facebook me-2"></i>
+                                            Facebook
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Register Link -->
+                            <div class="text-center">
+                                <p class="register-text">
+                                    {% trans "Don't have an account?" %}
+                                    <a href="{% url 'accounts:register' %}" class="register-link">
+                                        {% trans "Create account" %}
+                                    </a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Footer Links -->
+                    <div class="login-footer text-center mt-4">
+                        <p class="small text-muted">
+                            {% trans "By continuing, you agree to our" %}
+                            <a href="#" class="text-decoration-none">{% trans "Terms of Service" %}</a>
+                            {% trans "and" %}
+                            <a href="#" class="text-decoration-none">{% trans "Privacy Policy" %}</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.login-container {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+}
+
+.background-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: 100px;
+    left: -100px;
+}
+
+.shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    right: 20%;
+}
+
+.shape-4 {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    left: 20%;
+}
+
+/* Left Hero Section */
+.login-hero-section {
+    padding: 60px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-content {
+    max-width: 500px;
+}
+
+.brand-logo {
+    text-align: center;
+}
+
+.logo-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #ffd700;
+}
+
+.brand-name {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.hero-text {
+    margin: 3rem 0;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.features-list {
+    margin-top: 2rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.feature-item i {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    width: 30px;
+}
+
+/* Right Form Section */
+.login-form-wrapper {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+.login-card {
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.mobile-brand {
+    padding: 2rem 0;
+}
+
+.logo-icon-sm {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.brand-name-sm {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+    margin: 0;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+    font-size: 1.1rem;
+}
+
+/* Form Styles */
+.form-group {
+    position: relative;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.input-group {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.input-group-text {
+    background: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    color: #667eea;
+}
+
+.form-control {
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: white;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    background: white;
+}
+
+/* Buttons */
+.login-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Social Buttons */
+.social-btn {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Links */
+.forgot-password-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #5a67d8;
+}
+
+.register-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.register-link:hover {
+    color: #5a67d8;
+}
+
+/* Divider */
+.divider {
+    position: relative;
+    text-align: center;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.divider-text {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0 1rem;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .login-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .login-form-wrapper {
+        background: white;
+        border-radius: 20px;
+        margin: 20px;
+        min-height: auto;
+    }
+    
+    .login-hero-section {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .login-form-wrapper {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .form-title {
+        font-size: 1.75rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Password Toggle */
+.toggle-password {
+    border: none;
+    background: white;
+    color: #667eea;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #5a67d8;
+    background: white;
+}
+
+/* Form Validation */
+.was-validated .form-control:valid {
+    border-color: #10b981;
+}
+
+.was-validated .form-control:invalid {
+    border-color: #ef4444;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordField = document.querySelector('#id_password');
+    
+    if (togglePassword && passwordField) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Form submission loading state
+    const loginForm = document.querySelector('form');
+    const loginBtn = document.querySelector('.login-btn');
+    
+    if (loginForm && loginBtn) {
+        loginForm.addEventListener('submit', function() {
+            const btnText = loginBtn.querySelector('.btn-text');
+            const btnLoader = loginBtn.querySelector('.btn-loader');
+            
+            if (btnText && btnLoader) {
+                btnText.classList.add('d-none');
+                btnLoader.classList.remove('d-none');
+                loginBtn.disabled = true;
+            }
+        });
+    }
+
+    // Add floating labels effect
+    const formControls = document.querySelectorAll('.form-control');
+    formControls.forEach(control => {
+        control.addEventListener('focus', function() {
+            this.parentElement.parentElement.classList.add('focused');
+        });
+        
+        control.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.parentElement.classList.remove('focused');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
