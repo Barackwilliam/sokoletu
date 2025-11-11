@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold text-dark-custom mb-3">
+                <i class="fas fa-credit-card text-primary-custom me-3"></i>
+                {% trans "Checkout" %}
+            </h1>
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'core:home' %}" class="text-primary-custom text-decoration-none">
+                            <i class="fas fa-home me-1"></i>{% trans "Home" %}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'orders:cart' %}" class="text-primary-custom text-decoration-none">
+                            {% trans "Cart" %}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{% trans "Checkout" %}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Checkout Form -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck me-2"></i>
+                        {% trans "Shipping & Payment Information" %}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="checkout-form">
+                        {% csrf_token %}
+                        
+                        <!-- Shipping Information -->
+                        <h6 class="fw-bold text-dark-custom mb-3">
+                            <i class="fas fa-user me-2 text-primary-custom"></i>
+                            {% trans "Shipping Information" %}
+                        </h6>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{% trans "Full Name" %} *</label>
+                                {{ form.shipping_name }}
+                                {% if form.shipping_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{% trans "Phone Number" %} *</label>
+                                {{ form.shipping_phone }}
+                                {% if form.shipping_phone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_phone.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">{% trans "Email Address" %} *</label>
+                                {{ form.shipping_email }}
+                                {% if form.shipping_email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_email.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{% trans "Region" %} *</label>
+                                {{ form.shipping_region }}
+                                {% if form.shipping_region.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_region.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{% trans "District" %} *</label>
+                                {{ form.shipping_district }}
+                                {% if form.shipping_district.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_district.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{% trans "Ward" %}</label>
+                                {{ form.shipping_ward }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">{% trans "Street Address" %} *</label>
+                                {{ form.shipping_address }}
+                                {% if form.shipping_address.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.shipping_address.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <h6 class="fw-bold text-dark-custom mb-3">
+                            <i class="fas fa-wallet me-2 text-primary-custom"></i>
+                            {% trans "Payment Method" %}
+                        </h6>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="payment-methods">
+                                    {% for value, label in form.payment_method.field.choices %}
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" 
+                                               name="payment_method" id="payment_{{ value }}" 
+                                               value="{{ value }}" 
+                                               {% if forloop.first %}checked{% endif %}>
+                                        <label class="form-check-label d-flex align-items-center" for="payment_{{ value }}">
+                                            <i class="fas 
+                                                {% if value == 'mpesa' %}fa-mobile-alt text-success
+                                                {% elif value == 'tigopesa' %}fa-sim-card text-primary
+                                                {% elif value == 'airtelmoney' %}fa-signal text-danger
+                                                {% elif value == 'selcom' %}fa-credit-card text-warning
+                                                {% endif %} me-3 fa-lg"></i>
+                                            <div>
+                                                <strong>{{ label }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {% if value == 'mpesa' %}{% trans "Pay with M-Pesa" %}
+                                                    {% elif value == 'tigopesa' %}{% trans "Pay with Tigo Pesa" %}
+                                                    {% elif value == 'airtelmoney' %}{% trans "Pay with Airtel Money" %}
+                                                    {% elif value == 'selcom' %}{% trans "Pay with Selcom" %}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.payment_method.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.payment_method.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-check mb-4">
+                            {{ form.accept_terms }}
+                            <label class="form-check-label" for="{{ form.accept_terms.id_for_label }}">
+                                {% trans "I agree to the" %} 
+                                <a href="#" class="text-primary-custom">{% trans "Terms and Conditions" %}</a>
+                                {% trans "and" %}
+                                <a href="#" class="text-primary-custom">{% trans "Privacy Policy" %}</a>
+                            </label>
+                            {% if form.accept_terms.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.accept_terms.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom btn-lg py-3" id="submit-btn">
+                                <i class="fas fa-lock me-2"></i>
+                                {% trans "Complete Order" %} - TSh {{ cart.total }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        {% trans "Order Summary" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Order Items -->
+                    <div class="order-items mb-3">
+                        {% for item in cart.items.all %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <img src="{% if item.product.images.first %}{{ item.product.images.first.image }}{% else %}/static/images/placeholder.jpg{% endif %}" 
+                                     alt="{{ item.product.name }}" 
+                                     class="rounded me-2"
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <small class="fw-bold d-block">{{ item.product.name|truncatewords:3 }}</small>
+                                    <small class="text-muted">{{ item.quantity }} x TSh {{ item.product.price }}</small>
+                                </div>
+                            </div>
+                            <small class="fw-bold text-dark-custom">TSh {{ item.total_price }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Pricing Breakdown -->
+                    <div class="pricing-breakdown">
+                        <div class="d-flex justify-content-between mb-2">
+                            <small class="text-muted">{% trans "Subtotal" %}</small>
+                            <small class="fw-bold text-dark-custom">TSh {{ cart.subtotal }}</small>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <small class="text-muted">{% trans "Tax (18%)" %}</small>
+                            <small class="fw-bold text-dark-custom">TSh {{ cart.tax_amount }}</small>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <small class="text-muted">{% trans "Shipping" %}</small>
+                            <small class="fw-bold text-success">
+                                {% if cart.shipping_cost == 0 %}
+                                <span class="text-success">{% trans "FREE" %}</span>
+                                {% else %}
+                                TSh {{ cart.shipping_cost }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong class="text-dark-custom">{% trans "Total" %}</strong>
+                            <strong class="text-primary-custom">TSh {{ cart.total }}</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="text-center mt-4">
+                        <div class="border rounded p-3 bg-light-custom">
+                            <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                            <h6 class="fw-bold mb-1">{% trans "Secure Checkout" %}</h6>
+                            <small class="text-muted">
+                                {% trans "Your payment information is encrypted and secure" %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-methods .form-check-label {
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .payment-methods .form-check-input:checked + .form-check-label {
+        border-color: var(--primary);
+        background-color: rgba(46, 139, 87, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(46, 139, 87, 0.2);
+    }
+    
+    .payment-methods .form-check-input {
+        margin-top: 0;
+    }
+    
+    .sticky-top {
+        position: sticky;
+        z-index: 10;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 20px rgba(46, 139, 87, 0.3);
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(46, 139, 87, 0.4);
+        color: white;
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-radius: 0 !important;
+        padding: 20px;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+    }
+    
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--dark);
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkoutForm = document.getElementById('checkout-form');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Processing..." %}';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission
+            setTimeout(() => {
+                this.submit();
+            }, 1000);
+        });
+        
+        // Phone number formatting for Tanzania
+        const phoneInput = document.querySelector('input[name="shipping_phone"]');
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('0')) {
+                value = '255' + value.substring(1);
+            }
+            if (value.length > 0 && !value.startsWith('255')) {
+                value = '255' + value;
+            }
+            e.target.value = value;
+        });
+
+        // Add hover effects to payment methods
+        document.querySelectorAll('.payment-methods .form-check-label').forEach(label => {
+            label.addEventListener('mouseenter', function() {
+                if (!this.previousElementSibling.checked) {
+                    this.style.borderColor = 'var(--primary)';
+                    this.style.backgroundColor = 'rgba(46, 139, 87, 0.05)';
+                }
+            });
+            
+            label.addEventListener('mouseleave', function() {
+                if (!this.previousElementSibling.checked) {
+                    this.style.borderColor = '#e9ecef';
+                    this.style.backgroundColor = 'transparent';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

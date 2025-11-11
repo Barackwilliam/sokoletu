@@ -1,0 +1,198 @@
+{% load static i18n %}
+<div class="recommendations-carousel">
+    <div class="position-relative">
+        <div class="recommendations-container">
+            {% for product in recommendations %}
+            <div class="recommendation-item">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="position-relative">
+                        <img src="{% if product.images.first %}{{ product.images.first.image }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                             class="card-img-top" 
+                             alt="{{ product.name }}"
+                             style="height: 150px; object-fit: cover;">
+                        
+                        {% if product.is_sponsored %}
+                        <span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2">
+                            <i class="fas fa-star me-1"></i>
+                            {% trans "Sponsored" %}
+                        </span>
+                        {% endif %}
+                        
+                        <!-- View Count -->
+                        <div class="position-absolute bottom-0 end-0 m-1">
+                            <small class="badge bg-dark bg-opacity-75 text-white">
+                                <i class="fas fa-eye me-1"></i>{{ product.total_views }}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="card-title small mb-1">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ product.name|truncatewords:4 }}
+                            </a>
+                        </h6>
+                        
+                        <small class="text-muted d-block mb-2">
+                            {{ product.category.name }}
+                        </small>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success fw-bold small">
+                                TSh {{ product.price|floatformat:0 }}
+                            </span>
+                            {% if product.discount_percentage %}
+                            <small class="text-danger small">
+                                -{{ product.discount_percentage }}%
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-top-0 pt-0">
+                        <button class="btn btn-outline-warning btn-sm w-100 add-to-cart-btn" 
+                                data-product-id="{{ product.id }}">
+                            <i class="fas fa-cart-plus me-1"></i>
+                            {% trans "Add to Cart" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Navigation Arrows -->
+        <button class="carousel-nav carousel-prev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-nav carousel-next">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+.recommendations-carousel {
+    position: relative;
+    overflow: hidden;
+    padding: 0 40px;
+}
+
+.recommendations-container {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.3s ease;
+    padding: 10px 0;
+}
+
+.recommendation-item {
+    flex: 0 0 260px;
+    transition: transform 0.2s ease;
+}
+
+.recommendation-item:hover {
+    transform: scale(1.05);
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.carousel-prev { left: 0; }
+.carousel-next { right: 0; }
+
+.carousel-nav:hover {
+    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+    .recommendations-carousel { padding: 0 20px; }
+    .recommendation-item { flex: 0 0 200px; }
+    .carousel-nav { width: 35px; height: 35px; }
+}
+</style>
+
+<script>
+class RecommendationsCarousel {
+    constructor() {
+        this.container = document.querySelector('.recommendations-container');
+        this.prevBtn = document.querySelector('.carousel-prev');
+        this.nextBtn = document.querySelector('.carousel-next');
+        
+        if (this.container) {
+            this.init();
+        }
+    }
+    
+    init() {
+        this.currentPosition = 0;
+        this.itemWidth = 280;
+        
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', this.scrollPrev.bind(this));
+        }
+        
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', this.scrollNext.bind(this));
+        }
+        
+        this.updateNavigation();
+    }
+    
+    scrollPrev() {
+        const containerWidth = this.container.clientWidth;
+        const itemsPerView = Math.floor(containerWidth / this.itemWidth);
+        const scrollAmount = itemsPerView * this.itemWidth;
+        
+        this.currentPosition = Math.min(0, this.currentPosition + scrollAmount);
+        this.container.style.transform = `translateX(${this.currentPosition}px)`;
+        this.updateNavigation();
+    }
+    
+    scrollNext() {
+        const containerWidth = this.container.clientWidth;
+        const itemsPerView = Math.floor(containerWidth / this.itemWidth);
+        const scrollAmount = itemsPerView * this.itemWidth;
+        const maxScroll = -(this.container.scrollWidth - containerWidth);
+        
+        this.currentPosition = Math.max(maxScroll, this.currentPosition - scrollAmount);
+        this.container.style.transform = `translateX(${this.currentPosition}px)`;
+        this.updateNavigation();
+    }
+    
+    updateNavigation() {
+        const containerWidth = this.container.clientWidth;
+        const maxScroll = -(this.container.scrollWidth - containerWidth);
+        
+        if (this.prevBtn) {
+            this.prevBtn.style.opacity = this.currentPosition >= 0 ? '0.5' : '1';
+            this.prevBtn.disabled = this.currentPosition >= 0;
+        }
+        
+        if (this.nextBtn) {
+            this.nextBtn.style.opacity = this.currentPosition <= maxScroll ? '0.5' : '1';
+            this.nextBtn.disabled = this.currentPosition <= maxScroll;
+        }
+    }
+}
+
+// Initialize carousel
+document.addEventListener('DOMContentLoaded', function() {
+    new RecommendationsCarousel();
+});
+</script>

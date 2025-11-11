@@ -1,0 +1,1105 @@
+  {% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SokoLetu - {% trans "Tanzanian Online Marketplace" %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --deep-green: #1B5E20;
+            --soft-gray: #F5F5F5;
+            --dark-gray: #333333;
+        }
+        
+        body {
+            background-color: var(--soft-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 76px; /* Added for fixed navbar */
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--deep-green) 0%, #2E7D32 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            background: var(--deep-green);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu a {
+            color: white;
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 3px solid var(--gold);
+            color: var(--gold);
+        }
+        
+        .sidebar-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        .btn-gold {
+            background: var(--gold);
+            color: white;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-gold:hover {
+            background: #B8860B;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .text-gold {
+            color: var(--gold) !important;
+        }
+        
+        .bg-gold {
+            background-color: var(--gold) !important;
+        }
+        
+        .bg-deep-green {
+            background-color: var(--deep-green) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--deep-green) 0%, #2E7D32 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: none;
+            height: 100%;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .category-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+        
+        .language-selector {
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 5px 15px;
+            color: white;
+            background: transparent;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .profile-completion-warning {
+            border-left: 4px solid var(--gold);
+        }
+
+        .product-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Search Suggestions */
+        .search-container {
+            position: relative;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0 0 0.375rem 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .search-suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+        
+        /* Cart Badge Animation */
+        .cart-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .cart-badge.updated {
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Message Styles */
+        .alert {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+        
+        .alert-error, .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+        
+        /* Custom Toast */
+        .custom-toast {
+            animation: slideIn 0.3s ease-out;
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1060;
+            min-width: 300px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
+        /* Mobile Language Selector */
+        .mobile-language-selector {
+            margin: 15px 20px;
+        }
+        
+        .mobile-language-selector .btn-group {
+            width: 100%;
+        }
+        
+        .mobile-language-selector .btn {
+            flex: 1;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .mobile-language-selector .btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4 class="text-gold mb-0">
+                <i class="fas fa-store"></i> SokoLetu
+            </h4>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'core:home' %}">
+                <i class="fas fa-home"></i> {% trans "Home" %}
+            </a>
+            <a href="{% url 'market:product_list' %}">
+                <i class="fas fa-shopping-bag"></i> {% trans "Products" %}
+            </a>
+            
+            {% if user.is_authenticated %}
+                <!-- Authenticated User Links -->
+                <a href="{% url 'accounts:profile' %}">
+                    <i class="fas fa-user"></i> {% trans "My Profile" %}
+                </a>
+                
+                {% if user.is_seller %}
+                    {% if user.shop and user.shop.slug %}
+                    <a href="{% url 'market:shop_detail' slug=user.shop.slug %}">
+                        <i class="fas fa-store"></i> {% trans "My Store" %}
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-box"></i> {% trans "My Products" %}
+                    </a>
+                    {% else %}
+                    <!-- SHOW SETUP SHOP LINK IF NO SHOP -->
+                    <a href="#" class="text-warning">
+                        <i class="fas fa-exclamation-triangle"></i> {% trans "Setup Shop" %}
+                    </a>
+                    {% endif %}
+                {% endif %}
+                
+                <a href="{% url 'orders:cart' %}">
+                    <i class="fas fa-shopping-cart"></i> {% trans "My Cart" %}
+                    {% if user.is_authenticated %}
+                    <span class="badge bg-gold rounded-pill cart-badge-sidebar" id="cart-badge-sidebar">0</span>
+                    {% endif %}
+                </a>
+                <a href="#">
+                    <i class="fas fa-shopping-bag"></i> {% trans "My Orders" %}
+                </a>
+                <a href="#">
+                    <i class="fas fa-heart"></i> {% trans "Wishlist" %}
+                </a>
+                <a href="#">
+                    <i class="fas fa-question-circle"></i> {% trans "Help" %}
+                </a>
+                <a href="{% url 'accounts:logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}
+                </a>
+            {% else %}
+                <!-- Guest User Links -->
+                <a href="{% url 'accounts:login' %}">
+                    <i class="fas fa-sign-in-alt"></i> {% trans "Login" %}
+                </a>
+                <a href="{% url 'accounts:register' %}">
+                    <i class="fas fa-user-plus"></i> {% trans "Register" %}
+                </a>
+                <a href="#">
+                    <i class="fas fa-question-circle"></i> {% trans "Help" %}
+                </a>
+            {% endif %}
+            
+            {% comment %}
+            <!-- Mobile Language Selector -->
+            <div class="mobile-language-selector">
+                <div class="btn-group w-100" role="group">
+                    <form action="{% url 'set_language' %}" method="post" class="d-flex w-100">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}">
+                        <button type="submit" name="language" value="en" class="btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
+                            English
+                        </button>
+                        <button type="submit" name="language" value="sw" class="btn {% if LANGUAGE_CODE == 'sw' %}active{% endif %}">
+                            Kiswahili
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+                     
+            {% endcomment %}
+        </div>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark fixed-top">
+        <div class="container">
+            <!-- Mobile Menu Button -->
+            <button class="btn btn-link text-gold d-lg-none me-2" id="sidebarToggle">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+            
+            <!-- Brand -->
+            <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">
+                <i class="fas fa-store me-2"></i>SokoLetu
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'core:home' %}">
+                            <i class="fas fa-home me-1"></i> {% trans "Home" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'market:product_list' %}">
+                            <i class="fas fa-shopping-bag me-1"></i> {% trans "Products" %}
+                        </a>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-1"></i> {% trans "My Profile" %}
+                            </a>
+                        </li>
+                        
+                        {% if user.is_seller and user.shop and user.shop.slug %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
+                                <i class="fas fa-store me-1"></i> {% trans "My Store" %}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <!-- Search Form -->
+                <div class="search-container me-3" style="min-width: 300px;">
+                    <form method="get" action="{% url 'market:product_search' %}" class="d-flex">
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="{% trans 'Search products...' %}" 
+                               value="{{ request.GET.q }}" 
+                               id="searchInput"
+                               autocomplete="off">
+                        <button class="btn btn-gold ms-2" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    
+                    <!-- Search Suggestions Dropdown -->
+                    <div class="search-suggestions" id="searchSuggestions">
+                        <div class="list-group list-group-flush">
+                            <!-- Suggestions will be loaded via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Icons -->
+                <ul class="navbar-nav">
+                    <!-- Language Selector -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe me-1"></i>
+                            <span class="language-selector">
+                                {{ LANGUAGE_CODE|upper }}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input name="next" type="hidden" value="{{ redirect_to }}">
+                                    <input name="language" type="hidden" value="en">
+                                    <button type="submit" class="dropdown-item">English</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input name="next" type="hidden" value="{{ redirect_to }}">
+                                    <input name="language" type="hidden" value="sw">
+                                    <button type="submit" class="dropdown-item">Kiswahili</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- Wishlist -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-heart"></i>
+                                <span class="badge bg-gold rounded-pill">0</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Cart -->
+                        <li class="nav-item position-relative">
+                            <a class="nav-link" href="{% url 'orders:cart' %}">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge bg-gold rounded-pill cart-badge" id="cart-badge">0</span>
+                            </a>
+                        </li>
+                        
+                        <!-- User Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="user-avatar me-2">
+                                {% else %}
+                                    <i class="fas fa-user-circle me-2 fa-lg"></i>
+                                {% endif %}
+                                <span class="d-none d-lg-inline">{{ user.first_name|default:user.email }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <!-- User Info Header -->
+                                <li>
+                                    <div class="dropdown-header">
+                                        <div class="d-flex align-items-center">
+                                            {% if user.profile_picture %}
+                                                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" class="user-avatar me-2">
+                                            {% else %}
+                                                <i class="fas fa-user-circle me-2 fa-lg text-muted"></i>
+                                            {% endif %}
+                                            <div>
+                                                <strong class="text-dark">{{ user.get_full_name|default:user.email }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {% if user.is_seller %}
+                                                        <i class="fas fa-store text-success me-1"></i> {% trans "Seller" %}
+                                                    {% else %}
+                                                        <i class="fas fa-shopping-bag text-primary me-1"></i> {% trans "Buyer" %}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <!-- Profile Completion Warning -->
+                                {% if not user.has_completed_profile %}
+                                <li>
+                                    <div class="px-3 py-2 profile-completion-warning bg-warning bg-opacity-10">
+                                        <small class="text-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            {% trans "Complete your profile" %}
+                                        </small>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                
+                                <!-- Menu Items -->
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                        <i class="fas fa-user me-2 text-gold"></i>{% trans "My Profile" %}
+                                    </a>
+                                </li>
+                                
+                                {% if user.is_seller %}
+                                    {% if user.shop and user.shop.slug %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
+                                            <i class="fas fa-store me-2 text-gold"></i>{% trans "My Store" %}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-box me-2 text-gold"></i>{% trans "My Products" %}
+                                        </a>
+                                    </li>
+                                    {% else %}
+                                    <li>
+                                        <a class="dropdown-item text-warning" href="#">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Setup Shop" %}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'orders:cart' %}">
+                                        <i class="fas fa-shopping-cart me-2 text-gold"></i>{% trans "My Cart" %}
+                                        <span class="badge bg-gold rounded-pill ms-2 cart-badge-dropdown" id="cart-badge-dropdown">0</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-shopping-bag me-2 text-gold"></i>{% trans "My Orders" %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-heart me-2 text-gold"></i>{% trans "Wishlist" %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-question-circle me-2 text-gold"></i>{% trans "Help" %}
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>{% trans "Logout" %}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Guest User Links -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>
+                                <span class="d-none d-lg-inline">{% trans "Login" %}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:register' %}">
+                                <i class="fas fa-user-plus me-1"></i>
+                                <span class="d-none d-lg-inline">{% trans "Register" %}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-question-circle me-1"></i>
+                                <span class="d-none d-lg-inline">{% trans "Help" %}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid px-0">
+        <!-- Messages Display -->
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle me-2"></i>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% endif %}
+                    <div>{{ message }}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-gold">
+                        <i class="fas fa-store me-2"></i>SokoLetu
+                    </h5>
+                    <p>{% trans "Your modern Tanzanian online marketplace. Shop the best local products with convenience and trust." %}</p>
+                </div>
+                <div class="col-lg-2 col-6 mb-4">
+                    <h6 class="text-gold">{% trans "Shop" %}</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'market:product_list' %}" class="text-light text-decoration-none">{% trans "All Products" %}</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">{% trans "Popular" %}</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">{% trans "New Arrivals" %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6 mb-4">
+                    <h6 class="text-gold">{% trans "Account" %}</h6>
+                    <ul class="list-unstyled">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'accounts:profile' %}" class="text-light text-decoration-none">{% trans "My Profile" %}</a></li>
+                            <li><a href="{% url 'orders:cart' %}" class="text-light text-decoration-none">{% trans "My Cart" %}</a></li>
+                            <li><a href="#" class="text-light text-decoration-none">{% trans "My Orders" %}</a></li>
+                        {% else %}
+                            <li><a href="{% url 'accounts:login' %}" class="text-light text-decoration-none">{% trans "Login" %}</a></li>
+                            <li><a href="{% url 'accounts:register' %}" class="text-light text-decoration-none">{% trans "Register" %}</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6 mb-4">
+                    <h6 class="text-gold">{% trans "Help" %}</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light text-decoration-none">{% trans "Contact Us" %}</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">{% trans "FAQ" %}</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">{% trans "Shipping" %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6 mb-4">
+                    <h6 class="text-gold">{% trans "Language" %}</h6>
+                    <ul class="list-unstyled">
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ redirect_to }}">
+                                <input name="language" type="hidden" value="en">
+                                <button type="submit" class="btn btn-link text-light text-decoration-none p-0">English</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ redirect_to }}">
+                                <input name="language" type="hidden" value="sw">
+                                <button type="submit" class="btn btn-link text-light text-decoration-none p-0">Kiswahili</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 SokoLetu. {% trans "All rights reserved." %}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        });
+
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Advanced Search Functionality
+        class AdvancedSearch {
+            constructor() {
+                this.searchInput = document.getElementById('searchInput');
+                this.suggestionsContainer = document.getElementById('searchSuggestions');
+                this.debounceTimeout = null;
+                
+                this.init();
+            }
+            
+            init() {
+                if (this.searchInput) {
+                    this.searchInput.addEventListener('input', this.handleInput.bind(this));
+                    this.searchInput.addEventListener('focus', this.showSuggestions.bind(this));
+                    document.addEventListener('click', this.hideSuggestions.bind(this));
+                }
+            }
+            
+            handleInput(event) {
+                const query = event.target.value.trim();
+                
+                clearTimeout(this.debounceTimeout);
+                
+                if (query.length < 2) {
+                    this.hideSuggestions();
+                    return;
+                }
+                
+                this.debounceTimeout = setTimeout(() => {
+                    this.fetchSuggestions(query);
+                }, 300);
+            }
+            
+            async fetchSuggestions(query) {
+                try {
+                    const response = await fetch(`{% url 'market:search_suggestions' %}?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    this.displaySuggestions(data.suggestions);
+                } catch (error) {
+                    console.error('Search error:', error);
+                }
+            }
+            
+            displaySuggestions(suggestions) {
+                if (!suggestions || suggestions.length === 0) {
+                    this.hideSuggestions();
+                    return;
+                }
+                
+                const html = suggestions.map(suggestion => `
+                    <a href="${suggestion.url}" class="suggestion-item">
+                        <div class="d-flex align-items-center">
+                            ${suggestion.type === 'product' ? `
+                                <div class="bg-light rounded p-2 me-3">
+                                    <i class="fas fa-box text-warning"></i>
+                                </div>
+                            ` : `
+                                <div class="bg-light rounded p-2 me-3">
+                                    <i class="fas fa-folder text-warning"></i>
+                                </div>
+                            `}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 text-dark">${suggestion.name}</h6>
+                                <small class="text-muted">${suggestion.category || 'Category'}</small>
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                `).join('');
+                
+                this.suggestionsContainer.innerHTML = html;
+                this.showSuggestions();
+            }
+            
+            showSuggestions() {
+                if (this.suggestionsContainer.children.length > 0) {
+                    this.suggestionsContainer.style.display = 'block';
+                    this.suggestionsContainer.classList.add('active');
+                }
+            }
+            
+            hideSuggestions(event) {
+                if (event && (this.suggestionsContainer.contains(event.target) || 
+                              this.searchInput.contains(event.target))) {
+                    return;
+                }
+                
+                this.suggestionsContainer.style.display = 'none';
+                this.suggestionsContainer.classList.remove('active');
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+
+        // Update cart count on page load and periodically
+        async function updateCartCount() {
+            {% if user.is_authenticated %}
+            try {
+                const response = await fetch('{% url "orders:get_cart_count" %}');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cart count');
+                }
+                
+                const data = await response.json();
+                const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+                
+                cartBadges.forEach(badge => {
+                    const oldCount = parseInt(badge.textContent) || 0;
+                    const newCount = data.count || 0;
+                    
+                    if (oldCount !== newCount) {
+                        badge.textContent = newCount;
+                        badge.classList.add('updated');
+                        setTimeout(() => badge.classList.remove('updated'), 600);
+                    } else {
+                        badge.textContent = newCount;
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching cart count:', error);
+            }
+            {% endif %}
+        }
+
+        // Enhanced Add to Cart functionality for product cards
+        async function addToCart(productId, button) {
+            const originalText = button.innerHTML;
+            const originalClass = button.className;
+            
+            // Show loading state
+            button.innerHTML = '<div class="loading-spinner"></div>';
+            button.disabled = true;
+            button.classList.add('btn-loading');
+            
+            try {
+                // Get CSRF token
+                function getCSRFToken() {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (csrfToken) {
+                        return csrfToken.value;
+                    }
+                    
+                    // Fallback: check cookies
+                    const name = 'csrftoken';
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                
+                const csrfToken = getCSRFToken();
+                
+                // Build the URL
+                const addToCartUrl = `/en/orders/cart/add/${productId}/`;
+                
+                // Make AJAX request
+                const response = await fetch(addToCartUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success state
+                    button.innerHTML = '<i class="fas fa-check me-1"></i>{% trans "Added!" %}';
+                    button.classList.remove('btn-gold', 'btn-loading');
+                    button.classList.add('btn-success');
+                    
+                    // Update cart count
+                    await updateCartCount();
+                    
+                    // Show success message
+                    showToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
+                    
+                } else {
+                    // Show error state
+                    button.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Failed" %}';
+                    button.classList.remove('btn-gold', 'btn-loading');
+                    button.classList.add('btn-danger');
+                    
+                    // Show error message
+                    showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                button.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Error" %}';
+                button.classList.remove('btn-gold', 'btn-loading');
+                button.classList.add('btn-danger');
+                
+                showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+            } finally {
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.className = originalClass;
+                }, 2000);
+            }
+        }
+
+        // Enhanced toast notification function
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.custom-toast').forEach(toast => {
+                toast.remove();
+            });
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `custom-toast alert alert-${type} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    ${type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : 
+                      type === 'error' ? '<i class="fas fa-exclamation-triangle me-2"></i>' : 
+                      type === 'warning' ? '<i class="fas fa-exclamation-circle me-2"></i>' :
+                      '<i class="fas fa-info-circle me-2"></i>'}
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        // Initialize Advanced Search
+        document.addEventListener('DOMContentLoaded', function() {
+            new AdvancedSearch();
+            
+            // Initialize cart count and set up periodic updates
+            updateCartCount();
+            setInterval(updateCartCount, 30000);
+        });
+
+        // Helper function to get cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Global functions for use in other templates
+        window.addToCart = addToCart;
+        window.showToast = showToast;
+        window.updateCartCount = updateCartCount;
+    </script>
+    
+    {% block extra_js %}
+    <!-- Additional JavaScript for specific pages -->
+    {% endblock %}
+    
+    {% block extra_css %}
+    <!-- Additional CSS for specific pages -->
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,314 @@
+{% load static i18n %}
+
+<div class="recommendations-section mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="h4 text-primary">
+            <i class="fas fa-bullseye me-2"></i>
+            {% trans "Recommended For You" %}
+        </h3>
+        <div class="carousel-nav">
+            <button class="btn btn-sm btn-outline-primary prev-btn me-2">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary next-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="position-relative">
+        <div class="recommendations-carousel swiper-container">
+            <div class="swiper-wrapper">
+                {% for product in recommendations %}
+                <div class="swiper-slide">
+                    <div class="card product-card h-100 border-0 shadow-sm recommendation-item">
+                        <!-- Sponsored Badge -->
+                        {% if product.is_sponsored %}
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-warning sponsored-badge">
+                                <i class="fas fa-star me-1"></i>{% trans "Sponsored" %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <!-- Product Image -->
+                        <div class="card-img-top position-relative overflow-hidden">
+                            <img src="{{ product.images.first.image.url|default:'/static/images/placeholder-product.jpg' }}" 
+                                 alt="{{ product.name }}"
+                                 class="product-image"
+                                 loading="lazy">
+                            <div class="image-overlay"></div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="quick-actions position-absolute top-0 end-0 p-2">
+                                <button class="btn btn-light btn-sm rounded-circle wishlist-btn" 
+                                        data-product-id="{{ product.id }}"
+                                        title="{% trans 'Add to Wishlist' %}">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body d-flex flex-column">
+                            <!-- Category -->
+                            <small class="text-muted mb-1">{{ product.category.name }}</small>
+                            
+                            <!-- Product Name -->
+                            <h6 class="card-title product-name">
+                                <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">
+                                    {{ product.name|truncatewords:6 }}
+                                </a>
+                            </h6>
+
+                            <!-- Seller Info -->
+                            <div class="seller-info mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-store me-1"></i>
+                                    {{ product.shop.name }}
+                                </small>
+                            </div>
+
+                            <!-- Rating -->
+                            <div class="product-rating mb-2">
+                                <div class="stars">
+                                    {% with rating=product.avg_rating|default:0 %}
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <small class="text-muted">({{ product.review_count }})</small>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="price-section mt-auto">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <span class="h6 text-primary mb-0">TZS {{ product.price }}</span>
+                                        {% if product.compare_price %}
+                                        <small class="text-muted text-decoration-line-through ms-1">
+                                            TZS {{ product.compare_price }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <button class="btn btn-primary btn-sm add-to-cart"
+                                            data-product-id="{{ product.id }}"
+                                            data-product-name="{{ product.name }}">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View Analytics -->
+                        <div class="card-footer bg-transparent border-0 pt-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {{ product.view_count }} {% trans "views" %}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-shopping-bag me-1"></i>
+                                    {{ product.purchase_count }} {% trans "sold" %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="carousel-progress mt-4">
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.recommendations-carousel {
+    padding: 10px 5px 30px;
+}
+
+.recommendation-item {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.recommendation-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--bs-primary);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.product-image {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.recommendation-item:hover .product-image {
+    transform: scale(1.05);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.recommendation-item:hover .image-overlay {
+    opacity: 1;
+}
+
+.quick-actions {
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+}
+
+.recommendation-item:hover .quick-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sponsored-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.carousel-progress {
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.swiper-container {
+    overflow: hidden;
+}
+
+.swiper-wrapper {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const swiper = new Swiper('.recommendations-carousel', {
+        slidesPerView: 2,
+        spaceBetween: 15,
+        loop: true,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        navigation: {
+            nextEl: '.next-btn',
+            prevEl: '.prev-btn',
+        },
+        breakpoints: {
+            576: { slidesPerView: 2, spaceBetween: 15 },
+            768: { slidesPerView: 3, spaceBetween: 20 },
+            992: { slidesPerView: 4, spaceBetween: 20 },
+            1200: { slidesPerView: 5, spaceBetween: 25 }
+        },
+        on: {
+            init: function() {
+                updateProgressBar(this);
+            },
+            slideChange: function() {
+                updateProgressBar(this);
+            }
+        }
+    });
+
+    function updateProgressBar(swiper) {
+        const progress = document.querySelector('.progress-bar');
+        const total = swiper.slides.length - (swiper.params.loop ? 2 : 0);
+        const current = swiper.realIndex;
+        const width = ((current + 1) / total) * 100;
+        progress.style.width = width + '%';
+    }
+
+    // Add to cart functionality
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            
+            // Add animation
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-success');
+                
+                // Show notification
+                showNotification(`"${productName}" added to cart!`, 'success');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-cart-plus"></i>';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-primary');
+                    this.disabled = false;
+                }, 2000);
+            }, 1000);
+        });
+    });
+
+    // Wishlist functionality
+    document.querySelectorAll('.wishlist-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.replace('far', 'fas');
+                this.classList.add('text-danger');
+                showNotification('Added to wishlist!', 'info');
+            } else {
+                icon.classList.replace('fas', 'far');
+                this.classList.remove('text-danger');
+                showNotification('Removed from wishlist!', 'info');
+            }
+        });
+    });
+
+    function showNotification(message, type) {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+});
+</script>

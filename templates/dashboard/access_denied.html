@@ -1,0 +1,38 @@
+<!-- dashboard/templates/dashboard/access_denied.html -->
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Imekataliwa - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card border-0 shadow">
+                <div class="card-body py-5">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                    <h2 class="text-danger mb-3">Ufikiaji Umekataliwa</h2>
+                    <p class="text-muted mb-4">
+                        Hutakiwi kuona ukurasa huu. Ukurasa huu unapatikana kwa wauzaji tu.
+                    </p>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'market:create_shop' %}" class="btn btn-primary me-md-2">
+                            <i class="fas fa-store me-2"></i>Anzisha Duka Lako
+                        </a>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Nyumbani
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Unahitaji kuwa na duka la kibiashara ili kupata ufikiaji wa dashibodi.
+                            <a href="{% url 'market:create_shop' %}">Bonyeza hapa</a> kuanzisha duka lako.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

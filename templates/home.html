@@ -1,0 +1,1436 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block content %}
+<!-- Hero Section with Tech Background -->
+<section class="hero-section-tech">
+    <div class="tech-particles" id="techParticles"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-80">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title display-4 fw-bold mb-4">{{ welcome_message }}</h1>
+                    <p class="hero-subtitle lead mb-4">{{ tagline }}</p>
+                    <div class="d-flex flex-wrap gap-3 hero-buttons">
+                        <a href="{% url 'market:product_list' %}" class="btn btn-tech-primary btn-lg pulse-animation">
+                            <i class="fas fa-shopping-bag me-2"></i> {% trans "Start Shopping" %}
+                        </a>
+                        {% if not user.is_authenticated or not user.is_seller %}
+                        <a href="{% url 'accounts:become_seller' %}" class="btn btn-tech-outline btn-lg">
+                            <i class="fas fa-store me-2"></i> {% trans "Sell on SokoLetu" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-visual">
+                    <div class="floating-tech-icons">
+                        <i class="fas fa-microchip icon-float-1"></i>
+                        <i class="fas fa-robot icon-float-2"></i>
+                        <i class="fas fa-rocket icon-float-3"></i>
+                    </div>
+                    <div class="hologram-container">
+                        <div class="hologram-card">
+                            <div class="hologram-content">
+                                <i class="fas fa-shopping-cart hologram-icon"></i>
+                                <h4 class="hologram-title">SokoLetu</h4>
+                                <p class="hologram-text">{% trans "Future of Shopping" %}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modern Interactive Ads Slider -->
+{% if sliders %}
+<section class="modern-slider-section py-5">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10 text-center">
+                <h2 class="slider-section-title fw-bold mb-3">{% trans "Featured Promotions" %}</h2>
+                <p class="slider-section-subtitle">{% trans "Discover amazing deals and offers" %}</p>
+            </div>
+        </div>
+        
+        <div class="modern-slider-container">
+            <div class="modern-slider-track" id="modernSliderTrack">
+                {% for slide in sliders %}
+                <div class="modern-slide {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}">
+                    <div class="slide-content-wrapper">
+                        {% if slide.url %}
+                        <a href="{{ slide.url }}" class="slide-link">
+                        {% endif %}
+                            <div class="slide-image-container">
+                                <img src="{{ slide.get_image_preview_url }}" 
+                                     class="slide-image" 
+                                     alt="{{ slide.title }}"
+                                     loading="lazy">
+                                <div class="slide-overlay"></div>
+                            </div>
+                            <div class="slide-content">
+                                {% if slide.title %}
+                                    <h3 class="slide-title">{{ slide.title }}</h3>
+                                {% endif %}
+                                {% if slide.subtitle %}
+                                    <p class="slide-description">{{ slide.subtitle }}</p>
+                                {% endif %}
+                                <div class="slide-cta">
+                                    <span class="cta-text">{% trans "View Offer" %}</span>
+                                    <i class="fas fa-arrow-right cta-icon"></i>
+                                </div>
+                            </div>
+                        {% if slide.url %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Slider Controls -->
+            <div class="slider-controls">
+                <button class="slider-control prev-control" id="prevSlide">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="slider-control next-control" id="nextSlide">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Slider Indicators -->
+            <div class="slider-indicators" id="sliderIndicators">
+                {% for slide in sliders %}
+                <button class="indicator {% if forloop.first %}active{% endif %}" 
+                        data-slide-index="{{ forloop.counter0 }}"></button>
+                {% endfor %}
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="slider-progress">
+                <div class="progress-bar" id="sliderProgress"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Interactive Tech Showcase -->
+<section class="tech-showcase-section py-5">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title-tech fw-bold mb-3">{% trans "Experience the Future of Commerce" %}</h2>
+                <p class="section-subtitle-tech">{% trans "Powered by cutting-edge technology for seamless shopping" %}</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="tech-feature-card" data-aos="fade-up">
+                    <div class="tech-icon-container">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h4 class="tech-feature-title">{% trans "AI-Powered Recommendations" %}</h4>
+                    <p class="tech-feature-desc">{% trans "Smart algorithms suggest products tailored just for you" %}</p>
+                    <div class="tech-feature-animation">
+                        <div class="pulse-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="tech-feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="tech-icon-container">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h4 class="tech-feature-title">{% trans "Lightning Fast" %}</h4>
+                    <p class="tech-feature-desc">{% trans "Optimized performance for instant product discovery" %}</p>
+                    <div class="tech-feature-animation">
+                        <div class="signal-bars">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="tech-feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="tech-icon-container">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4 class="tech-feature-title">{% trans "Blockchain Security" %}</h4>
+                    <p class="tech-feature-desc">{% trans "Advanced encryption for your transactions and data" %}</p>
+                    <div class="tech-feature-animation">
+                        <div class="encryption-animation">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories Section -->
+<section class="categories-section-tech py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="section-title-tech fw-bold mb-3">{% trans "Shop by Category" %}</h2>
+                <p class="section-subtitle-tech">{% trans "Discover amazing products across various categories" %}</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for category in featured_categories %}
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="tech-category-card">
+                    <div class="category-tech-icon mb-3">
+                        {% if category.image %}
+                            <img src="{{ category.image }}" alt="{{ category.name }}" 
+                                 class="img-fluid rounded tech-category-img">
+                        {% else %}
+                            <div class="tech-icon-placeholder">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h6 class="tech-category-title fw-bold mb-2">{{ category.name }}</h6>
+                    <p class="tech-category-count">
+                        {{ category.product_count }} {% trans "products" %}
+                    </p>
+                    <a href="{{ category.get_absolute_url }}" class="tech-category-btn">
+                        {% trans "Browse" %} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                    <div class="tech-category-hover-effect"></div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="py-4">
+                    <i class="fas fa-folder-open fa-3x tech-placeholder-icon mb-3"></i>
+                    <h4 class="tech-placeholder-text">{% trans "No categories available yet" %}</h4>
+                    <p class="tech-placeholder-subtext">{% trans "Categories will be available soon" %}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- View All Categories -->
+        <div class="text-center mt-5">
+            <a href="{% url 'market:category_list' %}" class="btn btn-tech-outline btn-lg">
+                <i class="fas fa-th-large me-2"></i>{% trans "View All Categories" %}
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="products-section-tech py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="section-title-tech fw-bold mb-0">{% trans "Featured Products" %}</h2>
+                    <a href="{% url 'market:featured_products' %}" class="btn btn-tech-outline btn-sm">
+                        {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <p class="section-subtitle-tech">{% trans "Handpicked products just for you" %}</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="tech-product-card" data-aos="flip-left">
+                    <!-- Product Image -->
+                    <div class="product-image-container">
+                        {% with product.images.first as image %}
+                        <img src="{% if image %}{{ image.image }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                             class="tech-product-img" 
+                             alt="{{ product.name }}">
+                        {% endwith %}
+                        
+                        <!-- Badges -->
+                        <div class="product-tech-badges">
+                            {% if product.is_featured %}
+                            <span class="tech-badge featured-badge">
+                                <i class="fas fa-star me-1"></i>{% trans "Featured" %}
+                            </span>
+                            {% endif %}
+                            {% if product.discount_percentage %}
+                            <span class="tech-badge discount-badge">
+                                -{{ product.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="tech-product-body">
+                        <!-- Category -->
+                        <small class="tech-product-category d-block mb-1">
+                            <i class="fas fa-tag me-1"></i>{{ product.category.name }}
+                        </small>
+                        
+                        <!-- Product Name -->
+                        <h6 class="tech-product-title fw-bold">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                                {{ product.name|truncatewords:4 }}
+                            </a>
+                        </h6>
+                        
+                        <!-- Shop -->
+                        <small class="tech-product-shop d-block mb-2">
+                            <i class="fas fa-store me-1"></i>{{ product.shop.name }}
+                        </small>
+                        
+                        <!-- Price -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div>
+                                <span class="tech-product-price h5 fw-bold mb-0">
+                                    TSh {{ product.price|floatformat:0 }}
+                                </span>
+                                {% if product.compare_price %}
+                                <small class="tech-product-compare-price text-decoration-line-through ms-1">
+                                    TSh {{ product.compare_price|floatformat:0 }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Status -->
+                        <div class="tech-stock-status">
+                            {% if product.is_in_stock %}
+                                {% if product.is_low_stock %}
+                                <div class="stock-indicator low-stock">
+                                    <div class="stock-pulse"></div>
+                                    <span>{% trans "Low Stock" %}</span>
+                                </div>
+                                {% else %}
+                                <div class="stock-indicator in-stock">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    <span>{% trans "In Stock" %}</span>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="stock-indicator out-of-stock">
+                                    <i class="fas fa-times-circle me-1"></i>
+                                    <span>{% trans "Out of Stock" %}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="tech-product-footer">
+                        <div class="d-grid gap-2">
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-tech-primary btn-sm add-to-cart-tech" 
+                                    data-product-id="{{ product.id }}"
+                                    {% if not product.is_in_stock %}disabled{% endif %}>
+                                <i class="fas fa-shopping-cart me-1"></i>
+                                {% if product.is_in_stock %}
+                                    {% trans "Add to Cart" %}
+                                {% else %}
+                                    {% trans "Out of Stock" %}
+                                {% endif %}
+                            </button>
+                            {% else %}
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-tech-outline btn-sm">
+                                <i class="fas fa-shopping-cart me-1"></i>
+                                {% trans "Login to Buy" %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Interactive Stats Section -->
+<section class="stats-section-tech py-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="tech-stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="stat-number" data-count="10000">0</h3>
+                    <p class="stat-label">{% trans "Happy Customers" %}</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="tech-stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="stat-number" data-count="5000">0</h3>
+                    <p class="stat-label">{% trans "Products Available" %}</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="tech-stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3 class="stat-number" data-count="250">0</h3>
+                    <p class="stat-label">{% trans "Active Sellers" %}</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="tech-stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3 class="stat-number" data-count="98">0</h3>
+                    <p class="stat-label">{% trans "Delivery Success" %} %</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+:root {
+    --tech-primary: #00f5ff;
+    --tech-secondary: #7b68ee;
+    --tech-accent: #ff00ff;
+    --tech-dark: #0a0a1f;
+    --tech-darker: #050510;
+    --tech-card-bg: rgba(16, 18, 37, 0.8);
+    --tech-glass: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0d0;
+    --text-muted: #8a8aa8;
+}
+
+/* Base Styles */
+body {
+    background-color: var(--tech-darker);
+    color: var(--text-primary);
+    font-family: 'Exo 2', sans-serif;
+}
+
+/* Hero Section */
+.hero-section-tech {
+    background: linear-gradient(135deg, var(--tech-darker) 0%, var(--tech-dark) 50%, #1a1a2e 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+}
+
+.tech-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+/* Modern Slider Styles */
+.modern-slider-section {
+    background: var(--tech-dark);
+    position: relative;
+}
+
+.modern-slider-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modern-slider-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+    height: 500px;
+}
+
+.modern-slide {
+    min-width: 100%;
+    position: relative;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.modern-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.slide-content-wrapper {
+    height: 100%;
+    position: relative;
+}
+
+.slide-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.slide-image-container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+.slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.slide-content-wrapper:hover .slide-image {
+    transform: scale(1.05);
+}
+
+.slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(0, 245, 255, 0.1) 0%,
+        rgba(123, 104, 238, 0.2) 50%,
+        rgba(255, 0, 255, 0.1) 100%
+    );
+}
+
+.slide-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 3rem;
+    background: linear-gradient(transparent, rgba(10, 10, 31, 0.9));
+    color: var(--text-primary);
+}
+
+.slide-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slide-description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.slide-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    color: var(--tech-dark);
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.slide-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 245, 255, 0.4);
+}
+
+/* Slider Controls */
+.slider-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.slider-control {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-control:hover {
+    background: var(--tech-primary);
+    color: var(--tech-dark);
+    transform: scale(1.1);
+}
+
+/* Slider Indicators */
+.slider-indicators {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background: var(--tech-primary);
+    transform: scale(1.2);
+}
+
+/* Progress Bar */
+.slider-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+/* Section Titles */
+.slider-section-title,
+.section-title-tech {
+    color: var(--text-primary);
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.slider-section-subtitle,
+.section-subtitle-tech {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Tech Cards */
+.tech-feature-card {
+    background: var(--tech-card-bg);
+    border: 1px solid rgba(0, 245, 255, 0.1);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.tech-feature-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--tech-primary);
+    box-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
+}
+
+.tech-icon-container {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+}
+
+.tech-feature-title {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.tech-feature-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn-tech-primary {
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 245, 255, 0.3);
+}
+
+.btn-tech-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 245, 255, 0.5);
+    color: white;
+}
+
+.btn-tech-outline {
+    border: 2px solid var(--tech-primary);
+    color: var(--tech-primary);
+    background: transparent;
+    padding: 12px 30px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-tech-outline:hover {
+    background: var(--tech-primary);
+    color: var(--tech-dark);
+    transform: translateY(-3px);
+}
+
+/* Category Cards */
+.tech-category-card {
+    background: var(--tech-card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.tech-category-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--tech-primary);
+}
+
+.tech-category-img {
+    height: 60px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.tech-icon-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.tech-category-title {
+    color: var(--text-primary);
+    margin: 1rem 0 0.5rem;
+    font-weight: 600;
+}
+
+.tech-category-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.tech-category-btn {
+    color: var(--tech-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.tech-category-btn:hover {
+    color: var(--tech-accent);
+}
+
+/* Product Cards */
+.tech-product-card {
+    background: var(--tech-card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.tech-product-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--tech-primary);
+    box-shadow: 0 10px 25px rgba(0, 245, 255, 0.2);
+}
+
+.tech-product-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.tech-product-card:hover .tech-product-img {
+    transform: scale(1.05);
+}
+
+.tech-product-body {
+    padding: 1.5rem;
+}
+
+.tech-product-title a {
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.tech-product-title a:hover {
+    color: var(--tech-primary);
+}
+
+.tech-product-price {
+    color: var(--tech-primary);
+}
+
+.tech-product-compare-price {
+    color: var(--text-muted);
+}
+
+.tech-product-footer {
+    padding: 0 1.5rem 1.5rem;
+}
+
+/* Stats Section */
+.stats-section-tech {
+    background: linear-gradient(135deg, var(--tech-darker) 0%, var(--tech-dark) 100%);
+}
+
+.tech-stat-card {
+    padding: 2rem 1rem;
+}
+
+.stat-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    color: white;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+/* Animations */
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Floating Icons */
+.floating-tech-icons {
+    position: relative;
+    height: 300px;
+}
+
+.icon-float-1, .icon-float-2, .icon-float-3 {
+    position: absolute;
+    font-size: 3rem;
+    color: var(--tech-primary);
+    opacity: 0.7;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+/* Hologram Card */
+.hologram-container {
+    perspective: 1000px;
+}
+
+.hologram-card {
+    width: 250px;
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: hologram-rotate 20s linear infinite;
+}
+
+.hologram-content {
+    background: linear-gradient(135deg, 
+        rgba(0, 245, 255, 0.1) 0%, 
+        rgba(123, 104, 238, 0.1) 50%, 
+        rgba(255, 0, 255, 0.1) 100%);
+    border: 1px solid rgba(0, 245, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 50px rgba(0, 245, 255, 0.2);
+}
+
+.hologram-icon {
+    font-size: 4rem;
+    color: var(--tech-primary);
+    margin-bottom: 1rem;
+}
+
+.hologram-title {
+    color: var(--text-primary);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.hologram-text {
+    color: var(--text-secondary);
+}
+
+@keyframes hologram-rotate {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .modern-slider-track {
+        height: 400px;
+    }
+    
+    .slide-content {
+        padding: 2rem;
+    }
+    
+    .slide-title {
+        font-size: 1.8rem;
+    }
+    
+    .slide-description {
+        font-size: 1rem;
+    }
+    
+    .slider-controls {
+        padding: 0 1rem;
+    }
+    
+    .slider-control {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+.min-vh-80 {
+    min-height: 80vh;
+}
+
+/* Ensure text visibility */
+.tech-product-category,
+.tech-product-shop {
+    color: var(--text-secondary);
+}
+
+.tech-stock-status {
+    color: var(--text-secondary);
+}
+
+.stock-indicator.in-stock {
+    color: #00d9ff;
+}
+
+.stock-indicator.low-stock {
+    color: #ffd700;
+}
+
+.stock-indicator.out-of-stock {
+    color: #ff4757;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Tech Home page loaded');
+    
+    // Initialize particles
+    initTechParticles();
+    
+    // Initialize modern slider
+    initModernSlider();
+    
+    // Initialize animations
+    initAnimations();
+    
+    // Initialize counter animations
+    initCounters();
+    
+    // Modern Slider Functionality
+    function initModernSlider() {
+        const track = document.getElementById('modernSliderTrack');
+        const slides = document.querySelectorAll('.modern-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const prevBtn = document.getElementById('prevSlide');
+        const nextBtn = document.getElementById('nextSlide');
+        const progressBar = document.getElementById('sliderProgress');
+        
+        let currentSlide = 0;
+        let autoSlideInterval;
+        const slideCount = slides.length;
+        
+        // Function to show slide
+        function showSlide(index) {
+            // Remove active class from all slides and indicators
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            // Add active class to current slide and indicator
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            
+            // Update track position
+            track.style.transform = `translateX(-${index * 100}%)`;
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            
+            // Restart auto slide
+            startAutoSlide();
+        }
+        
+        // Next slide function
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slideCount;
+            showSlide(currentSlide);
+        }
+        
+        // Previous slide function
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+            showSlide(currentSlide);
+        }
+        
+        // Auto slide function
+        function startAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 5000);
+            
+            // Animate progress bar
+            progressBar.style.transition = 'width 5s linear';
+            progressBar.style.width = '100%';
+        }
+        
+        // Event listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+        
+        // Indicator clicks
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                currentSlide = index;
+                showSlide(currentSlide);
+            });
+        });
+        
+        // Pause on hover
+        track.addEventListener('mouseenter', () => {
+            clearInterval(autoSlideInterval);
+            progressBar.style.transition = 'none';
+        });
+        
+        track.addEventListener('mouseleave', startAutoSlide);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+        
+        // Start auto slide
+        startAutoSlide();
+        
+        // Initialize first slide
+        showSlide(currentSlide);
+    }
+    
+    // Tech Particles Background
+    function initTechParticles() {
+        const container = document.getElementById('techParticles');
+        if (!container) return;
+        
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: var(--tech-primary);
+                border-radius: 50%;
+                top: ${Math.random() * 100}%;
+                left: ${Math.random() * 100}%;
+                animation: particle-float ${10 + Math.random() * 20}s linear infinite;
+                opacity: ${0.2 + Math.random() * 0.5};
+            `;
+            container.appendChild(particle);
+        }
+        
+        // Add CSS for particle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes particle-float {
+                0% { transform: translateY(0) translateX(0); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Initialize animations
+    function initAnimations() {
+        // Add intersection observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+        
+        // Observe elements for animation
+        document.querySelectorAll('.tech-feature-card, .tech-product-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    }
+    
+    // Initialize counter animations
+    function initCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-count'));
+                    const duration = 2000;
+                    const step = target / (duration / 16);
+                    let current = 0;
+                    
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            counter.textContent = target;
+                            clearInterval(timer);
+                        } else {
+                            counter.textContent = Math.floor(current);
+                        }
+                    }, 16);
+                    
+                    observer.unobserve(counter);
+                }
+            });
+        });
+        
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
+    }
+    
+    // Add to Cart functionality
+    document.querySelectorAll('.add-to-cart-tech').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            
+            // Check if user is authenticated
+            {% if not user.is_authenticated %}
+            window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+            return;
+            {% endif %}
+            
+            if (this.disabled) {
+                showTechToast('{% trans "This product is currently out of stock" %}', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-atom fa-spin me-1"></i>{% trans "Adding..." %}';
+            this.disabled = true;
+            
+            try {
+                // Get CSRF token
+                function getCSRFToken() {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (csrfToken) return csrfToken.value;
+                    
+                    const name = 'csrftoken';
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                
+                const csrfToken = getCSRFToken();
+                const response = await fetch(`/en/orders/cart/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.innerHTML = '<i class="fas fa-check me-1"></i>{% trans "Added!" %}';
+                    this.classList.remove('btn-tech-primary');
+                    this.classList.add('btn-success');
+                    
+                    // Add particle effect
+                    createParticleEffect(this);
+                    
+                    // Update cart count
+                    await updateCartCount();
+                    
+                    showTechToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
+                    
+                } else {
+                    this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Failed" %}';
+                    this.classList.remove('btn-tech-primary');
+                    this.classList.add('btn-danger');
+                    showTechToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Error" %}';
+                this.classList.remove('btn-tech-primary');
+                this.classList.add('btn-danger');
+                showTechToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+            } finally {
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    this.classList.remove('btn-success', 'btn-danger');
+                    this.classList.add('btn-tech-primary');
+                }, 2000);
+            }
+        });
+    });
+    
+    // Enhanced toast notification
+    function showTechToast(message, type = 'info') {
+        document.querySelectorAll('.tech-toast').forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = `tech-toast alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = `
+            top: 100px; 
+            right: 20px; 
+            z-index: 1060; 
+            min-width: 300px;
+            background: var(--tech-card-bg);
+            border: 1px solid ${type === 'success' ? 'var(--tech-primary)' : type === 'error' ? '#ff4757' : type === 'warning' ? '#ffa502' : 'var(--tech-secondary)'};
+            color: white;
+            backdrop-filter: blur(10px);
+        `;
+        
+        const icon = type === 'success' ? 'fa-check-circle' : 
+                    type === 'error' ? 'fa-exclamation-triangle' : 
+                    type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        
+        toast.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${icon} me-2" style="color: ${type === 'success' ? 'var(--tech-primary)' : type === 'error' ? '#ff4757' : type === 'warning' ? '#ffa502' : 'var(--tech-secondary)'}"></i>
+                <div>${message}</div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 5000);
+    }
+    
+    // Particle effect for button click
+    function createParticleEffect(element) {
+        const rect = element.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: fixed;
+                width: 4px;
+                height: 4px;
+                background: var(--tech-primary);
+                border-radius: 50%;
+                top: ${y}px;
+                left: ${x}px;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            document.body.appendChild(particle);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 50 + Math.random() * 50;
+            const targetX = x + Math.cos(angle) * distance;
+            const targetY = y + Math.sin(angle) * distance;
+            
+            particle.animate([
+                { transform: 'translate(0, 0)', opacity: 1 },
+                { transform: `translate(${targetX - x}px, ${targetY - y}px)`, opacity: 0 }
+            ], {
+                duration: 800,
+                easing: 'cubic-bezier(0.2, 0, 0.8, 1)'
+            }).onfinish = () => particle.remove();
+        }
+    }
+    
+    // Update cart count function
+    async function updateCartCount() {
+        try {
+            const response = await fetch('{% url "orders:get_cart_count" %}', {
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch cart count');
+            
+            const data = await response.json();
+            const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+            
+            cartBadges.forEach(badge => {
+                const newCount = data.count || 0;
+                badge.textContent = newCount;
+                badge.classList.add('pulse-animation');
+                setTimeout(() => badge.classList.remove('pulse-animation'), 600);
+            });
+            
+        } catch (error) {
+            console.error('Error updating cart count:', error);
+        }
+    }
+
+    // Initialize cart count on page load
+    updateCartCount();
+});
+</script>
+{% endblock %}

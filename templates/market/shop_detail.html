@@ -1,0 +1,621 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Shop Header -->
+    <div class="row mb-5">
+        <div class="col-md-3 text-center">
+            {% if shop.logo %}
+            <img src="{{ shop.logo }}" alt="{{ shop.name }}" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+            {% else %}
+            <div class="rounded-circle bg-light-custom d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                <i class="fas fa-store fa-3x text-muted"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="display-5 fw-bold text-dark-custom mb-2">{{ shop.name }}</h1>
+            {% if shop.is_verified %}
+            <span class="badge bg-success mb-3">
+                <i class="fas fa-check-circle me-1"></i>{% trans "Verified Seller" %}
+            </span>
+            {% endif %}
+            <p class="text-muted mb-3">{{ shop.description|default:"No description provided." }}</p>
+            
+            <div class="d-flex flex-wrap gap-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-box text-primary-custom me-2"></i>
+                    <span class="fw-bold">{{ product_stats.total }} {% trans "products" %}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <span class="fw-bold">4.5/5</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt text-primary-custom me-2"></i>
+                    <span class="fw-bold">
+                        {% if shop.region %}{{ shop.region }}{% else %}{% trans "Tanzania" %}{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="d-flex flex-wrap gap-2">
+                {% if shop.phone %}
+                <a href="tel:{{ shop.phone }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-phone me-1"></i>{% trans "Call Seller" %}
+                </a>
+                {% endif %}
+                {% if shop.email %}
+                <a href="mailto:{{ shop.email }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-envelope me-1"></i>{% trans "Email" %}
+                </a>
+                {% endif %}
+                
+                {% if is_owner %}
+                <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fas fa-plus me-1"></i>{% trans "Add Product" %}
+                </button>
+                <a href="#" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-cog me-1"></i>{% trans "Manage Shop" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">{% trans "Shop Rating" %}</h6>
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="text-muted mb-0">128 {% trans "reviews" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Owner Dashboard -->
+    {% if is_owner %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>{% trans "Shop Dashboard" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light-custom border-0 hover-lift">
+                                <div class="card-body">
+                                    <h3 class="text-primary-custom">{{ product_stats.published }}</h3>
+                                    <p class="mb-0 text-muted">{% trans "Published" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light-custom border-0 hover-lift">
+                                <div class="card-body">
+                                    <h3 class="text-warning">{{ product_stats.draft }}</h3>
+                                    <p class="mb-0 text-muted">{% trans "Drafts" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light-custom border-0 hover-lift">
+                                <div class="card-body">
+                                    <h3 class="text-danger">{{ product_stats.out_of_stock }}</h3>
+                                    <p class="mb-0 text-muted">{% trans "Out of Stock" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light-custom border-0 hover-lift">
+                                <div class="card-body">
+                                    <h3 class="text-success">{{ product_stats.total }}</h3>
+                                    <p class="mb-0 text-muted">{% trans "Total Products" %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Products Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark-custom mb-0">
+                    {% if is_owner %}
+                    {% trans "My Products" %} ({{ product_stats.total }})
+                    {% else %}
+                    {% trans "Shop Products" %} ({{ product_count }})
+                    {% endif %}
+                </h3>
+                
+                {% if is_owner %}
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary-custom btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter me-1"></i>{% trans "Filter" %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?status=published">{% trans "Published" %}</a></li>
+                        <li><a class="dropdown-item" href="?status=draft">{% trans "Drafts" %}</a></li>
+                        <li><a class="dropdown-item" href="?status=out_of_stock">{% trans "Out of Stock" %}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="?">{% trans "All Products" %}</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if products %}
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card product-card border-0 h-100">
+                        {% with product.images.all|first as primary_image %}
+                        <div class="position-relative overflow-hidden" style="height: 200px;">
+                            {% if primary_image %}
+                            <img src="{{ primary_image.image }}" class="card-img-top product-card-img" alt="{{ product.name }}" style="height: 100%; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light-custom d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-image fa-2x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.discount_percentage %}
+                            <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded small">
+                                -{{ product.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                            
+                            {% if is_owner %}
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge {% if product.status == 'published' %}bg-success{% elif product.status == 'draft' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                    {{ product.get_status_display }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endwith %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold text-dark-custom mb-2">{{ product.name }}</h6>
+                            <p class="card-text text-muted small flex-grow-1">{{ product.short_description|default:product.description|truncatewords:15 }}</p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="h5 mb-0 text-primary-custom fw-bold">
+                                        TSh {{ product.price|floatformat:0 }}
+                                    </div>
+                                    {% if product.compare_price %}
+                                    <div class="text-muted text-decoration-line-through small">
+                                        TSh {{ product.compare_price|floatformat:0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-store me-1"></i>{{ product.shop.name }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-box me-1"></i>{{ product.stock_quantity }} in stock
+                                    </small>
+                                </div>
+                                
+                                <div class="d-grid gap-2 mt-3">
+                                    {% if user.is_authenticated and not is_owner %}
+                                    <button class="btn btn-primary-custom btn-sm" onclick="addToCart({{ product.id }}, this)">
+                                        <i class="fas fa-cart-plus me-1"></i>{% trans "Add to Cart" %}
+                                    </button>
+                                    {% elif is_owner %}
+                                    <div class="btn-group w-100">
+                                        <a href="#" class="btn btn-outline-primary-custom btn-sm">
+                                            <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-chart-bar me-1"></i>{% trans "Stats" %}
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary-custom btn-sm">
+                                        <i class="fas fa-sign-in-alt me-1"></i>{% trans "Login to Buy" %}
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Shop products pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% trans "Previous" %}</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{% trans "Next" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No products available" %}</h4>
+                <p class="text-muted">{% trans "This shop hasn't added any products yet." %}</p>
+                
+                {% if is_owner %}
+                <button class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fas fa-plus me-2"></i>{% trans "Add Your First Product" %}
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+{% if is_owner %}
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary-custom text-white">
+                <h5 class="modal-title" id="addProductModalLabel">
+                    <i class="fas fa-plus me-2"></i>{% trans "Add New Product" %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addProductForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div id="formMessages"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="productName" class="form-label">{% trans "Product Name" %} *</label>
+                            <input type="text" class="form-control form-control-custom" id="productName" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="productCategory" class="form-label">{% trans "Category" %} *</label>
+                            <select class="form-control form-control-custom" id="productCategory" name="category" required>
+                                <option value="">{% trans "Select Category" %}</option>
+                                <!-- Categories will be loaded via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">{% trans "Description" %}</label>
+                        <textarea class="form-control form-control-custom" id="productDescription" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productShortDescription" class="form-label">{% trans "Short Description" %}</label>
+                        <textarea class="form-control form-control-custom" id="productShortDescription" name="short_description" rows="2" maxlength="500"></textarea>
+                        <div class="form-text">{% trans "Brief description shown on product cards (max 500 characters)" %}</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="productPrice" class="form-label">{% trans "Price" %} (TZS) *</label>
+                            <input type="number" class="form-control form-control-custom" id="productPrice" name="price" step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="productComparePrice" class="form-label">{% trans "Compare Price" %} (TZS)</label>
+                            <input type="number" class="form-control form-control-custom" id="productComparePrice" name="compare_price" step="0.01" min="0">
+                            <div class="form-text">{% trans "Original price for showing discount" %}</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="productStock" class="form-label">{% trans "Stock Quantity" %} *</label>
+                            <input type="number" class="form-control form-control-custom" id="productStock" name="stock_quantity" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="productImages" class="form-label">{% trans "Product Images" %}</label>
+                        <input type="file" class="form-control" id="productImages" name="images" multiple accept="image/*">
+                        <div class="form-text">{% trans "You can select multiple images. The first image will be the primary one." %}</div>
+                    </div>
+                                        
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="productCondition" class="form-label">{% trans "Condition" %}</label>
+                            <select class="form-control form-control-custom" id="productCondition" name="condition">
+                                <option value="new">{% trans "New" %}</option>
+                                <option value="used">{% trans "Used" %}</option>
+                                <option value="refurbished">{% trans "Refurbished" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="productStatus" class="form-label">{% trans "Status" %}</label>
+                            <select class="form-control form-control-custom" id="productStatus" name="status">
+                                <option value="draft">{% trans "Draft" %}</option>
+                                <option value="published">{% trans "Published" %}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="productBrand" class="form-label">{% trans "Brand" %}</label>
+                            <input type="text" class="form-control form-control-custom" id="productBrand" name="brand">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="productWeight" class="form-label">{% trans "Weight" %} (kg)</label>
+                            <input type="number" class="form-control form-control-custom" id="productWeight" name="weight" step="0.001" min="0">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productDimensions" class="form-label">{% trans "Dimensions" %}</label>
+                        <input type="text" class="form-control form-control-custom" id="productDimensions" name="dimensions" placeholder="e.g., 10x5x2 cm">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary-custom" id="submitProductBtn">
+                        <i class="fas fa-plus me-2"></i>{% trans "Add Product" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load categories for the dropdown
+function loadCategories() {
+    fetch('{% url "market:categories_json" %}')
+        .then(response => response.json())
+        .then(data => {
+            const categorySelect = document.getElementById('productCategory');
+            categorySelect.innerHTML = '<option value="">{% trans "Select Category" %}</option>';
+            
+            data.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+            showToast('{% trans "Error loading categories. Please refresh the page." %}', 'error');
+        });
+}
+
+// Handle product form submission
+document.getElementById('addProductForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitProductBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<div class="loading-spinner me-2"></div>{% trans "Adding..." %}';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "market:add_product" shop.slug %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showToast(data.message || '{% trans "Product added successfully!" %}', 'success');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+            modal.hide();
+            
+            // Reset form
+            document.getElementById('addProductForm').reset();
+            
+            // Reload page after a short delay to show the new product
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            // Show error message
+            let errorHtml = '<div class="alert alert-danger">';
+            errorHtml += `<p class="mb-2"><strong>${data.message || '{% trans "Please correct the errors below." %}'}</strong></p>`;
+            
+            if (data.errors) {
+                for (const field in data.errors) {
+                    const fieldErrors = data.errors[field];
+                    if (Array.isArray(fieldErrors)) {
+                        fieldErrors.forEach(error => {
+                            if (typeof error === 'object') {
+                                errorHtml += `<p class="mb-1 small">• ${error.message}</p>`;
+                            } else {
+                                errorHtml += `<p class="mb-1 small">• ${error}</p>`;
+                            }
+                        });
+                    }
+                }
+            }
+            errorHtml += '</div>';
+            
+            document.getElementById('formMessages').innerHTML = errorHtml;
+            
+            // Scroll to errors
+            document.getElementById('formMessages').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Load categories when modal is shown
+document.getElementById('addProductModal')?.addEventListener('show.bs.modal', function() {
+    loadCategories();
+    document.getElementById('formMessages').innerHTML = '';
+});
+
+// Reset form when modal is hidden
+document.getElementById('addProductModal')?.addEventListener('hidden.bs.modal', function() {
+    document.getElementById('addProductForm').reset();
+    document.getElementById('formMessages').innerHTML = '';
+});
+
+// Add to Cart functionality
+async function addToCart(productId, button) {
+    const originalText = button.innerHTML;
+    
+    // Show loading state
+    button.innerHTML = '<div class="loading-spinner"></div>';
+    button.disabled = true;
+    
+    try {
+        // Get CSRF token
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            return csrfToken ? csrfToken.value : '';
+        }
+        
+        const response = await fetch(`/en/orders/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success state
+            button.innerHTML = '<i class="fas fa-check me-1"></i>{% trans "Added!" %}';
+            button.classList.remove('btn-primary-custom');
+            button.classList.add('btn-success');
+            
+            // Update cart count
+            if (window.updateCartCount) {
+                await updateCartCount();
+            }
+            
+            // Show success message
+            showToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
+            
+        } else {
+            // Show error state
+            button.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Failed" %}';
+            button.classList.remove('btn-primary-custom');
+            button.classList.add('btn-danger');
+            
+            // Show error message
+            showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        button.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Error" %}';
+        button.classList.remove('btn-primary-custom');
+        button.classList.add('btn-danger');
+        
+        showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+    } finally {
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+            button.classList.remove('btn-success', 'btn-danger');
+            button.classList.add('btn-primary-custom');
+        }, 2000);
+    }
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    document.querySelectorAll('.custom-toast').forEach(toast => {
+        toast.remove();
+    });
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `custom-toast alert alert-${type} alert-dismissible fade show`;
+    toast.innerHTML = `
+        <div class="d-flex align-items-center">
+            ${type === 'success' ? '<i class="fas fa-check-circle me-3 text-success"></i>' : 
+              type === 'error' ? '<i class="fas fa-exclamation-triangle me-3 text-danger"></i>' : 
+              type === 'warning' ? '<i class="fas fa-exclamation-circle me-3 text-warning"></i>' :
+              '<i class="fas fa-info-circle me-3 text-info"></i>'}
+            <div class="flex-grow-1">${message}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Shop detail page loaded');
+    
+    // Update cart count on page load
+    if (window.updateCartCount) {
+        updateCartCount();
+    }
+});
+</script>
+{% endblock %}

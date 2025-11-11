@@ -1,0 +1,605 @@
+{% load i18n static %}
+
+<div class="card product-card h-100 border-0 shadow-sm {% if is_sponsored %}sponsored-product border-warning{% endif %}">
+    <!-- Sponsored Badge - NEW FOR PROMPT 5 -->
+    {% if is_sponsored or product.is_sponsored %}
+    <div class="sponsored-badge position-absolute top-0 start-0 m-2">
+        <i class="fas fa-star me-1"></i>
+        {% trans "Sponsored" %}
+    </div>
+    {% endif %}
+    
+    <!-- Product Image -->
+    <div class="position-relative">
+        {% with product.images.first as image %}
+        <img src="{% if image %}{{ image.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+             class="card-img-top" 
+             alt="{{ product.name }}"
+             style="height: 200px; object-fit: cover;"
+             loading="lazy"> <!-- ADDED: Lazy loading for performance -->
+        {% endwith %}
+        
+        <!-- Badges -->
+        <div class="position-absolute top-0 start-0 m-2" style="margin-top: {% if is_sponsored %}40px{% else %}10px{% endif %} !important;">
+            {% if product.is_featured %}
+            <span class="badge bg-warning text-dark">
+                <i class="fas fa-star me-1"></i>{% trans "Featured" %}
+            </span>
+            {% endif %}
+            {% if product.discount_percentage %}
+            <span class="badge bg-danger">
+                -{{ product.discount_percentage }}%
+            </span>
+            {% endif %}
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="position-absolute top-0 end-0 m-2">
+            <button class="btn btn-light btn-sm rounded-circle wishlist-btn" 
+                    data-product-id="{{ product.id }}"
+                    title="{% trans 'Add to Wishlist' %}">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+
+        <!-- View Count - UPDATED FOR PROMPT 5 -->
+        <div class="position-absolute bottom-0 start-0 m-2">
+            <small class="badge bg-dark bg-opacity-75 text-white">
+                <i class="fas fa-eye me-1"></i>
+                <span class="view-count">{{ product.total_views|default:product.view_count }}</span>
+            </small>
+        </div>
+
+        <!-- Stock Indicator -->
+        <div class="position-absolute bottom-0 end-0 m-2">
+            {% if not product.is_in_stock %}
+            <span class="badge bg-danger">
+                <i class="fas fa-times-circle me-1"></i>{% trans "Sold Out" %}
+            </span>
+            {% elif product.is_low_stock %}
+            <span class="badge bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Low Stock" %}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+        <!-- Category -->
+        <small class="text-muted d-block mb-1">
+            <i class="fas fa-tag me-1"></i>
+            <a href="{{ product.category.get_absolute_url }}" class="text-muted text-decoration-none">
+                {{ product.category.name }}
+            </a>
+        </small>
+        
+        <!-- Product Name -->
+        <h6 class="card-title fw-bold mb-2">
+            <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none product-name-link">
+                {{ product.name|truncatewords:6 }}
+            </a>
+        </h6>
+        
+        <!-- Shop with Verification -->
+        <div class="d-flex align-items-center mb-2">
+            <small class="text-muted">
+                <i class="fas fa-store me-1"></i>
+                <a href="{{ product.shop.get_absolute_url }}" class="text-muted text-decoration-none">
+                    {{ product.shop.name }}
+                </a>
+            </small>
+            {% if product.shop.is_verified %}
+            <i class="fas fa-check-circle text-success ms-1 small" title="{% trans 'Verified Seller' %}"></i>
+            {% endif %}
+        </div>
+
+        <!-- Rating - UPDATED FOR PROMPT 5 -->
+        <div class="d-flex align-items-center mb-2">
+            <div class="text-warning small">
+                {% with product.get_average_rating as avg_rating %}
+                {% if avg_rating %}
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating %}
+                        <i class="fas fa-star"></i>
+                        {% elif forloop.counter|add:"-0.5" <= avg_rating %}
+                        <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <i class="far fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <i class="far fa-star"></i>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <small class="text-muted ms-1">
+                {% if product.get_average_rating %}
+                ({{ product.get_average_rating|floatformat:1 }})
+                {% endif %}
+                • {{ product.review_count }} {% trans "reviews" %}
+            </small>
+        </div>
+        
+        <!-- Price -->
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+                <span class="h5 text-success fw-bold mb-0">
+                    TSh {{ product.price|floatformat:0 }}
+                </span>
+                {% if product.compare_price %}
+                <small class="text-muted text-decoration-line-through ms-1">
+                    TSh {{ product.compare_price|floatformat:0 }}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Stock Status -->
+        <div class="mb-3">
+            {% if product.is_in_stock %}
+                {% if product.is_low_stock %}
+                <small class="text-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    {% trans "Low Stock" %} • {{ product.stock_quantity }} {% trans "left" %}
+                </small>
+                {% else %}
+                <small class="text-success">
+                    <i class="fas fa-check-circle me-1"></i>
+                    {% trans "In Stock" %} • {{ product.stock_quantity }} {% trans "available" %}
+                </small>
+                {% endif %}
+            {% else %}
+                <small class="text-danger">
+                    <i class="fas fa-times-circle me-1"></i>
+                    {% trans "Out of Stock" %}
+                </small>
+            {% endif %}
+        </div>
+
+        <!-- Product Condition & Brand - UPDATED FOR PROMPT 5 -->
+        <div class="mb-3">
+            <div class="d-flex flex-wrap gap-1">
+                <span class="badge bg-light text-dark small">
+                    <i class="fas fa-certificate me-1 text-gold"></i>
+                    {{ product.get_condition_display }}
+                </span>
+                {% if product.brand %}
+                <span class="badge bg-light text-dark small">
+                    <i class="fas fa-tag me-1 text-gold"></i>
+                    {{ product.brand }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Stats - NEW FOR PROMPT 5 -->
+        <div class="d-flex justify-content-between small text-muted">
+            <span title="{% trans 'Total Views' %}">
+                <i class="fas fa-eye me-1"></i>
+                <span class="view-count">{{ product.total_views|default:product.view_count }}</span>
+            </span>
+            <span title="{% trans 'Items Sold' %}">
+                <i class="fas fa-shopping-cart me-1"></i>
+                {{ product.total_sold|default:0 }}
+            </span>
+            <span title="{% trans 'In Wishlists' %}">
+                <i class="fas fa-heart me-1"></i>
+                {{ product.wishlist_count|default:0 }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Card Footer -->
+    <div class="card-footer bg-transparent border-top-0 pt-0">
+        <div class="d-grid gap-2">
+            <!-- UPDATED: AJAX Add to Cart Button with better loading states -->
+            {% if user.is_authenticated %}
+            <button class="btn btn-gold btn-sm add-to-cart-ajax" 
+                    data-product-id="{{ product.id }}"
+                    {% if not product.is_in_stock %}disabled{% endif %}>
+                <i class="fas fa-shopping-cart me-1"></i>
+                {% if product.is_in_stock %}
+                    {% trans "Add to Cart" %}
+                {% else %}
+                    {% trans "Notify When Available" %}
+                {% endif %}
+            </button>
+            {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-gold btn-sm">
+                <i class="fas fa-shopping-cart me-1"></i>
+                {% trans "Login to Purchase" %}
+            </a>
+            {% endif %}
+            
+            <div class="d-flex gap-1">
+                <a href="{{ product.get_absolute_url }}" class="btn btn-outline-gold btn-sm flex-fill">
+                    <i class="fas fa-search me-1"></i>{% trans "Details" %}
+                </a>
+                <button class="btn btn-outline-gold btn-sm flex-fill share-btn" 
+                        data-product-url="{{ product.get_absolute_url }}"
+                        data-product-name="{{ product.name }}"
+                        title="{% trans 'Share Product' %}">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Sponsored Product Styles - NEW FOR PROMPT 5 */
+    .sponsored-product {
+        border: 2px solid #ffc107 !important;
+        position: relative;
+    }
+    
+    .sponsored-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: #000;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .wishlist-btn:hover {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-gold {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+    
+    .btn-outline-gold:hover {
+        background-color: var(--gold);
+        color: white;
+    }
+    
+    /* Loading state for buttons */
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Toast notification styles */
+    .custom-toast {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wishlist functionality with API call
+        document.querySelectorAll('.wishlist-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.dataset.productId;
+                const icon = this.querySelector('i');
+                
+                {% if not user.is_authenticated %}
+                window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+                return;
+                {% endif %}
+                
+                // Toggle wishlist state
+                if (icon.classList.contains('far')) {
+                    // Add to wishlist
+                    icon.classList.replace('far', 'fas');
+                    icon.style.color = '#dc3545';
+                    showToast('{% trans "Added to wishlist!" %}', 'success');
+                    
+                    // API call to add to wishlist
+                    fetch(`/api/wishlist/add/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        }
+                    }).catch(console.error);
+                    
+                } else {
+                    // Remove from wishlist
+                    icon.classList.replace('fas', 'far');
+                    icon.style.color = '';
+                    showToast('{% trans "Removed from wishlist" %}', 'info');
+                    
+                    // API call to remove from wishlist
+                    fetch(`/api/wishlist/remove/${productId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        }
+                    }).catch(console.error);
+                }
+            });
+        });
+
+        // UPDATED: Enhanced AJAX Add to Cart functionality
+        document.querySelectorAll('.add-to-cart-ajax').forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.dataset.productId;
+                const originalText = this.innerHTML;
+                const originalClass = this.className;
+                
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{% trans "Adding..." %}';
+                this.disabled = true;
+                this.classList.add('btn-loading');
+                
+                try {
+                    // Get CSRF token
+                    const csrfToken = getCookie('csrftoken');
+                    
+                    // Build the URL - using absolute path to avoid issues
+                    const addToCartUrl = `/en/orders/cart/add/${productId}/`;
+                    
+                    // Make AJAX request
+                    const response = await fetch(addToCartUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Show success state
+                        this.innerHTML = '<i class="fas fa-check me-1"></i>{% trans "Added!" %}';
+                        this.classList.remove('btn-gold', 'btn-loading');
+                        this.classList.add('btn-success');
+                        
+                        // Update cart count globally
+                        await updateCartCount();
+                        
+                        // Show success message
+                        showToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
+                        
+                    } else {
+                        // Show error state
+                        this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Failed" %}';
+                        this.classList.remove('btn-gold', 'btn-loading');
+                        this.classList.add('btn-danger');
+                        
+                        // Show error message
+                        showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Error" %}';
+                    this.classList.remove('btn-gold', 'btn-loading');
+                    this.classList.add('btn-danger');
+                    
+                    showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+                } finally {
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        this.className = originalClass;
+                    }, 2000);
+                }
+            });
+        });
+
+        // Share functionality with social media options
+        document.querySelectorAll('.share-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productUrl = this.dataset.productUrl;
+                const productName = this.dataset.productName;
+                const fullUrl = window.location.origin + productUrl;
+                
+                if (navigator.share) {
+                    // Use native share API if available
+                    navigator.share({
+                        title: productName,
+                        text: '{% trans "Check out this product on SokoLetu" %}',
+                        url: fullUrl
+                    }).then(() => {
+                        console.log('Product shared successfully');
+                    }).catch(console.error);
+                } else {
+                    // Fallback: show custom share options
+                    showShareOptions(fullUrl, productName);
+                }
+            });
+        });
+
+        // Helper function to show custom share options
+        function showShareOptions(url, title) {
+            // Create share modal or use existing toast
+            const shareText = `Check out "${title}" on SokoLetu: ${url}`;
+            
+            // Copy to clipboard as fallback
+            navigator.clipboard.writeText(shareText).then(() => {
+                showToast('{% trans "Product link copied to clipboard!" %}', 'success');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = shareText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('{% trans "Product link copied to clipboard!" %}', 'success');
+            });
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Global cart count update function
+        async function updateCartCount() {
+            try {
+                const response = await fetch('{% url "orders:get_cart_count" %}', {
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cart count');
+                }
+                
+                const data = await response.json();
+                
+                // Update all cart badges
+                const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+                cartBadges.forEach(badge => {
+                    const oldCount = parseInt(badge.textContent) || 0;
+                    const newCount = data.count || 0;
+                    
+                    badge.textContent = newCount;
+                    badge.classList.add('updated');
+                    setTimeout(() => badge.classList.remove('updated'), 600);
+                });
+                
+            } catch (error) {
+                console.error('Error updating cart count:', error);
+            }
+        }
+
+        // Enhanced toast notification function
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.custom-toast').forEach(toast => {
+                toast.remove();
+            });
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `custom-toast alert alert-${type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 100px; right: 20px; z-index: 1060; min-width: 300px;';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    ${type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : 
+                      type === 'error' ? '<i class="fas fa-exclamation-triangle me-2"></i>' : 
+                      type === 'warning' ? '<i class="fas fa-exclamation-circle me-2"></i>' :
+                      '<i class="fas fa-info-circle me-2"></i>'}
+                    <div>${message}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+
+        // Track product views for recommendations - NEW FOR PROMPT 5
+        function trackProductView(productId) {
+            // Send analytics data for recommendations
+            fetch('/api/analytics/track-view/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 
+                    product_id: productId,
+                    source: 'product_card'
+                })
+            }).catch(console.error);
+        }
+
+        // Track when product cards become visible
+        const productCards = document.querySelectorAll('.product-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const productId = entry.target.querySelector('.add-to-cart-ajax')?.dataset.productId;
+                    if (productId) {
+                        trackProductView(productId);
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        productCards.forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>

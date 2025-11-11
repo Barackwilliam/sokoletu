@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold text-dark-custom mb-3">
+                <i class="fas fa-shopping-cart text-primary-custom me-3"></i>
+                {% trans "Shopping Cart" %}
+            </h1>
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'core:home' %}" class="text-primary-custom text-decoration-none">
+                            <i class="fas fa-home me-1"></i>{% trans "Home" %}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{% trans "Cart" %}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    {% if cart_items %}
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-bag me-2"></i>
+                        {% trans "Cart Items" %} ({{ cart.total_items }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for item in cart_items %}
+                    <div class="cart-item border-bottom p-4 {% if not item.is_available %}bg-light-custom{% endif %}">
+                        <div class="row align-items-center">
+                            <!-- Product Image -->
+                            <div class="col-md-2 col-3">
+                                {% with item.product.images.first as image %}
+                                <img src="{% if image %}{{ image.image }}{% else %}/static/images/placeholder.jpg{% endif %}" 
+                                     alt="{{ item.product.name }}" 
+                                     class="img-fluid rounded"
+                                     style="height: 80px; object-fit: cover;">
+                                {% endwith %}
+                            </div>
+                            
+                            <!-- Product Details -->
+                            <div class="col-md-4 col-9">
+                                <h6 class="fw-bold mb-1">
+                                    <a href="{{ item.product.get_absolute_url }}" class="text-dark-custom text-decoration-none">
+                                        {{ item.product.name }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-store text-secondary-custom me-1"></i>
+                                    {{ item.product.shop.name }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-tag text-info me-1"></i>
+                                    {{ item.product.category.name }}
+                                </small>
+                                
+                                {% if not item.is_available %}
+                                <div class="mt-2">
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        {% trans "Not Available" %}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="col-md-2 col-4 text-center">
+                                <span class="h6 text-primary-custom fw-bold d-block">
+                                    TSh {{ item.product.price }}
+                                </span>
+                                <small class="text-muted">{% trans "per item" %}</small>
+                            </div>
+                            
+                            <!-- Quantity Controls -->
+                            <div class="col-md-2 col-4">
+                                <form method="post" action="{% url 'orders:update_cart_item' item.id %}" class="quantity-form">
+                                    {% csrf_token %}
+                                    <div class="input-group input-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary decrease-btn" 
+                                                {% if item.quantity <= 1 %}disabled{% endif %}>
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                               min="1" max="{{ item.product.stock_quantity }}"
+                                               class="form-control form-control-custom text-center quantity-input">
+                                        <button type="button" class="btn btn-outline-secondary increase-btn"
+                                                {% if item.quantity >= item.product.stock_quantity %}disabled{% endif %}>
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">
+                                        {% trans "Max:" %} {{ item.product.stock_quantity }}
+                                    </small>
+                                </form>
+                            </div>
+                            
+                            <!-- Total & Actions -->
+                            <div class="col-md-2 col-4 text-end">
+                                <div class="h6 text-dark-custom fw-bold mb-2">
+                                    TSh {{ item.total_price }}
+                                </div>
+                                <form method="post" action="{% url 'orders:remove_from_cart' item.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            title="{% trans 'Remove from cart' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Continue Shopping -->
+            <div class="mt-4">
+                <a href="{% url 'market:product_list' %}" class="btn btn-outline-primary-custom">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    {% trans "Continue Shopping" %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        {% trans "Order Summary" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Summary Items -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{% trans "Subtotal" %}</span>
+                        <span class="fw-bold">TSh {{ cart.subtotal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{% trans "Tax (18%)" %}</span>
+                        <span class="fw-bold">TSh {{ cart.tax_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">{% trans "Shipping" %}</span>
+                        <span class="fw-bold">
+                            {% if cart.shipping_cost == 0 %}
+                            <span class="text-success">{% trans "FREE" %}</span>
+                            {% else %}
+                            TSh {{ cart.shipping_cost }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Total -->
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="h5 fw-bold text-dark-custom">{% trans "Total" %}</span>
+                        <span class="h5 fw-bold text-primary-custom">TSh {{ cart.total }}</span>
+                    </div>
+                    
+                    <!-- Checkout Button -->
+                    <div class="d-grid">
+                        <a href="{% url 'orders:checkout' %}" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-lock me-2"></i>
+                            {% trans "Proceed to Checkout" %}
+                        </a>
+                    </div>
+                    
+                    <!-- Free Shipping Notice -->
+                    {% if cart.shipping_cost == 0 %}
+                    <div class="alert alert-success mt-3 mb-0 py-2">
+                        <i class="fas fa-shipping-fast me-2"></i>
+                        <strong>{% trans "Free Shipping!" %}</strong>
+                        {% trans "Your order qualifies for free shipping" %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mt-3 mb-0 py-2">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans "Add TSh" %} {{ cart.get_free_shipping_remaining|default:0 }} 
+                        {% trans "more for free shipping" %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+            <h3 class="text-muted mb-3">{% trans "Your cart is empty" %}</h3>
+            <p class="text-muted mb-4">
+                {% trans "Looks like you haven't added any items to your cart yet." %}
+            </p>
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{% url 'market:product_list' %}" class="btn btn-primary-custom btn-lg">
+                    <i class="fas fa-shopping-bag me-2"></i>{% trans "Start Shopping" %}
+                </a>
+                <a href="{% url 'market:featured_products' %}" class="btn btn-outline-primary-custom btn-lg">
+                    <i class="fas fa-star me-2"></i>{% trans "View Featured" %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .cart-item {
+        transition: background-color 0.3s ease;
+    }
+    
+    .cart-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .quantity-input {
+        max-width: 70px;
+    }
+    
+    .sticky-top {
+        position: sticky;
+        z-index: 10;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 139, 87, 0.4);
+        color: white;
+    }
+    
+    .btn-outline-primary-custom {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        background: transparent;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary-custom:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-radius: 0 !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quantity controls
+        document.querySelectorAll('.increase-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                const max = parseInt(input.getAttribute('max'));
+                if (parseInt(input.value) < max) {
+                    input.value = parseInt(input.value) + 1;
+                    this.parentNode.parentNode.querySelector('.quantity-form').submit();
+                }
+            });
+        });
+
+        document.querySelectorAll('.decrease-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.quantity-input');
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                    this.parentNode.parentNode.querySelector('.quantity-form').submit();
+                }
+            });
+        });
+
+        // Auto-submit on quantity change
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                this.parentNode.parentNode.querySelector('.quantity-form').submit();
+            });
+        });
+
+        // Update cart count in navbar
+        function updateCartCount() {
+            fetch('{% url "orders:get_cart_count" %}')
+                .then(response => response.json())
+                .then(data => {
+                    const cartBadges = document.querySelectorAll('.fa-shopping-cart + .badge');
+                    cartBadges.forEach(badge => {
+                        badge.textContent = data.count;
+                    });
+                });
+        }
+
+        // Update count when page loads
+        updateCartCount();
+    });
+</script>
+{% endblock %}

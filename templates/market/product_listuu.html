@@ -1,0 +1,9 @@
+{% load i18n static %}
+
+{% for product in products %}
+<div class="product-card">
+<img src="{{ product.product_image }}" alt="{{ product.name }}" width="300">
+  <h5>{{ product.name }}</h5>
+  <p>{{ product.price }} TZS</p>
+</div>
+{% endfor %}

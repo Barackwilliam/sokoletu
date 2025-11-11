@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Search Results" %} - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h4 mb-1 text-primary">
+                                <i class="fas fa-search me-2"></i>
+                                {% trans "Search Results" %}
+                            </h1>
+                            {% if query %}
+                            <p class="text-muted mb-0">
+                                {% blocktrans with count=total_results %}Found {{ count }} results for "{{ query }}"{% endblocktrans %}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <form method="get" class="d-flex">
+                                <input type="text" name="q" value="{{ query }}" 
+                                       class="form-control me-2" placeholder="{% trans 'Search products...' %}"
+                                       required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 100px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>{% trans "Filters" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filter-form" method="get">
+                        <input type="hidden" name="q" value="{{ query }}">
+                        
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{% trans "Price Range" %}</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" name="min_price" value="{{ filters.min_price }}" 
+                                           class="form-control form-control-sm" placeholder="{% trans 'Min' %}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_price" value="{{ filters.max_price }}" 
+                                           class="form-control form-control-sm" placeholder="{% trans 'Max' %}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Sort By" %}</label>
+                            <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="relevance" {% if filters.sort_by == 'relevance' %}selected{% endif %}>
+                                    {% trans "Relevance" %}
+                                </option>
+                                <option value="price_low" {% if filters.sort_by == 'price_low' %}selected{% endif %}>
+                                    {% trans "Price: Low to High" %}
+                                </option>
+                                <option value="price_high" {% if filters.sort_by == 'price_high' %}selected{% endif %}>
+                                    {% trans "Price: High to Low" %}
+                                </option>
+                                <option value="newest" {% if filters.sort_by == 'newest' %}selected{% endif %}>
+                                    {% trans "Newest First" %}
+                                </option>
+                                <option value="popular" {% if filters.sort_by == 'popular' %}selected{% endif %}>
+                                    {% trans "Most Popular" %}
+                                </option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-sync-alt me-1"></i>{% trans "Apply Filters" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-lg-9">
+            <!-- Sponsored Results -->
+            {% if sponsored_products %}
+            <div class="mb-5">
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="h5 mb-0 text-warning">
+                        <i class="fas fa-star me-2"></i>{% trans "Sponsored" %}
+                    </h3>
+                    <span class="badge bg-warning ms-2">{{ sponsored_products.paginator.count }}</span>
+                </div>
+                
+                <div class="row g-3">
+                    {% for product in sponsored_products %}
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        {% include 'products/_product_card.html' with product=product is_sponsored=True %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Sponsored Pagination -->
+                {% if sponsored_products.has_other_pages %}
+                <nav class="mt-4">
+                    {% include '_pagination.html' with page_obj=sponsored_products %}
+                </nav>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Organic Results -->
+            <div>
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="h5 mb-0 text-primary">
+                        <i class="fas fa-shopping-bag me-2"></i>{% trans "All Products" %}
+                    </h3>
+                    <span class="badge bg-primary ms-2">{{ organic_products.paginator.count }}</span>
+                </div>
+
+                {% if organic_products %}
+                <div class="row g-3">
+                    {% for product in organic_products %}
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        {% include 'products/_product_card.html' with product=product %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Organic Pagination -->
+                {% if organic_products.has_other_pages %}
+                <nav class="mt-4">
+                    {% include '_pagination.html' with page_obj=organic_products %}
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>{% trans "No products found" %}</h4>
+                    <p class="text-muted">{% trans "Try adjusting your search criteria or browse categories" %}</p>
+                    <a href="{% url 'home' %}" class="btn btn-primary">
+                        <i class="fas fa-home me-1"></i>{% trans "Go Home" %}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit form when price inputs change (with delay)
+let priceTimeout;
+$('input[name="min_price"], input[name="max_price"]').on('input', function() {
+    clearTimeout(priceTimeout);
+    priceTimeout = setTimeout(() => {
+        $('#filter-form').submit();
+    }, 1000);
+});
+</script>
+{% endblock %}

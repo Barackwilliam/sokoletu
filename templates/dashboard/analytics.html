@@ -1,0 +1,338 @@
+<!-- dashboard/templates/dashboard/analytics.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Takwimu za Biashara - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>Takwimu za Biashara</h3>
+                    <p class="text-muted">Mchanganuo wa kina wa mauzo na utendaji wa duka lako</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-info fs-6">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Miezi 30 Iliyopita
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Overview Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card border-start border-success border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Jumla ya Mauzo</h6>
+                            <h3 class="text-success">{{ analytics.total_sales|floatformat:0 }} TZS</h3>
+                            <small class="text-muted">{{ analytics.total_orders }} maagizo yote</small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Mauzo Ya Mwezi</h6>
+                            <h3 class="text-primary">{{ analytics.monthly_revenue|floatformat:0 }} TZS</h3>
+                            <small class="text-muted">Mapato ya sasa</small>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card border-start border-warning border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Wateja Waliojisajili</h6>
+                            <h3 class="text-warning">{{ analytics.total_customers }}</h3>
+                            <small class="text-muted">{{ analytics.new_customers_week }} wapya wiki hii</small>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-user-plus fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card stats-card border-start border-info border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted">Wastani wa Ukadiriaji</h6>
+                            <h3 class="text-info">{{ analytics.average_rating }}/5.0</h3>
+                            <small class="text-muted">
+                                {% with ''|center:5 as range %}
+                                {% for i in range %}
+                                    <i class="fas fa-star{% if forloop.counter <= analytics.average_rating %}{% else %}-o{% endif %} text-warning"></i>
+                                {% endfor %}
+                                {% endwith %}
+                            </small>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-star fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4">
+        <!-- Sales Chart -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Mauzo na Maagizo (Miezi 30 Iliyopita)</h5>
+                </div>
+                <div class="card-body">
+                    {% if chart_data.dates %}
+                    <canvas id="salesChart" height="250"></canvas>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Hakuna data ya mauzo bado</p>
+                        <small class="text-muted">Data itaonekana baada ya kuwa na mauzo</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Status -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Hali ya Bidhaa</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="p-3 bg-success bg-opacity-10 rounded">
+                                <h4 class="text-success mb-1">{{ analytics.active_products }}</h4>
+                                <small class="text-muted">Zinauzika</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="p-3 bg-warning bg-opacity-10 rounded">
+                                <h4 class="text-warning mb-1">{{ analytics.low_stock_products }}</h4>
+                                <small class="text-muted">Zinasahaulika</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                <h4 class="text-primary mb-1">{{ analytics.total_products }}</h4>
+                                <small class="text-muted">Jumla ya Bidhaa</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-info bg-opacity-10 rounded">
+                                <h4 class="text-info mb-1">{{ analytics.total_views }}</h4>
+                                <small class="text-muted">Matazamio</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Summary -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Muhtasari wa Utendaji</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Wastani wa Agizo</small>
+                        <h6 class="mb-0">
+                            {% if analytics.total_orders > 0 %}
+                                {{ analytics.total_sales|floatformat:0|div:analytics.total_orders|floatformat:0 }} TZS
+                            {% else %}
+                                0 TZS
+                            {% endif %}
+                        </h6>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Mapato kwa Mwezi</small>
+                        <h6 class="mb-0">{{ analytics.monthly_revenue|floatformat:0 }} TZS</h6>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Wateja Waliorudi</small>
+                        <h6 class="mb-0">
+                            {% if analytics.total_customers > 0 %}
+                                {{ analytics.total_orders|floatformat:0|div:analytics.total_customers|floatformat:1 }} agizo/kwa mteja
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bidhaa Bora Zaidi kwa Mauzo</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Bidhaa</th>
+                                    <th>Jumla ya Mauzo</th>
+                                    <th>Idadi ya Maagizo</th>
+                                    <th>Bei ya Sasa</th>
+                                    <th>Kategoria</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if product.image %}
+                                            <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                                                 class="rounded me-3" width="40" height="40">
+                                            {% else %}
+                                            <div class="bg-secondary rounded me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="fas fa-box text-white"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ product.name }}</h6>
+                                                <small class="text-muted">{{ product.sku|default:"SKU" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-success">
+                                        {{ product.total_sales|default:0|floatformat:0 }} TZS
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ product.total_orders|default:0 }}</span>
+                                    </td>
+                                    <td>{{ product.price|floatformat:0 }} TZS</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ product.category.name|default:"Hakuna" }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Hakuna data ya bidhaa bado</p>
+                        <small class="text-muted">Data itaonekana baada ya kuwa na mauzo</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if chart_data.dates %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Sales Chart
+    const salesChart = new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: {{ chart_data.dates|safe }},
+            datasets: [
+                {
+                    label: 'Mauzo (TZS)',
+                    data: {{ chart_data.sales }},
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    yAxisID: 'y',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Maagizo',
+                    data: {{ chart_data.orders }},
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Mauzo (TZS)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('sw-TZ') + ' TZS';
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Idadi ya Maagizo'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

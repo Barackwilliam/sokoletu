@@ -1,0 +1,1248 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'core:home' %}" class="text-primary-custom text-decoration-none">
+                    <i class="fas fa-home me-1"></i>{% trans "Home" %}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'market:category_list' %}" class="text-primary-custom text-decoration-none">
+                    {% trans "Categories" %}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ product.category.get_absolute_url }}" class="text-primary-custom text-decoration-none">
+                    {{ product.category.name }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name|truncatewords:3 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Sponsored Badge -->
+                    {% if product.is_sponsored %}
+                    <div class="sponsored-badge position-absolute top-0 start-0 m-3">
+                        <i class="fas fa-star me-1"></i>
+                        {% trans "Sponsored" %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Main Image -->
+                    <div class="text-center mb-4">
+                        <img id="main-product-image" 
+                             src="{% if primary_image %}{{ primary_image.get_image_url  }}{% else %}{% if product.images.first %}{{ product.images.first.get_image_url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}{% endif %}" 
+                             alt="{{ product.name }}" 
+                             class="img-fluid rounded-3" 
+                             style="max-height: 400px; object-fit: contain;"
+                             loading="eager">
+                    </div>
+                    
+                    <!-- Image Thumbnails -->
+                    {% if product.images.count > 1 %}
+                    <div class="row g-2">
+                        {% for image in product.images.all|slice:":4" %}
+                        <div class="col-3">
+                            <img src="{{ image.get_thumbnail_url }}" 
+                                 alt="{{ image.alt_text|default:product.name }}"
+                                 class="img-thumbnail cursor-pointer {% if image.is_primary %}active-thumbnail{% endif %}"
+                                 style="height: 80px; object-fit: cover; width: 100%;"
+                                 onclick="changeMainImage('{{ image.get_image_url }}', this)"
+                                 loading="lazy">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm {% if product.is_sponsored %}sponsored-product{% endif %}">
+                <div class="card-body p-4">
+                    <!-- Product Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark-custom mb-2">{{ product.name }}</h1>
+                            <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+                                <!-- Shop Info -->
+                                <a href="{{ product.shop.get_absolute_url }}" class="text-decoration-none">
+                                    <span class="badge bg-light-custom text-dark-custom">
+                                        <i class="fas fa-store me-1 text-primary-custom"></i>{{ product.shop.name }}
+                                    </span>
+                                </a>
+                                {% if product.shop.is_verified %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>{% trans "Verified" %}
+                                </span>
+                                {% endif %}
+                                {% if product.is_sponsored %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star me-1"></i>{% trans "Sponsored" %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- View Count -->
+                        <div class="text-end">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-eye me-1"></i>
+                                <span id="total-views">{{ product.total_views|default:view_count }}</span> {% trans "views" %}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-chart-line me-1"></i>
+                                #{{ product.search_rank|default:"1" }} {% trans "in ranking" %}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="text-warning">
+                            {% with product.get_average_rating as avg_rating %}
+                            {% if avg_rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg_rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% elif forloop.counter|add:"-0.5" <= avg_rating %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        <small class="text-muted ms-2">
+                            {% if product.get_average_rating %}({{ product.get_average_rating|floatformat:1 }}){% endif %} • 
+                            {{ product.review_count }} {% trans "reviews" %}
+                        </small>
+                    </div>
+
+                    <!-- Price Section -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <h2 class="text-primary-custom fw-bold mb-0 me-3">TSh {{ product.price|floatformat:0 }}</h2>
+                            {% if product.compare_price %}
+                            <span class="text-muted text-decoration-line-through h4 mb-0 me-2">
+                                TSh {{ product.compare_price|floatformat:0 }}
+                            </span>
+                            <span class="badge bg-danger fs-6">
+                                -{{ product.discount_percentage }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{% trans "Inclusive of all taxes" %}</small>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="mb-4">
+                        {% if product.is_in_stock %}
+                            {% if product.is_low_stock %}
+                            <div class="alert alert-warning py-2 mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>{% trans "Low Stock" %}</strong> - {% trans "Only" %} {{ product.stock_quantity }} {% trans "left" %}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success py-2 mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>{% trans "In Stock" %}</strong> - {% trans "Available for immediate delivery" %}
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-danger py-2 mb-0">
+                                <i class="fas fa-times-circle me-2"></i>
+                                <strong>{% trans "Out of Stock" %}</strong> - {% trans "Check back later" %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Product Condition & Brand -->
+                    <div class="mb-4">
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <strong class="text-dark-custom">{% trans "Condition:" %}</strong>
+                                <span class="badge bg-{% if product.condition == 'new' %}success{% else %}warning text-dark{% endif %} ms-2">
+                                    {{ product.get_condition_display }}
+                                </span>
+                            </div>
+                            {% if product.brand %}
+                            <div class="col-auto">
+                                <strong class="text-dark-custom">{% trans "Brand:" %}</strong>
+                                <span class="badge bg-light-custom text-dark-custom ms-2">
+                                    {{ product.brand }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Quantity & Actions -->
+                    <div class="mb-4">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <label for="quantity" class="col-form-label fw-bold">{% trans "Quantity:" %}</label>
+                            </div>
+                            <div class="col-auto">
+                                <div class="input-group" style="width: 140px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">-</button>
+                                    <input type="number" class="form-control form-control-custom text-center" id="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">+</button>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <small class="text-muted">{% trans "Max" %} {{ product.stock_quantity }} {% trans "items" %}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex mb-4">
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-primary-custom btn-lg flex-fill me-md-2 add-to-cart-btn" 
+                                data-product-id="{{ product.id }}"
+                                {% if not product.is_in_stock %}disabled{% endif %}>
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            {% if product.is_in_stock %}
+                                {% trans "Add to Cart" %}
+                            {% else %}
+                                {% trans "Notify When Available" %}
+                            {% endif %}
+                        </button>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary-custom btn-lg flex-fill me-md-2">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            {% trans "Login to Purchase" %}
+                        </a>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary-custom btn-lg flex-fill wishlist-btn" data-product-id="{{ product.id }}">
+                                <i class="far fa-heart me-2"></i>
+                                {% trans "Wishlist" %}
+                            </button>
+                            <button class="btn btn-outline-primary-custom btn-lg flex-fill share-btn" 
+                                    onclick="shareProduct()"
+                                    title="{% trans 'Share Product' %}">
+                                <i class="fas fa-share-alt me-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="row text-center g-2 mb-4">
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-eye text-primary-custom fa-lg mb-1"></i>
+                                <small class="d-block fw-bold">{{ product.total_views|default:view_count }}</small>
+                                <small class="text-muted">{% trans "Views" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-shopping-cart text-primary-custom fa-lg mb-1"></i>
+                                <small class="d-block fw-bold">{{ product.total_sold|default:0 }}</small>
+                                <small class="text-muted">{% trans "Sold" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-heart text-primary-custom fa-lg mb-1"></i>
+                                <small class="d-block fw-bold">{{ product.wishlist_count|default:0 }}</small>
+                                <small class="text-muted">{% trans "Wishlists" %}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Features -->
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-shipping-fast text-primary-custom fa-lg mb-2"></i>
+                                <small class="d-block fw-bold">{% trans "Free Delivery" %}</small>
+                                <small class="text-muted">{% trans "Dar es Salaam" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-shield-alt text-primary-custom fa-lg mb-2"></i>
+                                <small class="d-block fw-bold">{% trans "Secure Payment" %}</small>
+                                <small class="text-muted">{% trans "100% Protected" %}</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2">
+                                <i class="fas fa-undo text-primary-custom fa-lg mb-2"></i>
+                                <small class="d-block fw-bold">{% trans "7-Day Return" %}</small>
+                                <small class="text-muted">{% trans "Easy Returns" %}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                                <i class="fas fa-file-alt me-2"></i>{% trans "Description" %}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="specifications-tab" data-bs-toggle="tab" data-bs-target="#specifications" type="button" role="tab">
+                                <i class="fas fa-list me-2"></i>{% trans "Specifications" %}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="seller-tab" data-bs-toggle="tab" data-bs-target="#seller" type="button" role="tab">
+                                <i class="fas fa-store me-2"></i>{% trans "Seller Info" %}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                                <i class="fas fa-star me-2"></i>{% trans "Reviews" %} ({{ product.review_count }})
+                            </button>
+                        </li>
+                        <!-- Analytics Tab -->
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>{% trans "Analytics" %}
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content p-4" id="productTabsContent">
+                        <!-- Description Tab -->
+                        <div class="tab-pane fade show active" id="description" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h4 class="text-dark-custom mb-3">{% trans "Product Description" %}</h4>
+                                    <div class="product-description">
+                                        {{ product.description|linebreaks }}
+                                    </div>
+                                    
+                                    {% if product.short_description %}
+                                    <div class="mt-4">
+                                        <h5 class="text-dark-custom mb-2">{% trans "Key Features" %}</h5>
+                                        <p class="text-muted">{{ product.short_description }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Specifications Tab -->
+                        <div class="tab-pane fade" id="specifications" role="tabpanel">
+                            <h4 class="text-dark-custom mb-4">{% trans "Product Specifications" %}</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold text-muted" style="width: 40%;">{% trans "Brand" %}</td>
+                                                <td>{{ product.brand|default:"-" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">{% trans "Condition" %}</td>
+                                                <td>{{ product.get_condition_display }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">{% trans "Weight" %}</td>
+                                                <td>{{ product.weight|default:"-" }} kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">{% trans "Dimensions" %}</td>
+                                                <td>{{ product.dimensions|default:"-" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">{% trans "SKU" %}</td>
+                                                <td><code>{{ product.sku }}</code></td>
+                                            </tr>
+                                            <!-- Search Ranking -->
+                                            <tr>
+                                                <td class="fw-bold text-muted">{% trans "Search Rank" %}</td>
+                                                <td>
+                                                    {% if product.search_rank %}
+                                                    <span class="badge bg-info">#{{ product.search_rank }}</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary">{% trans "Not ranked" %}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Custom Specifications -->
+                                {% if product.specifications %}
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            {% for key, value in product.specifications.items %}
+                                            <tr>
+                                                <td class="fw-bold text-muted" style="width: 40%;">{{ key|title }}</td>
+                                                <td>{{ value }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Seller Info Tab -->
+                        <div class="tab-pane fade" id="seller" role="tabpanel">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center">
+                                    {% if product.shop.logo %}
+                                    <img src="{{ product.shop.get_logo_url }}" 
+                                         alt="{{ product.shop.name }}" 
+                                         class="rounded-circle img-thumbnail mb-3"
+                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-light-custom d-flex align-items-center justify-content-center mx-auto mb-3"
+                                         style="width: 100px; height: 100px;">
+                                        <i class="fas fa-store fa-2x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h4 class="text-dark-custom mb-2">{{ product.shop.name }}</h4>
+                                    <p class="text-muted mb-3">{{ product.shop.description|default:"No description provided."|truncatewords:30 }}</p>
+                                    
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge bg-light-custom text-dark-custom">
+                                            <i class="fas fa-box me-1"></i>
+                                            {{ product.shop.product_count }} {% trans "products" %}
+                                        </span>
+                                        <span class="badge bg-light-custom text-dark-custom">
+                                            <i class="fas fa-star me-1 text-warning"></i>
+                                            {{ product.shop.get_average_rating|floatformat:1 }}/5
+                                        </span>
+                                        {% if product.shop.is_verified %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>{% trans "Verified Seller" %}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% if product.shop.phone %}
+                                        <a href="tel:{{ product.shop.phone }}" class="btn btn-outline-primary-custom btn-sm">
+                                            <i class="fas fa-phone me-1"></i>{% trans "Call" %}
+                                        </a>
+                                        {% endif %}
+                                        <a href="{{ product.shop.get_absolute_url }}" class="btn btn-primary-custom btn-sm">
+                                            <i class="fas fa-store me-1"></i>{% trans "Visit Shop" %}
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light-custom border-0">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{% trans "Shop Location" %}</h6>
+                                            <p class="card-text small">
+                                                {% if product.shop.region %}
+                                                {{ product.shop.region }}{% if product.shop.district %}, {{ product.shop.district }}{% endif %}
+                                                {% else %}
+                                                {% trans "Location not specified" %}
+                                                {% endif %}
+                                            </p>
+                                            
+                                            {% if product.shop.website or product.shop.facebook %}
+                                            <h6 class="card-title mt-3">{% trans "Follow Seller" %}</h6>
+                                            <div class="d-flex gap-2">
+                                                {% if product.shop.website %}
+                                                <a href="{{ product.shop.website }}" class="text-decoration-none" target="_blank">
+                                                    <i class="fas fa-globe fa-lg text-dark-custom"></i>
+                                                </a>
+                                                {% endif %}
+                                                {% if product.shop.facebook %}
+                                                <a href="{{ product.shop.facebook }}" class="text-decoration-none" target="_blank">
+                                                    <i class="fab fa-facebook fa-lg text-primary"></i>
+                                                </a>
+                                                {% endif %}
+                                                {% if product.shop.instagram %}
+                                                <a href="{{ product.shop.instagram }}" class="text-decoration-none" target="_blank">
+                                                    <i class="fab fa-instagram fa-lg text-danger"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reviews Tab -->
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            <h4 class="text-dark-custom mb-4">{% trans "Customer Reviews" %}</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center p-4 bg-light-custom rounded-3">
+                                        <h2 class="text-warning fw-bold">{{ product.get_average_rating|floatformat:1|default:"0.0" }}</h2>
+                                        <div class="text-warning mb-2">
+                                            {% with product.get_average_rating as avg_rating %}
+                                            {% if avg_rating %}
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= avg_rating %}
+                                                    <i class="fas fa-star"></i>
+                                                    {% elif forloop.counter|add:"-0.5" <= avg_rating %}
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                    {% else %}
+                                                    <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <p class="text-muted mb-0">{{ product.review_count }} {% trans "reviews" %}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <!-- Sample Review -->
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">John M.</h6>
+                                            <small class="text-muted">2 days ago</small>
+                                        </div>
+                                        <div class="text-warning small mb-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <p class="text-muted mb-0">
+                                            {% trans "Great product! Fast delivery and excellent quality. Highly recommended!" %}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-outline-primary-custom">
+                                            <i class="fas fa-plus me-2"></i>{% trans "Load More Reviews" %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analytics Tab -->
+                        <div class="tab-pane fade" id="analytics" role="tabpanel">
+                            <h4 class="text-dark-custom mb-4">{% trans "Product Analytics" %}</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light-custom">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{% trans "Performance Metrics" %}</h5>
+                                            <div class="row text-center">
+                                                <div class="col-6 mb-3">
+                                                    <div class="p-3">
+                                                        <h3 class="text-primary-custom fw-bold">{{ product.total_views|default:view_count }}</h3>
+                                                        <small class="text-muted">{% trans "Total Views" %}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <div class="p-3">
+                                                        <h3 class="text-primary-custom fw-bold">{{ product.total_sold|default:0 }}</h3>
+                                                        <small class="text-muted">{% trans "Units Sold" %}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="p-3">
+                                                        <h3 class="text-primary-custom fw-bold">{{ product.wishlist_count|default:0 }}</h3>
+                                                        <small class="text-muted">{% trans "Wishlist Adds" %}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="p-3">
+                                                        <h3 class="text-primary-custom fw-bold">
+                                                            {% if product.total_views and product.total_sold %}
+                                                            {% widthratio product.total_sold product.total_views 100 as conversion_rate %}{{ conversion_rate|floatformat:2 }}%
+                                                            {% else %}
+                                                            0%
+                                                            {% endif %}
+                                                        </h3>
+                                                        <small class="text-muted">{% trans "Conversion Rate" %}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light-custom">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{% trans "Search Performance" %}</h5>
+                                            <div class="mb-3">
+                                                <strong>{% trans "Search Rank:" %}</strong>
+                                                {% if product.search_rank %}
+                                                <span class="badge bg-info ms-2">#{{ product.search_rank }}</span>
+                                                {% else %}
+                                                <span class="badge bg-secondary ms-2">{% trans "Not ranked" %}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>{% trans "Sponsored:" %}</strong>
+                                                {% if product.is_sponsored %}
+                                                <span class="badge bg-warning text-dark ms-2">{% trans "Active" %}</span>
+                                                {% else %}
+                                                <span class="badge bg-secondary ms-2">{% trans "Not Sponsored" %}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>{% trans "Featured:" %}</strong>
+                                                {% if product.is_featured %}
+                                                <span class="badge bg-success ms-2">{% trans "Yes" %}</span>
+                                                {% else %}
+                                                <span class="badge bg-secondary ms-2">{% trans "No" %}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <strong>{% trans "Last Updated:" %}</strong>
+                                                <span class="text-muted ms-2">{{ product.updated_at|date:"M d, Y" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark-custom mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    {% trans "Recommended For You" %}
+                </h3>
+                <small class="text-muted">
+                    {% trans "Based on your browsing history and similar products" %}
+                </small>
+            </div>
+            {% include "market/_recommendations_carousel.html" with recommendations=recommendations %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="fw-bold text-dark-custom mb-4">{% trans "Related Products" %}</h3>
+            <div class="row g-4">
+                {% for related_product in related_products %}
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                    {% include "market/_product_card.html" with product=related_product %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recently Viewed Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark-custom mb-0">
+                    <i class="fas fa-history text-warning me-2"></i>
+                    {% trans "Recently Viewed" %}
+                </h3>
+                <a href="{% url 'market:product_list' %}" class="btn btn-outline-primary-custom btn-sm">
+                    {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="bg-light-custom rounded-3 p-5 text-center">
+                <i class="fas fa-eye fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">
+                    {% trans "Your recently viewed products will appear here as you browse more items." %}
+                </p>
+                <small class="text-muted">
+                    {% trans "This helps us provide better recommendations for you" %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .active-thumbnail {
+        border-color: var(--primary) !important;
+        border-width: 2px;
+    }
+    
+    .nav-tabs .nav-link {
+        color: var(--gray);
+        border: none;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary);
+        border-bottom: 3px solid var(--primary);
+        background: transparent;
+    }
+    
+    .product-description {
+        line-height: 1.8;
+        color: #555;
+    }
+    
+    .shadow-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .shadow-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .custom-toast {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Sponsored Product Styles */
+    .sponsored-product {
+        border: 2px solid #ffc107 !important;
+    }
+    
+    .sponsored-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: #000;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 20px rgba(46, 139, 87, 0.3);
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(46, 139, 87, 0.4);
+        color: white;
+    }
+    
+    .btn-outline-primary-custom {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        background: transparent;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary-custom:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .form-control-custom {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-custom:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--dark);
+        font-weight: 600;
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Product detail page loaded - Uploadcare Enhanced');
+    
+    // Image Gallery Functionality
+    function changeMainImage(imageUrl, element) {
+        document.getElementById('main-product-image').src = imageUrl;
+        
+        // Remove active class from all thumbnails
+        document.querySelectorAll('.img-thumbnail').forEach(thumb => {
+            thumb.classList.remove('active-thumbnail');
+        });
+        
+        // Add active class to clicked thumbnail
+        element.classList.add('active-thumbnail');
+    }
+
+    // Quantity Controls
+    function increaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        const maxQuantity = {{ product.stock_quantity }};
+        if (parseInt(quantityInput.value) < maxQuantity) {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+    }
+
+    function decreaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        if (parseInt(quantityInput.value) > 1) {
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+        }
+    }
+
+    // Enhanced Add to Cart functionality for product detail page
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            const quantity = document.getElementById('quantity').value;
+            
+            console.log('🛒 Add to cart clicked for product:', productId, 'Quantity:', quantity);
+            
+            // Check if user is authenticated
+            {% if not user.is_authenticated %}
+            console.log('🔐 User not authenticated, redirecting to login');
+            window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+            return;
+            {% endif %}
+            
+            // Check if button is disabled (out of stock)
+            if (this.disabled) {
+                console.log('⛔ Button disabled - product out of stock');
+                showToast('{% trans "This product is currently out of stock" %}', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            const originalText = this.innerHTML;
+            const originalClass = this.className;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Adding..." %}';
+            this.disabled = true;
+            this.classList.add('btn-loading');
+            
+            try {
+                console.log('📡 Making AJAX request to add to cart...');
+                
+                // Get CSRF token
+                function getCSRFToken() {
+                    // Try to get from form input first
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (csrfToken) {
+                        return csrfToken.value;
+                    }
+                    
+                    // Fallback: check cookies
+                    const name = 'csrftoken';
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                
+                const csrfToken = getCSRFToken();
+                console.log('🔑 CSRF Token found:', !!csrfToken);
+                
+                // Build the URL - using absolute path to avoid issues
+                const addToCartUrl = `/en/orders/cart/add/${productId}/`;
+                console.log('🌐 URL:', addToCartUrl);
+                
+                // Make AJAX request with quantity
+                const response = await fetch(addToCartUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        quantity: parseInt(quantity)
+                    }),
+                    credentials: 'same-origin'
+                });
+                
+                console.log('📨 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📊 Response data:', data);
+                
+                if (data.success) {
+                    // Show success state
+                    this.innerHTML = '<i class="fas fa-check me-2"></i>{% trans "Added!" %}';
+                    this.classList.remove('btn-gold', 'btn-loading');
+                    this.classList.add('btn-success');
+                    
+                    // Update cart count
+                    await updateCartCount();
+                    
+                    // Track conversion for analytics
+                    trackProductConversion(productId, quantity);
+                    
+                    // Show success message
+                    showToast(data.message || `{% trans "Added" %} ${quantity} {% trans "item(s) to cart!" %}`, 'success');
+                    
+                } else {
+                    // Show error state
+                    this.innerHTML = '<i class="fas fa-times me-2"></i>{% trans "Failed" %}';
+                    this.classList.remove('btn-gold', 'btn-loading');
+                    this.classList.add('btn-danger');
+                    
+                    // Show error message
+                    showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error adding to cart:', error);
+                this.innerHTML = '<i class="fas fa-times me-2"></i>{% trans "Error" %}';
+                this.classList.remove('btn-gold', 'btn-loading');
+                this.classList.add('btn-danger');
+                
+                showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+            } finally {
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    this.className = originalClass;
+                }, 2000);
+            }
+        });
+    }
+
+    // Wishlist functionality
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            const icon = this.querySelector('i');
+            
+            {% if not user.is_authenticated %}
+            window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+            return;
+            {% endif %}
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.replace('far', 'fas');
+                this.classList.add('btn-gold');
+                this.classList.remove('btn-outline-gold');
+                showToast('{% trans "Added to wishlist!" %}', 'success');
+                
+                // Track wishlist add for recommendations
+                trackWishlistAdd(productId);
+            } else {
+                icon.classList.replace('fas', 'far');
+                this.classList.remove('btn-gold');
+                this.classList.add('btn-outline-gold');
+                showToast('{% trans "Removed from wishlist" %}', 'info');
+            }
+        });
+    }
+
+    // Share functionality
+    function shareProduct() {
+        const productUrl = window.location.href;
+        const productName = '{{ product.name }}';
+        
+        if (navigator.share) {
+            navigator.share({
+                title: productName,
+                text: '{% trans "Check out this product on SokoLetu" %}',
+                url: productUrl
+            }).then(() => {
+                // Track share for analytics
+                trackProductShare('{{ product.id }}');
+            }).catch(console.error);
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(productUrl).then(() => {
+                showToast('{% trans "Product link copied to clipboard!" %}', 'success');
+                trackProductShare('{{ product.id }}');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('{% trans "Failed to copy link" %}', 'error');
+            });
+        }
+    }
+
+    // Analytics Tracking Functions
+    function trackProductConversion(productId, quantity) {
+        fetch('/api/analytics/track-conversion/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity,
+                type: 'add_to_cart'
+            })
+        }).catch(console.error);
+    }
+
+    function trackWishlistAdd(productId) {
+        fetch('/api/analytics/track-wishlist/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                action: 'add'
+            })
+        }).catch(console.error);
+    }
+
+    function trackProductShare(productId) {
+        fetch('/api/analytics/track-share/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                platform: 'direct_share'
+            })
+        }).catch(console.error);
+    }
+
+    // Real-time view count update
+    function updateViewCount() {
+        const viewCountElement = document.getElementById('total-views');
+        if (viewCountElement) {
+            const currentViews = parseInt(viewCountElement.textContent) || 0;
+            viewCountElement.textContent = currentViews + 1;
+        }
+    }
+
+    // Initialize view count update
+    updateViewCount();
+
+    // Update cart count function
+    async function updateCartCount() {
+        try {
+            console.log('🔄 Updating cart count...');
+            const response = await fetch('{% url "orders:get_cart_count" %}', {
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch cart count');
+            }
+            
+            const data = await response.json();
+            console.log('📦 Cart count data:', data);
+            
+            const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+            console.log(`🎯 Updating ${cartBadges.length} cart badges`);
+            
+            cartBadges.forEach(badge => {
+                const oldCount = parseInt(badge.textContent) || 0;
+                const newCount = data.count || 0;
+                
+                console.log(`🔄 Badge update: ${oldCount} -> ${newCount}`);
+                
+                badge.textContent = newCount;
+                badge.classList.add('updated');
+                setTimeout(() => badge.classList.remove('updated'), 600);
+            });
+            
+        } catch (error) {
+            console.error('❌ Error updating cart count:', error);
+        }
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        document.querySelectorAll('.custom-toast').forEach(toast => {
+            toast.remove();
+        });
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `custom-toast alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 100px; right: 20px; z-index: 1060; min-width: 300px;';
+        toast.innerHTML = `
+            <div class="d-flex align-items-center">
+                ${type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : 
+                  type === 'error' ? '<i class="fas fa-exclamation-triangle me-2"></i>' : 
+                  type === 'warning' ? '<i class="fas fa-exclamation-circle me-2"></i>' :
+                  '<i class="fas fa-info-circle me-2"></i>'}
+                <div>${message}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Initialize cart count on page load
+    updateCartCount();
+
+    // Track product view for recommendations
+    fetch('/api/analytics/track-product-view/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            product_id: '{{ product.id }}',
+            source: 'product_detail',
+            duration: 0
+        })
+    }).catch(console.error);
+});
+
+// Make functions global for use in other scripts
+window.changeMainImage = changeMainImage;
+window.increaseQuantity = increaseQuantity;
+window.decreaseQuantity = decreaseQuantity;
+window.shareProduct = shareProduct;
+</script>
+{% endblock %}

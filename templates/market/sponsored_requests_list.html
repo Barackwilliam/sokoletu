@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h2>{% trans "My Sponsorship Requests" %}</h2>
+    
+    <a href="{% url 'market:sponsored_request_create' %}" class="btn btn-primary mb-3">
+        {% trans "New Sponsorship Request" %}
+    </a>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Product" %}</th>
+                    <th>{% trans "Budget" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Created" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in sponsored_requests %}
+                <tr>
+                    <td>{{ request.product.name }}</td>
+                    <td>TZS {{ request.budget }}</td>
+                    <td>
+                        <span class="badge bg-{{ request.status|default:'secondary' }}">
+                            {{ request.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ request.created_at|date }}</td>
+                    <td>
+                        <a href="{% url 'market:sponsored_request_detail' request.pk %}" class="btn btn-sm btn-info">
+                            {% trans "View" %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">{% trans "No sponsorship requests found." %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

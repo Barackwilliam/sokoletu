@@ -1,0 +1,630 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">{{ welcome_message }}</h1>
+                <p class="lead mb-4">{{ tagline }}</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'market:product_list' %}" class="btn btn-gold btn-lg">
+                        <i class="fas fa-shopping-bag me-2"></i> {% trans "Start Shopping" %}
+                    </a>
+                    {% if not user.is_authenticated or not user.is_seller %}
+                    <a href="{% url 'accounts:become_seller' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-store me-2"></i> {% trans "Sell on SokoLetu" %}
+                    </a>
+                    {% endif %}
+
+
+
+                    <!--  Slider Section ads part -->
+{% if sliders %}
+<div id="homeSlider" class="carousel slide mb-5" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {% for slide in sliders %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            {% if slide.url %}
+            <a href="{{ slide.url }}">
+            {% endif %}
+                <img src="{{ slide.get_image_preview_url }}" class="d-block w-100" alt="{{ slide.title }}">
+                <div class="carousel-caption d-none d-md-block text-start">
+                    {% if slide.title %}
+                        <h3 class="fw-bold text-white">{{ slide.title }}</h3>
+                    {% endif %}
+                    {% if slide.subtitle %}
+                        <p class="text-white">{{ slide.subtitle }}</p>
+                    {% endif %}
+                </div>
+            {% if slide.url %}
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">{% trans "Previous" %}</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#homeSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">{% trans "Next" %}</span>
+    </button>
+</div>
+{% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-store display-1 text-gold"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+<!-- Featured Categories Section -->
+<section class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-center fw-bold text-dark mb-3">{% trans "Shop by Category" %}</h2>
+            <p class="text-center text-muted">{% trans "Discover amazing products across various categories" %}</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for category in featured_categories %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="card category-card h-100 border-0">
+                <div class="card-body text-center p-4">
+                    <div class="category-icon mb-3">
+                        {% if category.image %}
+                            <img src="{{ category.image }}" alt="{{ category.name }}" 
+                                 class="img-fluid rounded" style="height: 60px; object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-folder fa-3x text-gold"></i>
+                        {% endif %}
+                    </div>
+                    <h6 class="card-title fw-bold text-dark mb-2">{{ category.name }}</h6>
+                    <p class="text-muted small mb-3">
+                        {{ category.product_count }} {% trans "products" %}
+                    </p>
+                    <a href="{{ category.get_absolute_url }}" class="btn btn-gold btn-sm">
+                        {% trans "Browse" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="py-4">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No categories available yet" %}</h4>
+                <p class="text-muted">{% trans "Categories will be available soon" %}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- View All Categories -->
+    <div class="text-center mt-4">
+        <a href="{% url 'market:category_list' %}" class="btn btn-outline-gold">
+            <i class="fas fa-th-large me-2"></i>{% trans "View All Categories" %}
+        </a>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold text-dark mb-0">{% trans "Featured Products" %}</h2>
+                <a href="{% url 'market:featured_products' %}" class="btn btn-outline-gold btn-sm">
+                    {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <p class="text-muted">{% trans "Handpicked products just for you" %}</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for product in featured_products %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card product-card h-100">
+                <!-- Product Image -->
+                <div class="position-relative">
+                    {% with product.images.first as image %}
+                    <img src="{% if image %}{{ image.image }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                         class="card-img-top" 
+                         alt="{{ product.name }}"
+                         style="height: 200px; object-fit: cover;">
+                    {% endwith %}
+                    
+                    <!-- Badges -->
+                    <div class="position-absolute top-0 start-0 m-2">
+                        {% if product.is_featured %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-star me-1"></i>{% trans "Featured" %}
+                        </span>
+                        {% endif %}
+                        {% if product.discount_percentage %}
+                        <span class="badge bg-danger">
+                            -{{ product.discount_percentage }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <!-- Category -->
+                    <small class="text-muted d-block mb-1">
+                        <i class="fas fa-tag me-1"></i>{{ product.category.name }}
+                    </small>
+                    
+                    <!-- Product Name -->
+                    <h6 class="card-title fw-bold">
+                        <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">
+                            {{ product.name|truncatewords:4 }}
+                        </a>
+                    </h6>
+                    
+                    <!-- Shop -->
+                    <small class="text-muted d-block mb-2">
+                        <i class="fas fa-store me-1"></i>{{ product.shop.name }}
+                    </small>
+                    
+                    <!-- Price -->
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="h5 text-gold fw-bold mb-0">
+                                TSh {{ product.price|floatformat:0 }}
+                            </span>
+                            {% if product.compare_price %}
+                            <small class="text-muted text-decoration-line-through ms-1">
+                                TSh {{ product.compare_price|floatformat:0 }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div class="mt-2">
+                        {% if product.is_in_stock %}
+                            {% if product.is_low_stock %}
+                            <small class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                {% trans "Low Stock" %}
+                            </small>
+                            {% else %}
+                            <small class="text-success">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {% trans "In Stock" %}
+                            </small>
+                            {% endif %}
+                        {% else %}
+                            <small class="text-danger">
+                                <i class="fas fa-times-circle me-1"></i>
+                                {% trans "Out of Stock" %}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+                    <div class="d-grid gap-2">
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-outline-gold btn-sm add-to-cart-btn" 
+                                data-product-id="{{ product.id }}"
+                                {% if not product.is_in_stock %}disabled{% endif %}>
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            {% if product.is_in_stock %}
+                                {% trans "Add to Cart" %}
+                            {% else %}
+                                {% trans "Out of Stock" %}
+                            {% endif %}
+                        </button>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-outline-gold btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            {% trans "Login to Buy" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Sponsored Products Section -->
+{% if sponsored_products %}
+<section class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold text-dark mb-0">{% trans "Sponsored Products" %}</h2>
+                <a href="{% url 'market:sponsored_products' %}" class="btn btn-outline-gold btn-sm">
+                    {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <p class="text-muted">{% trans "Featured promotions from our sellers" %}</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for product in sponsored_products %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card product-card h-100 border-warning">
+                <!-- Product Image -->
+                <div class="position-relative">
+                    {% with product.images.first as image %}
+                    <img src="{% if image %}{{ image.image }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                         class="card-img-top" 
+                         alt="{{ product.name }}"
+                         style="height: 200px; object-fit: cover;">
+                    {% endwith %}
+                    
+                    <!-- Sponsored Badge -->
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge bg-info">
+                            <i class="fas fa-bullhorn me-1"></i>{% trans "Sponsored" %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <!-- Category -->
+                    <small class="text-muted d-block mb-1">
+                        <i class="fas fa-tag me-1"></i>{{ product.category.name }}
+                    </small>
+                    
+                    <!-- Product Name -->
+                    <h6 class="card-title fw-bold">
+                        <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">
+                            {{ product.name|truncatewords:4 }}
+                        </a>
+                    </h6>
+                    
+                    <!-- Shop -->
+                    <small class="text-muted d-block mb-2">
+                        <i class="fas fa-store me-1"></i>{{ product.shop.name }}
+                    </small>
+                    
+                    <!-- Price -->
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="h5 text-gold fw-bold mb-0">
+                                TSh {{ product.price|floatformat:0 }}
+                            </span>
+                            {% if product.compare_price %}
+                            <small class="text-muted text-decoration-line-through ms-1">
+                                TSh {{ product.compare_price|floatformat:0 }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+                    <div class="d-grid gap-2">
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-outline-gold btn-sm add-to-cart-btn" 
+                                data-product-id="{{ product.id }}"
+                                {% if not product.is_in_stock %}disabled{% endif %}>
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            {% if product.is_in_stock %}
+                                {% trans "Add to Cart" %}
+                            {% else %}
+                                {% trans "Out of Stock" %}
+                            {% endif %}
+                        </button>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-outline-gold btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            {% trans "Login to Buy" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-2x text-gold"></i>
+                </div>
+                <h5>{% trans "Fast Delivery" %}</h5>
+                <p class="text-muted">{% trans "Quick and reliable shipping across Tanzania" %}</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt fa-2x text-gold"></i>
+                </div>
+                <h5>{% trans "Secure Payments" %}</h5>
+                <p class="text-muted">{% trans "Multiple safe payment options" %}</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-headset fa-2x text-gold"></i>
+                </div>
+                <h5>{% trans "24/7 Support" %}</h5>
+                <p class="text-muted">{% trans "Always here to help you" %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .btn-outline-gold {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+    
+    .btn-outline-gold:hover {
+        background-color: var(--gold);
+        color: white;
+    }
+    
+    .border-warning {
+        border: 2px solid var(--gold) !important;
+    }
+    
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .custom-toast {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏠 Home page loaded');
+    
+    // Add to Cart functionality for home page
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            console.log('🛒 Add to cart clicked for product:', productId);
+            
+            // Check if user is authenticated
+            {% if not user.is_authenticated %}
+            console.log('🔐 User not authenticated, redirecting to login');
+            window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
+            return;
+            {% endif %}
+            
+            // Check if button is disabled (out of stock)
+            if (this.disabled) {
+                console.log('⛔ Button disabled - product out of stock');
+                showToast('{% trans "This product is currently out of stock" %}', 'warning');
+                return;
+            }
+            
+            // Show loading state
+            const originalText = this.innerHTML;
+            const originalClass = this.className;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>';
+            this.disabled = true;
+            this.classList.add('btn-loading');
+            
+            try {
+                console.log('📡 Making AJAX request to add to cart...');
+                
+                // Get CSRF token
+                function getCSRFToken() {
+                    // Try to get from form input first
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (csrfToken) {
+                        return csrfToken.value;
+                    }
+                    
+                    // Fallback: check cookies
+                    const name = 'csrftoken';
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                
+                const csrfToken = getCSRFToken();
+                console.log('🔑 CSRF Token found:', !!csrfToken);
+                
+                // Build the URL - using absolute path to avoid issues
+                const addToCartUrl = `/en/orders/cart/add/${productId}/`;
+                console.log('🌐 URL:', addToCartUrl);
+                
+                // Make AJAX request
+                const response = await fetch(addToCartUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+                
+                console.log('📨 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📊 Response data:', data);
+                
+                if (data.success) {
+                    // Show success state
+                    this.innerHTML = '<i class="fas fa-check me-1"></i>{% trans "Added!" %}';
+                    this.classList.remove('btn-outline-gold', 'btn-loading');
+                    this.classList.add('btn-success');
+                    
+                    // Update cart count
+                    await updateCartCount();
+                    
+                    // Show success message
+                    showToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
+                    
+                } else {
+                    // Show error state
+                    this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Failed" %}';
+                    this.classList.remove('btn-outline-gold', 'btn-loading');
+                    this.classList.add('btn-danger');
+                    
+                    // Show error message
+                    showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error adding to cart:', error);
+                this.innerHTML = '<i class="fas fa-times me-1"></i>{% trans "Error" %}';
+                this.classList.remove('btn-outline-gold', 'btn-loading');
+                this.classList.add('btn-danger');
+                
+                showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
+            } finally {
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    this.className = originalClass;
+                }, 2000);
+            }
+        });
+    });
+
+    // Update cart count function
+    async function updateCartCount() {
+        try {
+            console.log('🔄 Updating cart count...');
+            const response = await fetch('{% url "orders:get_cart_count" %}', {
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch cart count');
+            }
+            
+            const data = await response.json();
+            console.log('📦 Cart count data:', data);
+            
+            const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+            console.log(`🎯 Updating ${cartBadges.length} cart badges`);
+            
+            cartBadges.forEach(badge => {
+                const oldCount = parseInt(badge.textContent) || 0;
+                const newCount = data.count || 0;
+                
+                console.log(`🔄 Badge update: ${oldCount} -> ${newCount}`);
+                
+                badge.textContent = newCount;
+                badge.classList.add('updated');
+                setTimeout(() => badge.classList.remove('updated'), 600);
+            });
+            
+        } catch (error) {
+            console.error('❌ Error updating cart count:', error);
+        }
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        document.querySelectorAll('.custom-toast').forEach(toast => {
+            toast.remove();
+        });
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `custom-toast alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 100px; right: 20px; z-index: 1060; min-width: 300px;';
+        toast.innerHTML = `
+            <div class="d-flex align-items-center">
+                ${type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : 
+                  type === 'error' ? '<i class="fas fa-exclamation-triangle me-2"></i>' : 
+                  type === 'warning' ? '<i class="fas fa-exclamation-circle me-2"></i>' :
+                  '<i class="fas fa-info-circle me-2"></i>'}
+                <div>${message}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+
+    // Initialize cart count on page load
+    updateCartCount();
+});
+</script>
+{% endblock %}

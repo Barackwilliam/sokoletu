@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Search Results" %} - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-2">
+                                <i class="fas fa-search text-warning me-2"></i>
+                                {% trans "Search Results" %}
+                            </h1>
+                            
+                            {% if query %}
+                            <p class="lead mb-0">
+                                {% blocktrans with count=paginator.count %}
+                                Found {{ count }} results for "{{ query }}"
+                                {% endblocktrans %}
+                                
+                                {% if sponsored_count %}
+                                <span class="badge bg-warning text-dark ms-2">
+                                    <i class="fas fa-star me-1"></i>
+                                    {{ sponsored_count }} {% trans "Sponsored" %}
+                                </span>
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <form method="get" class="d-flex">
+                                <input type="text" name="q" value="{{ query }}" 
+                                       class="form-control me-2" placeholder="{% trans 'Search products...' %}"
+                                       required>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            {% include "market/_search_filters.html" %}
+        </div>
+
+        <!-- Search Results -->
+        <div class="col-lg-9">
+            {% if products %}
+                <!-- Sponsored Results Section -->
+                {% with sponsored_products=products|dictsort:"is_sponsored"|slice:":4" %}
+                {% if sponsored_products %}
+                <div class="mb-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="h5 text-warning mb-0">
+                            <i class="fas fa-crown me-2"></i>{% trans "Sponsored Results" %}
+                        </h3>
+                        <span class="badge bg-warning ms-2">{{ sponsored_products|length }}</span>
+                    </div>
+                    <div class="row g-3">
+                        {% for product in sponsored_products %}
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+                            {% include "market/_product_card.html" with product=product is_sponsored=True %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Organic Results -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <h3 class="h5 text-dark mb-0">
+                            <i class="fas fa-shopping-bag me-2"></i>{% trans "All Products" %}
+                        </h3>
+                        <span class="badge bg-primary ms-2">{{ products.paginator.count }}</span>
+                    </div>
+                    
+                    <div class="row g-4">
+                        {% for product in products %}
+                        {% if not product.is_sponsored or forloop.counter > 4 %}
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+                            {% include "market/_product_card.html" with product=product %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                {% include "market/_pagination.html" with page_obj=page_obj %}
+                {% endif %}
+
+            {% else %}
+                <!-- No Results -->
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                    <h3 class="text-muted">{% trans "No products found" %}</h3>
+                    <p class="text-muted mb-4">
+                        {% trans "Try adjusting your search terms or browse categories" %}
+                    </p>
+                    
+                    {% if suggestions %}
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">{% trans "Try these searches instead:" %}</h5>
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                {% for suggestion in suggestions %}
+                                <a href="?q={{ suggestion.name }}" class="btn btn-outline-primary">
+                                    {{ suggestion.name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-lightbulb text-warning me-2"></i>
+                {% trans "You Might Also Like" %}
+            </h3>
+            {% include "market/_recommendations_carousel.html" with recommendations=recommendations %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

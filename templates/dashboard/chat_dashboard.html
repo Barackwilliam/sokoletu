@@ -1,0 +1,101 @@
+<!-- dashboard/templates/dashboard/chat_dashboard.html -->
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Mazungumzo - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3>Mazungumzo na Wateja</h3>
+                    <p class="text-muted">Wasiliana na wateja wako na ujibu maswali yao</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Chat Rooms List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Mazungumzo Yaliyo Wazi</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if chat_rooms %}
+                    <div class="list-group list-group-flush">
+                        {% for room in chat_rooms %}
+                        <a href="{% url 'dashboard:chat_room' room.room_id %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        {% for participant in room.participants.all %}
+                                            {% if participant != request.user %}
+                                                {{ participant.get_full_name|default:participant.username }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </h6>
+                                    <small class="text-muted">
+                                        {% if room.last_message %}
+                                            {{ room.last_message.message|truncatewords:5 }}
+                                        {% else %}
+                                            Hakuna ujumbe bado
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% if room.unread_count > 0 %}
+                                <span class="badge bg-danger rounded-pill">{{ room.unread_count }}</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Hakuna mazungumzo bado</p>
+                        <small class="text-muted">Wateja wataweza kuwasiliana nawe kupitia duka lako</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Chat Instructions -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-comment-dots fa-4x text-primary mb-4"></i>
+                    <h4 class="text-primary mb-3">Chagua Mazungumzo</h4>
+                    <p class="text-muted mb-4">
+                        Chagua mazungumzo upande wa kushoto kuona na kujibu ujumbe kutoka kwa wateja wako.
+                    </p>
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <i class="fas fa-check text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Jibu Maswali Haraka</h6>
+                                    <small class="text-muted">Wateja hupenda kujibiwa haraka</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex mb-3">
+                                <i class="fas fa-check text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Toa Msaada wa Bidhaa</h6>
+                                    <small class="text-muted">Saidia wateja kuhusu bidhaa zako</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

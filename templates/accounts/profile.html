@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Profile Completion Alert -->
+    {% if not user.has_completed_profile %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>{% trans "Profile Incomplete!" %}</strong>
+        {% trans "Please complete your profile to access all features." %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <!-- Profile Picture -->
+                    <div class="mb-3">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" 
+                             class="rounded-circle img-thumbnail" width="120" height="120">
+                        {% else %}
+                        <div class="rounded-circle bg-light-custom d-inline-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px;">
+                            <i class="fas fa-user-circle fa-4x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- User Info -->
+                    <h5 class="card-title text-dark-custom">{{ user.get_full_name|default:user.email }}</h5>
+                    <p class="text-muted mb-2">{{ user.email }}</p>
+                    
+                    <!-- User Type Badge -->
+                    <span class="badge {% if user.is_seller %}bg-success{% else %}bg-primary-custom{% endif %} mb-3">
+                        <i class="fas {% if user.is_seller %}fa-store{% else %}fa-shopping-bag{% endif %} me-1"></i>
+                        {{ user.get_user_type_display }}
+                    </span>
+
+                    <!-- Navigation -->
+                    <div class="list-group list-group-flush">
+                        <a href="#personal-info" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-user me-2"></i>{% trans "Personal Info" %}
+                        </a>
+                        {% if user.is_seller %}
+                        <a href="#seller-info" class="list-group-item list-group-item-action">
+                            <i class="fas fa-store me-2"></i>{% trans "Seller Profile" %}
+                        </a>
+                        {% endif %}
+                        <a href="#security" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shield-alt me-2"></i>{% trans "Security" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Personal Information -->
+            <div class="card shadow-sm border-0 mb-4" id="personal-info">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>{% trans "Personal Information" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "First Name" %}</label>
+                                {{ user_form.first_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Last Name" %}</label>
+                                {{ user_form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Phone Number" %}</label>
+                                {{ user_form.phone_number }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Date of Birth" %}</label>
+                                {{ user_form.date_of_birth }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Profile Picture" %}</label>
+                            {{ user_form.profile_picture }}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="fas fa-save me-2"></i>{% trans "Save Changes" %}
+                            </button>
+                            
+                            {% if not user.is_seller %}
+                            <a href="{% url 'accounts:become_seller' %}" class="btn btn-outline-success">
+                                <i class="fas fa-store me-2"></i>{% trans "Become a Seller" %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Seller Profile -->
+            {% if user.is_seller and seller_form %}
+            <div class="card shadow-sm border-0 mb-4" id="seller-info">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-store me-2"></i>{% trans "Seller Profile" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Store Name" %} *</label>
+                                {{ seller_form.store_name }}
+                                {% if seller_form.store_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in seller_form.store_name.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Business License" %}</label>
+                                {{ seller_form.business_license }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Store Description" %}</label>
+                            {{ seller_form.store_description }}
+                            <div class="form-text">{% trans "Tell customers about your store and what makes it special." %}</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Store Logo" %}</label>
+                                {{ seller_form.store_logo }}
+                                {% if seller_profile.store_logo %}
+                                <div class="mt-2">
+                                    <img src="{{ seller_profile.store_logo.url }}" alt="Store Logo" class="img-thumbnail" width="100">
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Store Banner" %}</label>
+                                {{ seller_form.store_banner }}
+                                {% if seller_profile.store_banner %}
+                                <div class="mt-2">
+                                    <img src="{{ seller_profile.store_banner.url }}" alt="Store Banner" class="img-thumbnail" width="150">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
+                            <i class="fas fa-map-marker-alt me-2"></i>{% trans "Business Location" %}
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">{% trans "Region" %}</label>
+                                {{ seller_form.region }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">{% trans "District" %}</label>
+                                {{ seller_form.district }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">{% trans "Ward" %}</label>
+                                {{ seller_form.ward }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{% trans "Street Address" %}</label>
+                            {{ seller_form.street_address }}
+                        </div>
+
+                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
+                            <i class="fas fa-id-card me-2"></i>{% trans "Business Information" %}
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Tax ID" %}</label>
+                                {{ seller_form.tax_id }}
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
+                            <i class="fas fa-share-alt me-2"></i>{% trans "Social Media & Links" %}
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Website" %}</label>
+                                {{ seller_form.website }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Facebook" %}</label>
+                                {{ seller_form.facebook }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Instagram" %}</label>
+                                {{ seller_form.instagram }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{% trans "Twitter" %}</label>
+                                {{ seller_form.twitter }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>{% trans "Save Seller Profile" %}
+                            </button>
+                            
+                            {% if seller_profile.has_complete_business_info %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>{% trans "Profile Complete" %}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Profile Incomplete" %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Security Settings -->
+            <div class="card shadow-sm border-0" id="security">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>{% trans "Security Settings" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Password Change -->
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-primary-custom fw-bold mb-3">
+                                <i class="fas fa-key me-2"></i>{% trans "Password" %}
+                            </h6>
+                            <p class="text-muted mb-3">{% trans "Change your password regularly to keep your account secure." %}</p>
+                            <a href="{% url 'accounts:password_reset' %}" class="btn btn-outline-primary-custom">
+                                <i class="fas fa-sync-alt me-2"></i>{% trans "Change Password" %}
+                            </a>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-primary-custom fw-bold mb-3">
+                                <i class="fas fa-user-shield me-2"></i>{% trans "Account Status" %}
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">{% trans "Email Verification:" %}</span>
+                                {% if user.is_email_verified %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>{% trans "Verified" %}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-times me-1"></i>{% trans "Not Verified" %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">{% trans "Profile Completion:" %}</span>
+                                {% if user.has_completed_profile %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>{% trans "Complete" %}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Incomplete" %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if user.is_seller %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{% trans "Seller Verification:" %}</span>
+                                {% if seller_profile.is_verified %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>{% trans "Verified" %}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock me-1"></i>{% trans "Pending" %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Session Management -->
+                    <div class="mt-4 pt-4 border-top">
+                        <h6 class="text-primary-custom fw-bold mb-3">
+                            <i class="fas fa-laptop me-2"></i>{% trans "Session Management" %}
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="#" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-desktop me-1"></i>{% trans "Active Sessions" %}
+                            </a>
+                            <a href="#" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-sign-out-alt me-1"></i>{% trans "Logout All Devices" %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Account Actions -->
+                    <div class="mt-4 pt-4 border-top">
+                        <h6 class="text-primary-custom fw-bold mb-3">
+                            <i class="fas fa-cog me-2"></i>{% trans "Account Actions" %}
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-download me-1"></i>{% trans "Export Data" %}
+                            </a>
+                            <a href="#" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash me-1"></i>{% trans "Delete Account" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for smooth scrolling and form handling -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scrolling for sidebar navigation
+        document.querySelectorAll('.list-group-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                document.querySelectorAll('.list-group-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Scroll to target section
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form submission handling
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Saving..." %}';
+                }
+            });
+        });
+
+        // Image preview for file inputs
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.createElement('img');
+                        preview.src = e.target.result;
+                        preview.className = 'img-thumbnail mt-2';
+                        preview.style.maxWidth = '150px';
+                        
+                        const existingPreview = input.parentNode.querySelector('img');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                        }
+                        
+                        input.parentNode.appendChild(preview);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        border: none;
+        padding: 20px;
+    }
+    
+    .list-group-item {
+        border: none;
+        border-radius: 8px !important;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .list-group-item:hover,
+    .list-group-item.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+    }
+    
+    .img-thumbnail {
+        border: 2px solid var(--primary);
+        border-radius: 10px;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 139, 87, 0.4);
+        color: white;
+    }
+    
+    .btn-outline-primary-custom {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        background: transparent;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary-custom:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% load i18n %}
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="row align-items-center mt-5">
+    <div class="col-md-4">
+        <small class="text-muted">
+            {% blocktrans with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}
+            Showing {{ start }}–{{ end }} of {{ total }} results
+            {% endblocktrans %}
+        </small>
+    </div>
+    
+    <div class="col-md-4">
+        <nav aria-label="{% trans 'Page navigation' %}">
+            <ul class="pagination justify-content-center mb-0">
+                <!-- First Page -->
+                {% if page_obj.number > 1 %}
+                <li class="page-item">
+                    <a class="page-link text-primary-custom" 
+                       href="?{% if query_string %}{{ query_string }}&{% endif %}page=1">
+                        1
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Ellipsis -->
+                {% if page_obj.number > 3 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+
+                <!-- Current Page and Neighbors -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' and num != 1 and num != page_obj.paginator.num_pages %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link bg-primary-custom border-primary-custom">
+                                {{ num }}
+                            </span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link text-primary-custom" 
+                               href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Ellipsis -->
+                {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+
+                <!-- Last Page -->
+                {% if page_obj.number != page_obj.paginator.num_pages %}
+                <li class="page-item">
+                    <a class="page-link text-primary-custom" 
+                       href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.paginator.num_pages }}">
+                        {{ page_obj.paginator.num_pages }}
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            {% if page_obj.has_previous %}
+            <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}" 
+               class="btn btn-outline-primary-custom btn-sm">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% else %}
+            <button class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+            <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}" 
+               class="btn btn-outline-primary-custom btn-sm">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <button class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

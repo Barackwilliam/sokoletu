@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-dark mb-3">{% trans "Shop by Category" %}</h1>
+            <p class="lead text-muted">{% trans "Discover amazing products across various categories" %}</p>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="row g-4">
+        {% for category in categories %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="category-card card h-100 border-0 shadow-hover">
+                <div class="card-body text-center p-4">
+                    <div class="category-icon mb-3">
+                        {% if category.image %}
+                            <img src="{{ category.image }}" alt="{{ category.name }}" class="img-fluid rounded" style="height: 80px; object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-folder fa-3x text-gold"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title fw-bold text-dark">{{ category.name }}</h5>
+                    <p class="text-muted small mb-3">
+                        <!-- Use the annotated product_count or method -->
+                        {{ category.product_count }} {% trans "products" %}
+                    </p>
+                    <p class="card-text text-muted small">{{ category.description|truncatewords:15 }}</p>
+                    <a href="{{ category.get_absolute_url }}" class="btn btn-gold btn-sm stretched-link">
+                        {% trans "Browse" %} <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                <!-- Subcategories -->
+                {% if category.children.all %}
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+                    <div class="subcategories">
+                        <small class="text-muted d-block mb-2">{% trans "Subcategories:" %}</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for child in category.children.all|slice:":3" %}
+                            <a href="{{ child.get_absolute_url }}" class="badge bg-light text-dark text-decoration-none">
+                                {{ child.name }}
+                            </a>
+                            {% endfor %}
+                            {% if category.children.count > 3 %}
+                            <span class="badge bg-light text-muted">+{{ category.children.count|add:"-3" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="py-5">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No categories available" %}</h4>
+                <p class="text-muted">{% trans "Check back later for new categories." %}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Featured Categories Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="bg-light rounded-3 p-5 text-center">
+                <h3 class="fw-bold text-dark mb-3">{% trans "Can't find what you're looking for?" %}</h3>
+                <p class="text-muted mb-4">{% trans "Use our advanced search to find exactly what you need" %}</p>
+                <a href="{% url 'market:product_list' %}" class="btn btn-gold btn-lg">
+                    <i class="fas fa-search me-2"></i>{% trans "Browse All Products" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .shadow-hover {
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+    
+    .shadow-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .category-icon {
+        transition: transform 0.3s ease;
+    }
+    
+    .category-card:hover .category-icon {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Filters - UPDATED FOR PROMPT 5 -->
+        <div class="col-lg-3 mb-4">
+            {% include "market/_search_filters.html" with query=request.GET.q categories=categories %}
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Page Header - UPDATED FOR PROMPT 5 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        {% if current_category %}
+                            {{ current_category.name }}
+                        {% else %}
+                            {% trans "All Products" %}
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {{ products.paginator.count }} {% trans "products found" %}
+                        {% if request.GET.q %}
+                            {% trans "for" %} "{{ request.GET.q }}"
+                        {% endif %}
+                        
+                        <!-- Sponsored Count - NEW FOR PROMPT 5 -->
+                        {% with sponsored_count=products|length|default:0 %}
+                        {% if sponsored_count > 0 %}
+                        <span class="badge bg-warning text-dark ms-2">
+                            <i class="fas fa-star me-1"></i>
+                            {{ sponsored_count }} {% trans "Sponsored" %}
+                        </span>
+                        {% endif %}
+                        {% endwith %}
+                    </p>
+                    
+                    <!-- Search Summary - NEW FOR PROMPT 5 -->
+                    {% if request.GET.q %}
+                    <div class="mt-2">
+                        <a href="{% url 'market:product_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>
+                            {% trans "Clear Search" %}
+                        </a>
+                        <a href="{% url 'market:product_search' %}?q={{ request.GET.q }}" class="btn btn-outline-primary btn-sm ms-1">
+                            <i class="fas fa-search me-1"></i>
+                            {% trans "Advanced Search" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="d-none d-md-flex align-items-center gap-2">
+                    <!-- View Toggle -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary active" id="grid-view">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="list-view">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Sort Options - UPDATED FOR PROMPT 5 -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort me-1"></i>
+                            {% trans "Sort" %}
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item {% if request.GET.ordering == '-created_at' %}active{% endif %}" 
+                                   href="?{% for key, value in request.GET.items %}{% if key != 'ordering' %}{{ key }}={{ value }}&{% endif %}{% endfor %}ordering=-created_at">
+                                    {% trans "Newest First" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.GET.ordering == 'price' %}active{% endif %}" 
+                                   href="?{% for key, value in request.GET.items %}{% if key != 'ordering' %}{{ key }}={{ value }}&{% endif %}{% endfor %}ordering=price">
+                                    {% trans "Price: Low to High" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.GET.ordering == '-price' %}active{% endif %}" 
+                                   href="?{% for key, value in request.GET.items %}{% if key != 'ordering' %}{{ key }}={{ value }}&{% endif %}{% endfor %}ordering=-price">
+                                    {% trans "Price: High to Low" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.GET.ordering == '-total_views' %}active{% endif %}" 
+                                   href="?{% for key, value in request.GET.items %}{% if key != 'ordering' %}{{ key }}={{ value }}&{% endif %}{% endfor %}ordering=-total_views">
+                                    {% trans "Most Popular" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.GET.ordering == 'name' %}active{% endif %}" 
+                                   href="?{% for key, value in request.GET.items %}{% if key != 'ordering' %}{{ key }}={{ value }}&{% endif %}{% endfor %}ordering=name">
+                                    {% trans "Name: A to Z" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sponsored Products Section - NEW FOR PROMPT 5 -->
+            {% with sponsored_products=products|dictsortreversed:"is_sponsored"|slice:":4" %}
+            {% if sponsored_products and request.GET.q %}
+            <div class="mb-5">
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="h5 text-warning mb-0">
+                        <i class="fas fa-star me-2"></i>{% trans "Sponsored Results" %}
+                    </h3>
+                    <span class="badge bg-warning ms-2">{{ sponsored_products|length }}</span>
+                </div>
+                
+                <div class="row g-3">
+                    {% for product in sponsored_products %}
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        {% include "market/_product_card.html" with product=product is_sponsored=True %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Products Grid -->
+            <div class="row g-4" id="products-grid">
+                {% for product in products %}
+                {% if not product.is_sponsored or forloop.counter > 4 %}
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    {% include "market/_product_card.html" with product=product %}
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">{% trans "No products found" %}</h4>
+                        <p class="text-muted">{% trans "Try adjusting your search filters or browse different categories." %}</p>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a href="{% url 'market:product_list' %}" class="btn btn-gold">
+                                <i class="fas fa-redo me-2"></i>{% trans "Reset Filters" %}
+                            </a>
+                            <a href="{% url 'market:category_list' %}" class="btn btn-outline-gold">
+                                <i class="fas fa-th-large me-2"></i>{% trans "Browse Categories" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Product pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-left me-1"></i>{% trans "Previous" %}
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {% trans "Next" %} <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recommendations Section - NEW FOR PROMPT 5 -->
+    {% if products and not request.GET.q %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    {% trans "Trending Products" %}
+                </h3>
+                <a href="{% url 'market:featured_products' %}" class="btn btn-outline-gold btn-sm">
+                    {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            
+            <!-- This would be populated by the recommendation engine -->
+            <div class="bg-light rounded-3 p-4 text-center">
+                <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">
+                    {% trans "Personalized recommendations based on your browsing history will appear here." %}
+                </p>
+                <small class="text-muted">
+                    {% trans "Trending products from our marketplace" %}
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .btn-outline-gold {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+    
+    .btn-outline-gold:hover {
+        background-color: var(--gold);
+        color: white;
+    }
+    
+    /* List View Styles */
+    .list-view .col-xl-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .list-view .product-card {
+        flex-direction: row;
+        height: auto;
+    }
+    
+    .list-view .product-card .card-img-top {
+        width: 200px;
+        height: 200px;
+        border-radius: 10px 0 0 10px;
+        object-fit: cover;
+    }
+    
+    .list-view .product-card .card-body {
+        flex: 1;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .list-view .product-card {
+            flex-direction: column;
+        }
+        
+        .list-view .product-card .card-img-top {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .d-none.d-md-flex {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // View Toggle Functionality
+        const gridViewBtn = document.getElementById('grid-view');
+        const listViewBtn = document.getElementById('list-view');
+        const productsGrid = document.getElementById('products-grid');
+        
+        if (gridViewBtn && listViewBtn && productsGrid) {
+            gridViewBtn.addEventListener('click', function() {
+                productsGrid.className = 'row g-4';
+                this.classList.add('active');
+                listViewBtn.classList.remove('active');
+                
+                // Update view preference in localStorage
+                localStorage.setItem('productViewPreference', 'grid');
+            });
+            
+            listViewBtn.addEventListener('click', function() {
+                productsGrid.className = 'row g-4 list-view';
+                this.classList.add('active');
+                gridViewBtn.classList.remove('active');
+                
+                // Update view preference in localStorage
+                localStorage.setItem('productViewPreference', 'list');
+            });
+            
+            // Load saved view preference
+            const savedView = localStorage.getItem('productViewPreference');
+            if (savedView === 'list') {
+                listViewBtn.click();
+            }
+        }
+
+        // Price Filter Auto-submit with Debounce - NEW FOR PROMPT 5
+        const priceInputs = document.querySelectorAll('input[name="min_price"], input[name="max_price"]');
+        let priceTimeout;
+        
+        priceInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(priceTimeout);
+                priceTimeout = setTimeout(() => {
+                    document.getElementById('filter-form').submit();
+                }, 1000);
+            });
+        });
+
+        // Category Filter Auto-submit - NEW FOR PROMPT 5
+        const categorySelect = document.querySelector('select[name="category"]');
+        if (categorySelect) {
+            categorySelect.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
+        }
+
+        // Search Analytics Tracking - NEW FOR PROMPT 5
+        function trackSearchInteraction() {
+            const searchQuery = new URLSearchParams(window.location.search).get('q');
+            if (searchQuery) {
+                // Send search analytics data
+                fetch('/api/analytics/track-search/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        query: searchQuery,
+                        results_count: {{ products.paginator.count }},
+                        page: {{ products.number|default:1 }}
+                    })
+                }).catch(console.error);
+            }
+        }
+
+        // Product View Tracking for Recommendations - NEW FOR PROMPT 5
+        function trackProductViews() {
+            const productCards = document.querySelectorAll('.product-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const productId = entry.target.querySelector('.add-to-cart-ajax')?.dataset.productId;
+                        if (productId) {
+                            // Send view data for recommendations
+                            fetch('/api/analytics/track-product-view/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify({
+                                    product_id: productId,
+                                    source: 'product_list',
+                                    query: new URLSearchParams(window.location.search).get('q')
+                                })
+                            }).catch(console.error);
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            productCards.forEach(card => {
+                observer.observe(card);
+            });
+        }
+
+        // Initialize tracking
+        trackSearchInteraction();
+        trackProductViews();
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Quick Filter Buttons - NEW FOR PROMPT 5
+        function setupQuickFilters() {
+            const quickFilterButtons = document.querySelectorAll('.quick-filter');
+            quickFilterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterType = this.dataset.filter;
+                    const filterValue = this.dataset.value;
+                    
+                    // Update URL with filter
+                    const url = new URL(window.location);
+                    url.searchParams.set(filterType, filterValue);
+                    window.location.href = url.toString();
+                });
+            });
+        }
+
+        setupQuickFilters();
+    });
+</script>
+{% endblock %}

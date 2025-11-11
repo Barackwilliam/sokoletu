@@ -1,0 +1,91 @@
+<!-- dashboard/templates/dashboard/chat_room.html -->
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Mazungumzo - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user me-2"></i>
+                                {% for participant in room.participants.all %}
+                                    {% if participant != request.user %}
+                                        {{ participant.get_full_name|default:participant.username }}
+                                    {% endif %}
+                                {% endfor %}
+                            </h5>
+                        </div>
+                        <a href="{% url 'dashboard:chat_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Rudi
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Messages Area -->
+                    <div id="messages-container" style="height: 400px; overflow-y: auto;" class="mb-3 p-3 border rounded">
+                        {% for message in messages %}
+                        <div class="mb-3 {% if message.sender == request.user %}text-end{% endif %}">
+                            <div class="d-inline-block p-3 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" 
+                                 style="max-width: 70%;">
+                                <div class="mb-1">{{ message.message }}</div>
+                                <small class="{% if message.sender == request.user %}text-white-50{% else %}text-muted{% endif %}">
+                                    {{ message.timestamp|time:"H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-comment-slash fa-2x mb-3"></i>
+                            <p>Hakuna ujumbe bado</p>
+                            <small>Anza mazungumzo na mteja wako</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="input-group">
+                        <input type="text" id="message-input" class="form-control" placeholder="Andika ujumbe hapa..." 
+                               aria-label="Message" aria-describedby="send-button">
+                        <button class="btn btn-primary" type="button" id="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Auto-scroll to bottom of messages
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Simple message sending (you'll need to implement proper WebSocket/AJAX)
+    document.getElementById('send-button').addEventListener('click', function() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        
+        if (message) {
+            // Here you would typically send the message via AJAX/WebSocket
+            alert('Ujumbe utatumwa hapa kwenye toleo kamili: ' + message);
+            messageInput.value = '';
+        }
+    });
+    
+    // Send message on Enter key
+    document.getElementById('message-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('send-button').click();
+        }
+    });
+</script>
+{% endblock %}

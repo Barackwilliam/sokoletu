@@ -1,0 +1,117 @@
+/* Search Results Styles */
+.search-results-container {
+    min-height: 60vh;
+}
+
+.sponsored-product {
+    position: relative;
+    border: 2px solid #ffc107 !important;
+}
+
+.sponsored-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+/* Search Suggestions */
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-suggestions .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.search-suggestions .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.search-suggestions .list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* Loading Animation */
+.search-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ffc107;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-suggestions {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 50vh;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .sponsored-badge {
+        font-size: 0.65rem;
+        padding: 3px 6px;
+    }
+}
+
+/* Animation for search results */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-card {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* Filter sidebar sticky behavior */
+@media (min-width: 992px) {
+    .sticky-top {
+        position: sticky;
+        z-index: 100;
+    }
+}

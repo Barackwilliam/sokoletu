@@ -1,0 +1,163 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Kuwa Muuzaji - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-store me-2"></i>Kuwa Muuzaji SokoLetu
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
+                                <h5>Faida za Kuwa Muuzaji</h5>
+                            </div>
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Ufikiaji wa Soko Pana</strong>
+                                    <p class="text-muted small mb-0">Wasili kwa wateja wengi nchini Tanzania</p>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Dashboard ya Muuzaji</strong>
+                                    <p class="text-muted small mb-0">Fuata mauzo na uchambuzi wa biashara</p>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Mfumo wa Mazungumzo</strong>
+                                    <p class="text-muted small mb-0">Wasiliana na wateja kwa urahisi</p>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Usimamizi wa Bidhaa</strong>
+                                    <p class="text-muted small mb-0">Weka na usimamize bidhaa zako kwa urahisi</p>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Malipo Salama</strong>
+                                    <p class="text-muted small mb-0">Pokea malipo kwa njia salama na za kuaminika</p>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6 border-start">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
+                                <h5>Boresha Akaunti Yako</h5>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Akaunti yako sasa: 
+                                <strong class="text-capitalize">
+                                    {% if user.user_type == 'buyer' %}
+                                        Mnunuzi
+                                    {% elif user.user_type == 'seller' %}
+                                        Muuzaji
+                                    {% else %}
+                                        Mnunuzi na Muuzaji
+                                    {% endif %}
+                                </strong>
+                            </div>
+                            
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Chagua Aina ya Akaunti:</label>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="user_type" 
+                                               value="seller" id="type_seller" 
+                                               {% if user.user_type == 'seller' %}checked{% endif %}>
+                                        <label class="form-check-label" for="type_seller">
+                                            <strong>Muuzaji Pekee</strong>
+                                            <small class="d-block text-muted">
+                                                Weka bidhaa na uuze tu
+                                            </small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="user_type" 
+                                               value="both" id="type_both" 
+                                               {% if user.user_type == 'both' or user.user_type == 'buyer' %}checked{% endif %}>
+                                        <label class="form-check-label" for="type_both">
+                                            <strong>Mnunuzi na Muuzaji</strong>
+                                            <small class="d-block text-muted">
+                                                Nunua na uuze bidhaa
+                                            </small>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4 p-3 bg-light rounded">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                        Tahadhari Muhimu
+                                    </h6>
+                                    <ul class="small text-muted mb-0">
+                                        <li>Utahitaji kuunda duka kabla ya kuweka bidhaa</li>
+                                        <li>Hakuna malipo ya kujiunga au ada ya mwezi</li>
+                                        <li>Kila mauzo yana ada ndogo ya huduma</li>
+                                        <li>Sharti uwe na NIDA halali kwa biashara</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Thibitisha Uboreshaji
+                                    </button>
+                                    <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>
+                                        Rudi Nyumbani
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Info -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+                            <h6>Akaunti Salama</h6>
+                            <p class="small text-muted mb-0">Akaunti yako iko salama na imelindwa</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="fas fa-headset fa-2x text-primary mb-3"></i>
+                            <h6>Msaada 24/7</h6>
+                            <p class="small text-muted mb-0">Timu yetu iko tayari kukusaidia</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                            <h6>Kukuza Biashara</h6>
+                            <p class="small text-muted mb-0">Zana za kukua biashara yako</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

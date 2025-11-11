@@ -1,0 +1,144 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}My Shop - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">My Shop</h1>
+    <a href="{% url 'market:shop_edit' %}" class="btn btn-primary">
+        <i class="fas fa-edit me-1"></i>Edit Shop
+    </a>
+</div>
+
+<div class="row">
+    <!-- Shop Info -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-store me-2"></i>Shop Information</h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ shop.name }}</h5>
+                <p class="card-text">{{ shop.description|default:"No description" }}</p>
+                
+                <div class="mt-3">
+                    <p class="mb-1"><strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong></p>
+                    <p class="text-muted">{{ shop.location|default:"Not specified" }}</p>
+                    
+                    <p class="mb-1"><strong><i class="fas fa-envelope me-2"></i>Email:</strong></p>
+                    <p class="text-muted">{{ shop.contact_email }}</p>
+                    
+                    <p class="mb-1"><strong><i class="fas fa-phone me-2"></i>Phone:</strong></p>
+                    <p class="text-muted">{{ shop.contact_phone|default:"Not specified" }}</p>
+                </div>
+                
+                <div class="mt-4">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Joined {{ shop.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Products
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ products.count }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-box fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Active Products
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ products.count }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Total Views
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ shop.total_views|default:0 }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-eye fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+
+                    <!-- NEW (CORRECT) - Use product_list or remove link -->
+                    <a href="{% url 'market:product_list' %}" class="btn btn-success btn-block">
+                        <i class="fas fa-plus me-2"></i>Add New Product
+                    </a>
+                 </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'market:product_list' %}" class="btn btn-info btn-block">
+                            <i class="fas fa-list me-2"></i>Manage Products
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'orders:seller_orders' %}" class="btn btn-warning btn-block">
+                            <i class="fas fa-shopping-cart me-2"></i>View Orders
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'dashboard:chat_dashboard' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-comments me-2"></i>Customer Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

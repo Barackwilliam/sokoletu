@@ -1,0 +1,199 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - SokoLetu{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Jumla ya Mauzo
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            TSh {{ analytics.total_sales|floatformat:0|intcomma }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Mapato ya Mwezi
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            TSh {{ analytics.monthly_revenue|floatformat:0|intcomma }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Maagizo
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ analytics.total_orders }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Wateja
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ analytics.total_customers }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sales Chart -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Mauzi ya Miezi 30 Iliyopita</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="salesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Maagizo ya Hivi Karibuni</h6>
+            </div>
+            <div class="card-body">
+                {% for order in recent_orders %}
+                <div class="mb-3 pb-2 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <strong>#{{ order.order_number }}</strong>
+                        <span class="badge bg-{{ order.get_status_class }}">{{ order.get_payment_status_display }}</span>
+                    </div>
+                    <small class="text-muted">
+                        {{ order.user.get_full_name|default:order.user.email }}<br>
+                        TSh {{ order.total|floatformat:0|intcomma }} • {{ order.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+                {% empty %}
+                <p class="text-muted">Hakuna maagizo bado.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Popular Products -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Bidhaa Maarufu</h6>
+            </div>
+            <div class="card-body">
+                {% for product in popular_products %}
+                <div class="d-flex align-items-center mb-3">
+                    {% if product.images.first %}
+                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                         class="rounded me-3" width="40" height="40" style="object-fit: cover;">
+                    {% else %}
+                    <div class="rounded bg-light me-3 d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">
+                        <i class="fas fa-image text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <div class="small font-weight-bold">{{ product.name|truncatewords:3 }}</div>
+                        <div class="small text-muted">TSh {{ product.price|floatformat:0|intcomma }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Hakuna bidhaa bado.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sales Chart
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [{
+                label: 'Mauzo (TSh)',
+                data: {{ chart_data.sales|safe }},
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'TSh ' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

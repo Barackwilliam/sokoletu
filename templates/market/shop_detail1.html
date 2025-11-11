@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Shop Header -->
+    <div class="row mb-5">
+        <div class="col-md-3 text-center">
+            {% if shop.logo %}
+            <img src="{{ shop.logo.url }}" alt="{{ shop.name }}" class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+            {% else %}
+            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                <i class="fas fa-store fa-3x text-muted"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="display-5 fw-bold text-dark mb-2">{{ shop.name }}</h1>
+            {% if shop.is_verified %}
+            <span class="badge bg-success mb-3">
+                <i class="fas fa-check-circle me-1"></i>{% trans "Verified Seller" %}
+            </span>
+            {% endif %}
+            <p class="text-muted mb-3">{{ shop.description|default:"No description provided." }}</p>
+            
+            <div class="d-flex flex-wrap gap-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-box text-gold me-2"></i>
+                    <span class="fw-bold">{{ product_count }} {% trans "products" %}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <span class="fw-bold">4.5/5</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt text-gold me-2"></i>
+                    <span class="fw-bold">
+                        {% if shop.region %}{{ shop.region }}{% else %}{% trans "Tanzania" %}{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="d-flex flex-wrap gap-2">
+                {% if shop.phone %}
+                <a href="tel:{{ shop.phone }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-phone me-1"></i>{% trans "Call Seller" %}
+                </a>
+                {% endif %}
+                {% if shop.email %}
+                <a href="mailto:{{ shop.email }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-envelope me-1"></i>{% trans "Email" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">{% trans "Shop Rating" %}</h6>
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="text-muted mb-0">128 {% trans "reviews" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shop Products -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="fw-bold text-dark mb-4">{% trans "Shop Products" %} ({{ product_count }})</h3>
+            
+            {% if products %}
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    {% include 'market/components/product_card.html' with product=product %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Shop products pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}">{% trans "Previous" %}</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}">{% trans "Next" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No products available" %}</h4>
+                <p class="text-muted">{% trans "This shop hasn't added any products yet." %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
