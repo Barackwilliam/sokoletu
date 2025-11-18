@@ -617,6 +617,21 @@ function initTechParticles() {
                     <!-- Card Footer -->
                     <div class="tech-product-footer">
                         <div class="d-grid gap-2">
+                            <button class="btn btn-tech-primary btn-sm add-to-cart-tech" 
+                                    data-product-id="{{ product.id }}"
+                                    {% if not product.is_in_stock %}disabled{% endif %}>
+                                <i class="fas fa-shopping-cart me-1"></i>
+                                {% if product.is_in_stock %}
+                                    {% trans "Add to Cart" %}
+                                {% else %}
+                                    {% trans "Out of Stock" %}
+                                {% endif %}
+                            </button>
+                          
+                        
+
+               {% comment %}
+                            
                             {% if user.is_authenticated %}
                             <button class="btn btn-tech-primary btn-sm add-to-cart-tech" 
                                     data-product-id="{{ product.id }}"
@@ -634,6 +649,13 @@ function initTechParticles() {
                                 {% trans "Login to Buy" %}
                             </a>
                             {% endif %}
+
+  {% endcomment %}
+
+
+
+
+
                         </div>
                     </div>
                 </div>

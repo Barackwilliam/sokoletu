@@ -759,7 +759,13 @@
                                 </form>
                             </li>
                         </ul>
-                    </li>
+                    </li>       <!-- Cart -->
+                        <li class="nav-item me-3 position-relative">
+                            <a class="nav-link position-relative cart-icon-modern" href="{% url 'orders:cart' %}">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="notification-badge-modern" id="cart-badge">0</span>
+                            </a>
+                        </li>
                     
                     <div class="nav-divider d-none d-lg-block"></div>
                     
@@ -772,13 +778,7 @@
                             </a>
                         </li>
                         
-                        <!-- Cart -->
-                        <li class="nav-item me-3 position-relative">
-                            <a class="nav-link position-relative cart-icon-modern" href="{% url 'orders:cart' %}">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span class="notification-badge-modern" id="cart-badge">0</span>
-                            </a>
-                        </li>
+                        
                         
                         <!-- Notifications -->
                         <li class="nav-item dropdown me-3">
