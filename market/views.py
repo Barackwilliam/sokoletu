@@ -728,3 +728,6 @@ def product_delete(request, pk):
     return render(request, 'market/product_delete.html', context)
 
 
+def shop_list(request):
+    shops = Shop.objects.filter(is_active=True).order_by('-created_at')
+    return render(request, 'market/shop_list.html', {'shops': shops})

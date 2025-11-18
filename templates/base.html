@@ -13,17 +13,17 @@
     
     <style>
         :root {
-            --primary: #2E8B57;        /* Sea Green - Primary color */
-            --secondary: #FF6B35;      /* Vibrant Orange - Secondary color */
-            --accent: #FFD166;         /* Sunny Yellow - Accent color */
-            --dark: #1A535C;           /* Dark Teal - Dark color */
-            --light: #F7FFF7;          /* Mint Cream - Light background */
+            --primary: #f3c806ff;      /* Yellow - Primary color */
+            --secondary: #FF6B35;      /* Orange - Secondary color */
+            --accent: #FFD166;         /* Light Yellow - Accent color */
+            --dark: #333333;           /* Dark Gray - Dark color */
+            --light: #fff9e6;          /* Light Yellow - Light background */
             --gray: #6C757D;           /* Bootstrap Gray */
             --white: #FFFFFF;
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
-            --info: #17a2b8;
+            --info: #f3c806ff;         /* Yellow color */
         }
         
         body {
@@ -31,6 +31,7 @@
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding-top: 80px;
             line-height: 1.6;
+            color: #333;
         }
         
         /* Custom Scrollbar */
@@ -48,79 +49,290 @@
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--dark);
+            background: var(--secondary);
         }
         
-        /* Navbar Styles */
+        /* Modern Navbar Styles */
         .navbar-custom {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            padding: 12px 0;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            padding: 15px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
         
         .navbar-custom.scrolled {
-            padding: 8px 0;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            padding: 10px 0;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, rgba(243, 200, 6, 0.95) 0%, rgba(255, 107, 53, 0.95) 100%);
         }
         
-        /* Sidebar Styles */
-        .sidebar {
-            background: linear-gradient(180deg, var(--dark) 0%, var(--primary) 100%);
+        /* Navbar Brand - Modern Design */
+        .navbar-brand-custom {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            padding: 8px 0;
+        }
+        
+        .navbar-brand-custom::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #000, var(--secondary));
+            border-radius: 2px;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .navbar-brand-custom:hover::after {
+            transform: scaleX(1);
+        }
+        
+        /* Navbar Links - Modern Design */
+        .nav-link-modern {
+            color: #000 !important;
+            font-weight: 600;
+            padding: 12px 20px !important;
+            margin: 0 5px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link-modern:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link-modern:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link-modern.active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Modern Dropdown Menu */
+        .dropdown-menu-modern {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 12px;
+            min-width: 240px;
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: dropdownFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .dropdown-item-modern {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 4px 0;
+            color: #000;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-item-modern:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            transform: translateX(8px);
+            color: #000;
+        }
+        
+        .dropdown-item-modern i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        /* Modern Search Bar */
+        .search-container-modern {
+            position: relative;
+            min-width: 400px;
+        }
+        
+        .search-input-modern {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 25px;
+            padding: 12px 50px 12px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .search-input-modern:focus {
+            background: rgba(255,255,255,0.95);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(243, 200, 6, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .search-btn-modern {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #000;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn-modern:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Modern Badges */
+        .badge-modern {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: #000;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* User Avatar Modern */
+        .user-avatar-modern {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        }
+        
+        .user-avatar-modern:hover {
+            border-color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Mobile Sidebar - Modern Design */
+        .sidebar-modern {
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             position: fixed;
             top: 0;
-            left: -320px;
-            width: 320px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            left: -400px;
+            width: 380px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1050;
-            box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+            box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
         }
         
-        .sidebar.active {
+        .sidebar-modern.active {
             left: 0;
         }
         
-        .sidebar-header {
-            padding: 25px 20px;
-            background: rgba(255,255,255,0.1);
+        .sidebar-header-modern {
+            padding: 30px 25px;
+            background: rgba(0,0,0,0.1);
             border-bottom: 1px solid rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
         }
         
-        .sidebar-menu {
-            padding: 20px 0;
+        .sidebar-menu-modern {
+            padding: 25px 0;
         }
         
-        .sidebar-menu a {
-            color: var(--white);
-            padding: 15px 25px;
+        .sidebar-link-modern {
+            color: #000;
+            padding: 18px 30px;
             display: flex;
             align-items: center;
             text-decoration: none;
             transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-            margin: 5px 15px;
-            border-radius: 0 12px 12px 0;
-        }
-        
-        .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.15);
-            border-left: 4px solid var(--accent);
-            transform: translateX(5px);
-            color: var(--accent);
-        }
-        
-        .sidebar-menu a i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
+            margin: 8px 20px;
+            border-radius: 16px;
+            font-weight: 600;
             font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Overlay */
-        .overlay {
+        .sidebar-link-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+        
+        .sidebar-link-modern:hover::before {
+            left: 100%;
+        }
+        
+        .sidebar-link-modern:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-link-modern i {
+            margin-right: 15px;
+            width: 25px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        /* Overlay Modern */
+        .overlay-modern {
             display: none;
             position: fixed;
             top: 0;
@@ -128,407 +340,120 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             z-index: 1049;
-        }
-        
-        .overlay.active {
-            display: block;
             animation: fadeIn 0.3s ease;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .overlay-modern.active {
+            display: block;
         }
         
-        /* Button Styles */
-        .btn-primary-custom {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
-        }
-        
-        .btn-primary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(46, 139, 87, 0.4);
-            color: white;
-        }
-        
-        .btn-secondary-custom {
-            background: linear-gradient(135deg, var(--secondary) 0%, #E55A2B 100%);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-        }
-        
-        .btn-secondary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
-            color: white;
-        }
-        
-        .btn-accent-custom {
-            background: linear-gradient(135deg, var(--accent) 0%, #FFC043 100%);
-            color: var(--dark);
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 209, 102, 0.3);
-        }
-        
-        .btn-accent-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 209, 102, 0.4);
-            color: var(--dark);
-        }
-        
-        /* Text Colors */
-        .text-primary-custom {
-            color: var(--primary) !important;
-        }
-        
-        .text-secondary-custom {
-            color: var(--secondary) !important;
-        }
-        
-        .text-accent-custom {
-            color: var(--accent) !important;
-        }
-        
-        .text-dark-custom {
-            color: var(--dark) !important;
-        }
-        
-        /* Background Colors */
-        .bg-primary-custom {
-            background-color: var(--primary) !important;
-        }
-        
-        .bg-secondary-custom {
-            background-color: var(--secondary) !important;
-        }
-        
-        .bg-accent-custom {
-            background-color: var(--accent) !important;
-        }
-        
-        .bg-dark-custom {
-            background-color: var(--dark) !important;
-        }
-        
-        .bg-light-custom {
-            background-color: var(--light) !important;
-        }
-        
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-            color: white;
-            padding: 100px 0;
-            margin-bottom: 50px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.1"><polygon fill="white" points="0,1000 1000,0 1000,1000"/></svg>');
-            background-size: cover;
-        }
-        
-        /* Card Styles */
-        .category-card {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 30px 25px;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-        
-        .category-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-        }
-        
-        .category-icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Product Card */
-        .product-card {
-            transition: all 0.4s ease;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-            overflow: hidden;
-            background: var(--white);
-        }
-        
-        .product-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-        
-        .product-card-img {
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-        
-        .product-card:hover .product-card-img {
-            transform: scale(1.1);
-        }
-        
-        /* Language Selector */
-        .language-selector {
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 25px;
-            padding: 8px 18px;
-            color: white;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .language-selector:hover {
-            border-color: var(--accent);
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
             background: rgba(255,255,255,0.2);
-        }
-        
-        /* User Avatar */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .user-avatar:hover {
-            border-color: var(--accent);
-            transform: scale(1.1);
-        }
-        
-        /* Profile Completion Warning */
-        .profile-completion-warning {
-            border-left: 4px solid var(--accent);
-            background: linear-gradient(135deg, rgba(255,209,102,0.1) 0%, rgba(255,107,53,0.1) 100%);
-        }
-        
-        /* Notification Badge */
-        .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: linear-gradient(135deg, var(--secondary), var(--danger));
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.75rem;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 12px;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
-        }
-        
-        /* Search Container */
-        .search-container {
-            position: relative;
-        }
-        
-        .search-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 0 0 16px 16px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-            backdrop-filter: blur(10px);
-        }
-        
-        .search-suggestions.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .suggestion-item {
-            padding: 12px 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-        
-        .suggestion-item:hover {
-            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
-            text-decoration: none;
-            color: inherit;
-            transform: translateX(5px);
-        }
-        
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-        
-        .search-highlight {
-            background: linear-gradient(135deg, var(--accent), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-        
-        /* Cart Badge Animation */
-        .cart-badge {
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
-        .cart-badge.updated {
-            animation: pulse 0.6s ease-in-out;
+        .mobile-menu-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: #000;
+            transform: scale(1.1);
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
+        /* Language Selector Modern */
+        .language-selector-modern {
+            background: rgba(255,255,255,0.3);
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary);
+        .language-selector-modern:hover {
+            background: rgba(255,255,255,0.5);
+            border-color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Notification Bell Modern */
+        .notification-bell {
+            position: relative;
+            background: rgba(255,255,255,0.2);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Message Styles */
-        .alert {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid transparent;
-        }
-        
-        .alert-success {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(23, 162, 184, 0.1) 100%);
-            color: #155724;
-            border-left-color: var(--success);
-        }
-        
-        .alert-error, .alert-danger {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
-            color: #721c24;
-            border-left-color: var(--danger);
-        }
-        
-        .alert-warning {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 209, 102, 0.1) 100%);
-            color: #856404;
-            border-left-color: var(--warning);
-        }
-        
-        .alert-info {
-            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(46, 139, 87, 0.1) 100%);
-            color: #0c5460;
-            border-left-color: var(--info);
-        }
-        
-        /* Custom Toast */
-        .custom-toast {
-            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 1060;
-            min-width: 320px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
         
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .notification-bell:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1) rotate(15deg);
         }
         
-        /* Footer Styles */
+        .notification-badge-modern {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: #000;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+        
+        /* Cart Icon Modern */
+        .cart-icon-modern {
+            position: relative;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cart-icon-modern:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Footer Styles - Yellow and Orange (Kama Mwanzo) */
         .footer-custom {
-            background: linear-gradient(135deg, var(--dark) 0%, #14444D 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
             position: relative;
             overflow: hidden;
         }
@@ -540,212 +465,192 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="white" points="0,0 1000,1000 0,1000"/></svg>');
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="black" points="0,0 1000,1000 0,1000"/></svg>');
             background-size: cover;
         }
         
-        /* Mobile Responsive */
+        .footer-custom .text-accent-custom {
+            color: #000 !important;
+        }
+        
+        .footer-custom a {
+            color: #000 !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .footer-custom a:hover {
+            color: var(--primary) !important;
+            transform: translateY(-2px);
+        }
+        
+        .footer-custom .hover-lift:hover {
+            color: var(--primary) !important;
+        }
+        
+        .footer-custom .opacity-75 {
+            opacity: 0.9 !important;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1199.98px) {
+            .search-container-modern {
+                min-width: 300px;
+            }
+        }
+        
         @media (max-width: 991.98px) {
-            .sidebar {
-                display: block;
+            .search-container-modern {
+                min-width: 100%;
+                margin: 15px 0;
             }
             
-            .search-container {
-                min-width: 100%;
-                margin: 10px 0;
+            .navbar-custom {
+                padding: 12px 0;
+            }
+            
+            .sidebar-modern {
+                width: 320px;
             }
         }
         
-        @media (min-width: 992px) {
-            .sidebar {
-                display: none;
+        @media (max-width: 767.98px) {
+            .sidebar-modern {
+                width: 300px;
+            }
+            
+            .sidebar-link-modern {
+                padding: 15px 25px;
+                font-size: 1rem;
             }
         }
         
-        /* Mobile Language Selector */
-        .mobile-language-selector {
-            margin: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
+        @media (max-width: 575.98px) {
+            .sidebar-modern {
+                width: 280px;
+            }
+            
+            .sidebar-header-modern {
+                padding: 20px 15px;
+            }
+            
+            .sidebar-link-modern {
+                padding: 12px 20px;
+                margin: 5px 15px;
+            }
+        }
+
+        /* Additional Modern Enhancements */
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background: rgba(0,0,0,0.2);
+            margin: 0 15px;
+        }
+        
+        .dropdown-header-modern {
+            padding: 12px 20px;
+            font-weight: 700;
+            color: #000;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .profile-completion-modern {
+            background: linear-gradient(135deg, rgba(255,209,102,0.3) 0%, rgba(255,107,53,0.3) 100%);
+            border-left: 4px solid var(--secondary);
             border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .mobile-language-selector .btn-group {
-            width: 100%;
-        }
-        
-        .mobile-language-selector .btn {
-            flex: 1;
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            background: transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-language-selector .btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--dark);
-            font-weight: 600;
-        }
-        
-        .mobile-language-selector .btn:hover {
-            background: rgba(255,255,255,0.2);
-            border-color: var(--accent);
-        }
-        
-        /* Form Controls */
-        .form-control-custom {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 12px 16px;
-            transition: all 0.3s ease;
-            background: var(--white);
-        }
-        
-        .form-control-custom:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
-            background: var(--white);
-        }
-        
-        /* Dropdown Styles */
-        .dropdown-menu {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.95);
-        }
-        
-        .dropdown-item {
-            padding: 10px 16px;
-            border-radius: 8px;
-            margin: 2px 8px;
-            width: auto;
-            transition: all 0.3s ease;
-        }
-        
-        .dropdown-item:hover {
-            background: linear-gradient(135deg, rgba(46, 139, 87, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
-            transform: translateX(5px);
-        }
-        
-        /* Badge Styles */
-        .badge-custom {
-            border-radius: 20px;
-            padding: 6px 12px;
-            font-weight: 600;
-            font-size: 0.75rem;
-        }
-        
-        /* Animation Classes */
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .hover-lift {
-            transition: transform 0.3s ease;
-        }
-        
-        .hover-lift:hover {
-            transform: translateY(-5px);
+            margin: 10px;
         }
     </style>
 </head>
 <body>
     <!-- Mobile Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h4 class="text-accent-custom mb-0">
-                <i class="fas fa-store me-2"></i>SokoLetu
+    <div class="sidebar-modern" id="sidebar">
+        <div class="sidebar-header-modern">
+            <h4 class="text-dark mb-0 d-flex align-items-center">
+                <i class="fas fa-store me-3"></i>
+                <span>SokoLetu</span>
             </h4>
-            <small class="text-white opacity-75">{% trans "Tanzanian Online Marketplace" %}</small>
+            <small class="text-dark opacity-75">{% trans "Tanzanian Online Marketplace" %}</small>
         </div>
-        <div class="sidebar-menu">
-            <a href="{% url 'core:home' %}">
+        <div class="sidebar-menu-modern">
+            <a href="{% url 'core:home' %}" class="sidebar-link-modern">
                 <i class="fas fa-home"></i> {% trans "Home" %}
             </a>
-            <a href="{% url 'market:product_list' %}">
+            <a href="{% url 'market:product_list' %}" class="sidebar-link-modern">
                 <i class="fas fa-shopping-bag"></i> {% trans "Products" %}
+            </a>
+            <a href="{% url 'market:shop_list' %}" class="sidebar-link-modern">
+                <i class="fas fa-store"></i> {% trans "Shops" %}
             </a>
             
             {% if user.is_authenticated %}
                 <!-- Authenticated User Links -->
-                <a href="{% url 'accounts:profile' %}">
+                <a href="{% url 'accounts:profile' %}" class="sidebar-link-modern">
                     <i class="fas fa-user"></i> {% trans "My Profile" %}
                 </a>
                 
                 {% if user.is_seller %}
                     {% if user.shop and user.shop.slug %}
-                    <a href="{% url 'market:shop_detail' slug=user.shop.slug %}">
-                        <i class="fas fa-store"></i> {% trans "My Store" %}
+                    <a href="{% url 'market:shop_detail' slug=user.shop.slug %}" class="sidebar-link-modern">
+                        <i class="fas fa-store-alt"></i> {% trans "My Store" %}
                     </a>
-                    <a href="#">
+                    <a href="#" class="sidebar-link-modern">
                         <i class="fas fa-box"></i> {% trans "My Products" %}
                     </a>
                     {% else %}
                     <!-- SHOW SETUP SHOP LINK IF NO SHOP -->
-                    <a href="#" class="text-warning">
+                    <a href="#" class="sidebar-link-modern text-warning">
                         <i class="fas fa-exclamation-triangle"></i> {% trans "Setup Shop" %}
                     </a>
                     {% endif %}
                 {% endif %}
                 
-                <a href="{% url 'orders:cart' %}">
+                <a href="{% url 'orders:cart' %}" class="sidebar-link-modern">
                     <i class="fas fa-shopping-cart"></i> {% trans "My Cart" %}
                     {% if user.is_authenticated %}
-                    <span class="badge bg-secondary-custom rounded-pill cart-badge-sidebar ms-2" id="cart-badge-sidebar">0</span>
+                    <span class="badge badge-modern ms-auto" id="cart-badge-sidebar">0</span>
                     {% endif %}
                 </a>
-                <a href="#">
+                <a href="#" class="sidebar-link-modern">
                     <i class="fas fa-shopping-bag"></i> {% trans "My Orders" %}
                 </a>
-                <a href="#">
+                <a href="#" class="sidebar-link-modern">
                     <i class="fas fa-heart"></i> {% trans "Wishlist" %}
                 </a>
-                <a href="#">
+                <a href="#" class="sidebar-link-modern">
                     <i class="fas fa-question-circle"></i> {% trans "Help" %}
                 </a>
-                <a href="{% url 'accounts:logout' %}">
+                <a href="{% url 'accounts:logout' %}" class="sidebar-link-modern text-danger">
                     <i class="fas fa-sign-out-alt"></i> {% trans "Logout" %}
                 </a>
             {% else %}
                 <!-- Guest User Links -->
-                <a href="{% url 'accounts:login' %}">
+                <a href="{% url 'accounts:login' %}" class="sidebar-link-modern">
                     <i class="fas fa-sign-in-alt"></i> {% trans "Login" %}
                 </a>
-                <a href="{% url 'accounts:register' %}">
+                <a href="{% url 'accounts:register' %}" class="sidebar-link-modern">
                     <i class="fas fa-user-plus"></i> {% trans "Register" %}
                 </a>
-                <a href="#">
+                <a href="#" class="sidebar-link-modern">
                     <i class="fas fa-question-circle"></i> {% trans "Help" %}
                 </a>
             {% endif %}
             
             <!-- Mobile Language Selector -->
-            <div class="mobile-language-selector">
-                <small class="text-white opacity-75 mb-2 d-block">{% trans "Select Language:" %}</small>
-                <div class="btn-group w-100" role="group">
+            <div class="mobile-language-selector mt-4 mx-3 p-4 bg-light rounded-3">
+                <small class="text-dark opacity-75 mb-3 d-block fw-bold">{% trans "Select Language:" %}</small>
+                <div class="btn-group w-100 shadow-sm" role="group">
                     <form action="" method="post" class="d-flex w-100">
                         {% csrf_token %}
                         <input name="next" type="hidden" value="{{ redirect_to }}">
-                        <button type="submit" name="language" value="en" class="btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
+                        <button type="submit" name="language" value="en" class="btn {% if LANGUAGE_CODE == 'en' %}active btn-warning{% else %}btn-outline-dark{% endif %} rounded-start">
                             English
                         </button>
-                        <button type="submit" name="language" value="sw" class="btn {% if LANGUAGE_CODE == 'sw' %}active{% endif %}">
+                        <button type="submit" name="language" value="sw" class="btn {% if LANGUAGE_CODE == 'sw' %}active btn-warning{% else %}btn-outline-dark{% endif %} rounded-end">
                             Kiswahili
                         </button>
                     </form>
@@ -755,19 +660,19 @@
     </div>
     
     <!-- Overlay -->
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay-modern" id="overlay"></div>
 
     <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark fixed-top" id="mainNavbar">
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top" id="mainNavbar">
         <div class="container">
             <!-- Mobile Menu Button -->
-            <button class="btn btn-link text-accent-custom d-lg-none me-2" id="sidebarToggle">
-                <i class="fas fa-bars fa-lg"></i>
+            <button class="btn mobile-menu-btn d-lg-none me-3" id="sidebarToggle">
+                <i class="fas fa-bars fa-lg text-dark"></i>
             </button>
             
             <!-- Brand -->
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'core:home' %}">
-                <i class="fas fa-store me-2 text-accent-custom"></i>
+            <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="{% url 'core:home' %}">
+                <i class="fas fa-store me-2"></i>
                 <span>SokoLetu</span>
             </a>
 
@@ -775,27 +680,32 @@
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'core:home' %}">
-                            <i class="fas fa-home me-1"></i> {% trans "Home" %}
+                        <a class="nav-link nav-link-modern {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">
+                            <i class="fas fa-home me-2"></i>{% trans "Home" %}
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'market:product_list' %}">
-                            <i class="fas fa-shopping-bag me-1"></i> {% trans "Products" %}
+                        <a class="nav-link nav-link-modern {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}" href="{% url 'market:product_list' %}">
+                            <i class="fas fa-shopping-bag me-2"></i>{% trans "Products" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-modern {% if request.resolver_match.url_name == 'shop_list' %}active{% endif %}" href="{% url 'market:shop_list' %}">
+                            <i class="fas fa-store me-2"></i>{% trans "Shops" %}
                         </a>
                     </li>
                     
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:profile' %}">
-                                <i class="fas fa-user me-1"></i> {% trans "My Profile" %}
+                            <a class="nav-link nav-link-modern {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-2"></i>{% trans "My Profile" %}
                             </a>
                         </li>
                         
                         {% if user.is_seller and user.shop and user.shop.slug %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
-                                <i class="fas fa-store me-1"></i> {% trans "My Store" %}
+                            <a class="nav-link nav-link-modern" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
+                                <i class="fas fa-store-alt me-2"></i>{% trans "My Store" %}
                             </a>
                         </li>
                         {% endif %}
@@ -803,44 +713,38 @@
                 </ul>
 
                 <!-- Search Form -->
-                <div class="search-container me-3" style="min-width: 350px;">
-                    <form method="get" action="{% url 'market:product_search' %}" class="d-flex">
-                        <input type="text" name="q" class="form-control form-control-custom" 
+                <div class="search-container-modern me-4">
+                    <form method="get" action="{% url 'market:product_search' %}" class="position-relative">
+                        <input type="text" name="q" class="form-control search-input-modern" 
                                placeholder="{% trans 'Search products, categories...' %}" 
                                value="{{ request.GET.q }}" 
                                id="searchInput"
                                autocomplete="off">
-                        <button class="btn btn-primary-custom ms-2" type="submit">
+                        <button class="btn search-btn-modern" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
-                    
-                    <!-- Search Suggestions Dropdown -->
-                    <div class="search-suggestions" id="searchSuggestions">
-                        <div class="list-group list-group-flush">
-                            <!-- Suggestions will be loaded via JavaScript -->
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Right Icons -->
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
                     <!-- Language Selector -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link d-flex align-items-center" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-globe me-2 text-accent-custom"></i>
-                            <span class="language-selector">
-                                {{ LANGUAGE_CODE|upper }}
-                            </span>
+                    <li class="nav-item dropdown me-3">
+                        <a class="nav-link d-flex align-items-center language-selector-modern" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe me-2"></i>
+                            <span>{{ LANGUAGE_CODE|upper }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-modern dropdown-menu-end">
+                            <li class="dropdown-header-modern">
+                                <i class="fas fa-language me-2"></i>{% trans "Select Language" %}
+                            </li>
                             <li>
                                 <form action="{% url 'set_language' %}" method="post" class="d-inline w-100">
                                     {% csrf_token %}
                                     <input name="next" type="hidden" value="{{ redirect_to }}">
                                     <input name="language" type="hidden" value="en">
-                                    <button type="submit" class="dropdown-item {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
-                                        <i class="fas fa-language me-2"></i>English
+                                    <button type="submit" class="dropdown-item-modern {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
+                                        <i class="fas fa-flag-usa me-2"></i>English
                                     </button>
                                 </form>
                             </li>
@@ -849,71 +753,72 @@
                                     {% csrf_token %}
                                     <input name="next" type="hidden" value="{{ redirect_to }}">
                                     <input name="language" type="hidden" value="sw">
-                                    <button type="submit" class="dropdown-item {% if LANGUAGE_CODE == 'sw' %}active{% endif %}">
-                                        <i class="fas fa-language me-2"></i>Kiswahili
+                                    <button type="submit" class="dropdown-item-modern {% if LANGUAGE_CODE == 'sw' %}active{% endif %}">
+                                        <i class="fas fa-flag me-2"></i>Kiswahili
                                     </button>
                                 </form>
                             </li>
                         </ul>
                     </li>
                     
+                    <div class="nav-divider d-none d-lg-block"></div>
+                    
                     {% if user.is_authenticated %}
                         <!-- Wishlist -->
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="#">
+                        <li class="nav-item me-3">
+                            <a class="nav-link position-relative notification-bell" href="#">
                                 <i class="fas fa-heart"></i>
-                                <span class="badge bg-secondary-custom rounded-pill badge-custom">0</span>
+                                <span class="badge badge-modern">0</span>
                             </a>
                         </li>
                         
                         <!-- Cart -->
-                        <li class="nav-item position-relative">
-                            <a class="nav-link position-relative" href="{% url 'orders:cart' %}">
+                        <li class="nav-item me-3 position-relative">
+                            <a class="nav-link position-relative cart-icon-modern" href="{% url 'orders:cart' %}">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="badge bg-accent-custom text-dark-custom rounded-pill cart-badge badge-custom" id="cart-badge">0</span>
+                                <span class="notification-badge-modern" id="cart-badge">0</span>
                             </a>
                         </li>
                         
                         <!-- Notifications -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link position-relative notification-bell" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-bell"></i>
-                                <span class="notification-badge">3</span>
+                                <span class="notification-badge-modern">3</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li class="dropdown-header">
-                                    <strong>{% trans "Notifications" %}</strong>
+                            <ul class="dropdown-menu dropdown-menu-modern dropdown-menu-end">
+                                <li class="dropdown-header-modern">
+                                    <i class="fas fa-bell me-2"></i>{% trans "Notifications" %}
                                 </li>
-                                <li><a class="dropdown-item" href="#">{% trans "New order received" %}</a></li>
-                                <li><a class="dropdown-item" href="#">{% trans "Product update available" %}</a></li>
-                                <li><a class="dropdown-item" href="#">{% trans "System maintenance" %}</a></li>
+                                <li><a class="dropdown-item-modern" href="#"><i class="fas fa-shopping-bag me-2 text-success"></i>{% trans "New order received" %}</a></li>
+                                <li><a class="dropdown-item-modern" href="#"><i class="fas fa-box me-2 text-primary"></i>{% trans "Product update available" %}</a></li>
+                                <li><a class="dropdown-item-modern" href="#"><i class="fas fa-tools me-2 text-warning"></i>{% trans "System maintenance" %}</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center text-primary-custom" href="#">{% trans "View All" %}</a></li>
+                                <li><a class="dropdown-item-modern text-center" href="#"><i class="fas fa-eye me-2"></i>{% trans "View All" %}</a></li>
                             </ul>
                         </li>
                         
                         <!-- User Dropdown -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 {% if user.profile_picture %}
-                                    <img src="{{ user.profile_picture }}" alt="{{ user.get_full_name }}" class="user-avatar me-2">
+                                    <img src="{{ user.profile_picture }}" alt="{{ user.get_full_name }}" class="user-avatar-modern">
                                 {% else %}
-                                    <div class="user-avatar me-2 bg-accent-custom d-flex align-items-center justify-content-center">
-                                        <i class="fas fa-user text-dark-custom"></i>
+                                    <div class="user-avatar-modern d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user text-dark"></i>
                                     </div>
                                 {% endif %}
-                                <span class="d-none d-lg-inline">{{ user.first_name|default:user.email }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <ul class="dropdown-menu dropdown-menu-modern dropdown-menu-end">
                                 <!-- User Info Header -->
                                 <li>
-                                    <div class="dropdown-header">
+                                    <div class="dropdown-header-modern">
                                         <div class="d-flex align-items-center">
                                             {% if user.profile_picture %}
-                                                <img src="{{ user.profile_picture }}" alt="{{ user.get_full_name }}" class="user-avatar me-3">
+                                                <img src="{{ user.profile_picture }}" alt="{{ user.get_full_name }}" class="user-avatar-modern me-3">
                                             {% else %}
-                                                <div class="user-avatar me-3 bg-accent-custom d-flex align-items-center justify-content-center">
-                                                    <i class="fas fa-user text-dark-custom"></i>
+                                                <div class="user-avatar-modern me-3 d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-user text-dark"></i>
                                                 </div>
                                             {% endif %}
                                             <div>
@@ -934,7 +839,7 @@
                                 <!-- Profile Completion Warning -->
                                 {% if not user.has_completed_profile %}
                                 <li>
-                                    <div class="px-3 py-2 profile-completion-warning">
+                                    <div class="profile-completion-modern p-3 mx-2">
                                         <small class="text-warning d-flex align-items-center">
                                             <i class="fas fa-exclamation-triangle me-2"></i>
                                             {% trans "Complete your profile" %}
@@ -946,26 +851,26 @@
                                 
                                 <!-- Menu Items -->
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                        <i class="fas fa-user me-2 text-primary-custom"></i>{% trans "My Profile" %}
+                                    <a class="dropdown-item-modern" href="{% url 'accounts:profile' %}">
+                                        <i class="fas fa-user me-2"></i>{% trans "My Profile" %}
                                     </a>
                                 </li>
                                 
                                 {% if user.is_seller %}
                                     {% if user.shop and user.shop.slug %}
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
-                                            <i class="fas fa-store me-2 text-primary-custom"></i>{% trans "My Store" %}
+                                        <a class="dropdown-item-modern" href="{% url 'market:shop_detail' slug=user.shop.slug %}">
+                                            <i class="fas fa-store-alt me-2"></i>{% trans "My Store" %}
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-box me-2 text-primary-custom"></i>{% trans "My Products" %}
+                                        <a class="dropdown-item-modern" href="#">
+                                            <i class="fas fa-box me-2"></i>{% trans "My Products" %}
                                         </a>
                                     </li>
                                     {% else %}
                                     <li>
-                                        <a class="dropdown-item text-warning" href="#">
+                                        <a class="dropdown-item-modern text-warning" href="#">
                                             <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Setup Shop" %}
                                         </a>
                                     </li>
@@ -973,36 +878,36 @@
                                 {% endif %}
 
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'orders:cart' %}">
-                                        <i class="fas fa-shopping-cart me-2 text-primary-custom"></i>{% trans "My Cart" %}
-                                        <span class="badge bg-accent-custom text-dark-custom rounded-pill ms-2 cart-badge-dropdown badge-custom" id="cart-badge-dropdown">0</span>
+                                    <a class="dropdown-item-modern" href="{% url 'orders:cart' %}">
+                                        <i class="fas fa-shopping-cart me-2"></i>{% trans "My Cart" %}
+                                        <span class="badge badge-modern ms-2" id="cart-badge-dropdown">0</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-shopping-bag me-2 text-primary-custom"></i>{% trans "My Orders" %}
+                                    <a class="dropdown-item-modern" href="#">
+                                        <i class="fas fa-shopping-bag me-2"></i>{% trans "My Orders" %}
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-heart me-2 text-primary-custom"></i>{% trans "Wishlist" %}
+                                    <a class="dropdown-item-modern" href="#">
+                                        <i class="fas fa-heart me-2"></i>{% trans "Wishlist" %}
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-cog me-2 text-primary-custom"></i>{% trans "Settings" %}
+                                    <a class="dropdown-item-modern" href="#">
+                                        <i class="fas fa-cog me-2"></i>{% trans "Settings" %}
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#">
-                                        <i class="fas fa-question-circle me-2 text-primary-custom"></i>{% trans "Help" %}
+                                    <a class="dropdown-item-modern" href="#">
+                                        <i class="fas fa-question-circle me-2"></i>{% trans "Help" %}
                                     </a>
                                 </li>
                                 
                                 <li><hr class="dropdown-divider"></li>
                                 
                                 <li>
-                                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                    <a class="dropdown-item-modern text-danger" href="{% url 'accounts:logout' %}">
                                         <i class="fas fa-sign-out-alt me-2"></i>{% trans "Logout" %}
                                     </a>
                                 </li>
@@ -1010,15 +915,15 @@
                         </li>
                     {% else %}
                         <!-- Guest User Links -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i>
+                        <li class="nav-item me-3">
+                            <a class="nav-link nav-link-modern" href="{% url 'accounts:login' %}">
+                                <i class="fas fa-sign-in-alt me-2"></i>
                                 <span class="d-none d-lg-inline">{% trans "Login" %}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-accent-custom text-dark-custom ms-2" href="{% url 'accounts:register' %}">
-                                <i class="fas fa-user-plus me-1"></i>
+                            <a class="btn btn-warning fw-bold px-4 py-2 rounded-pill" href="{% url 'accounts:register' %}">
+                                <i class="fas fa-user-plus me-2"></i>
                                 <span class="d-none d-lg-inline">{% trans "Register" %}</span>
                             </a>
                         </li>
@@ -1034,7 +939,7 @@
         {% if messages %}
         <div class="container mt-4">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show fade-in-up" role="alert">
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                 <div class="d-flex align-items-center">
                     {% if message.tags == 'success' %}
                     <i class="fas fa-check-circle me-3 text-success"></i>
@@ -1058,71 +963,71 @@
         {% endblock %}
     </main>
 
-    <!-- Footer -->
+    <!-- Footer - Background Imerudi Kama Mwanzo -->
     <footer class="footer-custom py-5 mt-5">
         <div class="container position-relative">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5 class="text-accent-custom mb-3">
+                    <h5 class="text-dark-custom mb-3">
                         <i class="fas fa-store me-2"></i>SokoLetu
                     </h5>
                     <p class="opacity-75">{% trans "Your modern Tanzanian online marketplace. Shop the best local products with convenience and trust." %}</p>
                     <div class="mt-3">
-                        <a href="#" class="text-white me-3 hover-lift">
+                        <a href="#" class="text-dark me-3 hover-lift">
                             <i class="fab fa-facebook fa-lg"></i>
                         </a>
-                        <a href="#" class="text-white me-3 hover-lift">
+                        <a href="#" class="text-dark me-3 hover-lift">
                             <i class="fab fa-twitter fa-lg"></i>
                         </a>
-                        <a href="#" class="text-white me-3 hover-lift">
+                        <a href="#" class="text-dark me-3 hover-lift">
                             <i class="fab fa-instagram fa-lg"></i>
                         </a>
-                        <a href="#" class="text-white hover-lift">
+                        <a href="#" class="text-dark hover-lift">
                             <i class="fab fa-whatsapp fa-lg"></i>
                         </a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
-                    <h6 class="text-accent-custom mb-3">{% trans "Shop" %}</h6>
+                    <h6 class="text-dark-custom mb-3">{% trans "Shop" %}</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{% url 'market:product_list' %}" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "All Products" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Popular" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "New Arrivals" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Best Sellers" %}</a></li>
+                        <li class="mb-2"><a href="{% url 'market:product_list' %}" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "All Products" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Popular" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "New Arrivals" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Best Sellers" %}</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
-                    <h6 class="text-accent-custom mb-3">{% trans "Account" %}</h6>
+                    <h6 class="text-dark-custom mb-3">{% trans "Account" %}</h6>
                     <ul class="list-unstyled">
                         {% if user.is_authenticated %}
-                            <li class="mb-2"><a href="{% url 'accounts:profile' %}" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "My Profile" %}</a></li>
-                            <li class="mb-2"><a href="{% url 'orders:cart' %}" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "My Cart" %}</a></li>
-                            <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "My Orders" %}</a></li>
-                            <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Wishlist" %}</a></li>
+                            <li class="mb-2"><a href="{% url 'accounts:profile' %}" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "My Profile" %}</a></li>
+                            <li class="mb-2"><a href="{% url 'orders:cart' %}" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "My Cart" %}</a></li>
+                            <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "My Orders" %}</a></li>
+                            <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Wishlist" %}</a></li>
                         {% else %}
-                            <li class="mb-2"><a href="{% url 'accounts:login' %}" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Login" %}</a></li>
-                            <li class="mb-2"><a href="{% url 'accounts:register' %}" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Register" %}</a></li>
+                            <li class="mb-2"><a href="{% url 'accounts:login' %}" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Login" %}</a></li>
+                            <li class="mb-2"><a href="{% url 'accounts:register' %}" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Register" %}</a></li>
                         {% endif %}
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
-                    <h6 class="text-accent-custom mb-3">{% trans "Help" %}</h6>
+                    <h6 class="text-dark-custom mb-3">{% trans "Help" %}</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Contact Us" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "FAQ" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Shipping" %}</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Returns" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Contact Us" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "FAQ" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Shipping" %}</a></li>
+                        <li class="mb-2"><a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Returns" %}</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
-                    <h6 class="text-accent-custom mb-3">{% trans "Language" %}</h6>
+                    <h6 class="text-dark-custom mb-3">{% trans "Language" %}</h6>
                     <ul class="list-unstyled">
                         <li class="mb-2">
                             <form action="{% url 'set_language' %}" method="post" class="d-inline">
                                 {% csrf_token %}
                                 <input name="next" type="hidden" value="{{ redirect_to }}">
                                 <input name="language" type="hidden" value="en">
-                                <button type="submit" class="btn btn-link text-light text-decoration-none p-0 opacity-75 hover-lift">English</button>
+                                <button type="submit" class="btn btn-link text-dark text-decoration-none p-0 opacity-75 hover-lift">English</button>
                             </form>
                         </li>
                         <li class="mb-2">
@@ -1130,7 +1035,7 @@
                                 {% csrf_token %}
                                 <input name="next" type="hidden" value="{{ redirect_to }}">
                                 <input name="language" type="hidden" value="sw">
-                                <button type="submit" class="btn btn-link text-light text-decoration-none p-0 opacity-75 hover-lift">Kiswahili</button>
+                                <button type="submit" class="btn btn-link text-dark text-decoration-none p-0 opacity-75 hover-lift">Kiswahili</button>
                             </form>
                         </li>
                     </ul>
@@ -1142,9 +1047,9 @@
                     <p class="mb-0 opacity-75">&copy; 2025 SokoLetu. {% trans "All rights reserved." %}</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-light text-decoration-none opacity-75 me-3 hover-lift">{% trans "Privacy Policy" %}</a>
-                    <a href="#" class="text-light text-decoration-none opacity-75 me-3 hover-lift">{% trans "Terms of Service" %}</a>
-                    <a href="#" class="text-light text-decoration-none opacity-75 hover-lift">{% trans "Cookies" %}</a>
+                    <a href="#" class="text-dark text-decoration-none opacity-75 me-3 hover-lift">{% trans "Privacy Policy" %}</a>
+                    <a href="#" class="text-dark text-decoration-none opacity-75 me-3 hover-lift">{% trans "Terms of Service" %}</a>
+                    <a href="#" class="text-dark text-decoration-none opacity-75 hover-lift">{% trans "Cookies" %}</a>
                 </div>
             </div>
         </div>
@@ -1176,137 +1081,7 @@
             }
         });
 
-        // Advanced Search Functionality
-        class AdvancedSearch {
-            constructor() {
-                this.searchInput = document.getElementById('searchInput');
-                this.suggestionsContainer = document.getElementById('searchSuggestions');
-                this.debounceTimeout = null;
-                
-                this.init();
-            }
-            
-            init() {
-                if (this.searchInput) {
-                    this.searchInput.addEventListener('input', this.handleInput.bind(this));
-                    this.searchInput.addEventListener('focus', this.showSuggestions.bind(this));
-                    document.addEventListener('click', this.hideSuggestions.bind(this));
-                }
-            }
-            
-            handleInput(event) {
-                const query = event.target.value.trim();
-                
-                clearTimeout(this.debounceTimeout);
-                
-                if (query.length < 2) {
-                    this.hideSuggestions();
-                    return;
-                }
-                
-                this.debounceTimeout = setTimeout(() => {
-                    this.fetchSuggestions(query);
-                }, 300);
-            }
-            
-            async fetchSuggestions(query) {
-                try {
-                    // Show loading state
-                    this.suggestionsContainer.innerHTML = `
-                        <div class="suggestion-item">
-                            <div class="d-flex align-items-center justify-content-center">
-                                <div class="loading-spinner me-2"></div>
-                                <small class="text-muted">{% trans "Searching..." %}</small>
-                            </div>
-                        </div>
-                    `;
-                    this.showSuggestions();
-                    
-                    const response = await fetch(`{% url 'market:search_suggestions' %}?q=${encodeURIComponent(query)}`);
-                    const data = await response.json();
-                    
-                    this.displaySuggestions(data.suggestions || []);
-                } catch (error) {
-                    console.error('Search error:', error);
-                    this.displaySuggestions([]);
-                }
-            }
-            
-            displaySuggestions(suggestions) {
-                if (!suggestions || suggestions.length === 0) {
-                    this.suggestionsContainer.innerHTML = `
-                        <div class="suggestion-item">
-                            <div class="text-center text-muted">
-                                <i class="fas fa-search me-2"></i>
-                                {% trans "No results found" %}
-                            </div>
-                        </div>
-                    `;
-                    this.showSuggestions();
-                    return;
-                }
-                
-                const html = suggestions.map(suggestion => `
-                    <a href="${suggestion.url}" class="suggestion-item">
-                        <div class="d-flex align-items-center">
-                            ${suggestion.type === 'product' ? `
-                                <div class="bg-light-custom rounded p-2 me-3">
-                                    <i class="fas fa-box text-primary-custom"></i>
-                                </div>
-                            ` : `
-                                <div class="bg-light-custom rounded p-2 me-3">
-                                    <i class="fas fa-folder text-secondary-custom"></i>
-                                </div>
-                            `}
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 text-dark-custom">${this.highlightText(suggestion.name, this.searchInput.value)}</h6>
-                                <small class="text-muted">${suggestion.category || '{% trans "Category" %}'}</small>
-                            </div>
-                            <i class="fas fa-chevron-right text-muted"></i>
-                        </div>
-                    </a>
-                `).join('');
-                
-                this.suggestionsContainer.innerHTML = html;
-                this.showSuggestions();
-            }
-            
-            highlightText(text, query) {
-                if (!query) return text;
-                const regex = new RegExp(`(${query})`, 'gi');
-                return text.replace(regex, '<span class="search-highlight">$1</span>');
-            }
-            
-            showSuggestions() {
-                if (this.suggestionsContainer.children.length > 0) {
-                    this.suggestionsContainer.style.display = 'block';
-                    this.suggestionsContainer.classList.add('active');
-                }
-            }
-            
-            hideSuggestions(event) {
-                if (event && (this.suggestionsContainer.contains(event.target) || 
-                              this.searchInput.contains(event.target))) {
-                    return;
-                }
-                
-                this.suggestionsContainer.style.display = 'none';
-                this.suggestionsContainer.classList.remove('active');
-            }
-        }
-
-        // Auto-dismiss alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
-
-        // Update cart count on page load and periodically
+        // Update cart count function
         async function updateCartCount() {
             {% if user.is_authenticated %}
             try {
@@ -1316,7 +1091,7 @@
                 }
                 
                 const data = await response.json();
-                const cartBadges = document.querySelectorAll('.cart-badge, .cart-badge-sidebar, .cart-badge-dropdown');
+                const cartBadges = document.querySelectorAll('#cart-badge, #cart-badge-sidebar, #cart-badge-dropdown');
                 
                 cartBadges.forEach(badge => {
                     const oldCount = parseInt(badge.textContent) || 0;
@@ -1336,165 +1111,34 @@
             {% endif %}
         }
 
-        // Enhanced Add to Cart functionality for product cards
-        async function addToCart(productId, button) {
-            const originalText = button.innerHTML;
-            const originalClass = button.className;
-            
-            // Show loading state
-            button.innerHTML = '<div class="loading-spinner me-2"></div>{% trans "Adding..." %}';
-            button.disabled = true;
-            button.classList.add('btn-loading');
-            
-            try {
-                // Get CSRF token
-                function getCSRFToken() {
-                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                    if (csrfToken) {
-                        return csrfToken.value;
-                    }
-                    
-                    // Fallback: check cookies
-                    const name = 'csrftoken';
-                    let cookieValue = null;
-                    if (document.cookie && document.cookie !== '') {
-                        const cookies = document.cookie.split(';');
-                        for (let i = 0; i < cookies.length; i++) {
-                            const cookie = cookies[i].trim();
-                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
-                        }
-                    }
-                    return cookieValue;
-                }
-                
-                const csrfToken = getCSRFToken();
-                
-                // Build the URL
-                const addToCartUrl = `/en/orders/cart/add/${productId}/`;
-                
-                // Make AJAX request
-                const response = await fetch(addToCartUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Show success state
-                    button.innerHTML = '<i class="fas fa-check me-2"></i>{% trans "Added!" %}';
-                    button.classList.remove('btn-primary-custom', 'btn-loading');
-                    button.classList.add('btn-success');
-                    
-                    // Update cart count
-                    await updateCartCount();
-                    
-                    // Show success message
-                    showToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
-                    
-                } else {
-                    // Show error state
-                    button.innerHTML = '<i class="fas fa-times me-2"></i>{% trans "Failed" %}';
-                    button.classList.remove('btn-primary-custom', 'btn-loading');
-                    button.classList.add('btn-danger');
-                    
-                    // Show error message
-                    showToast(data.message || '{% trans "Failed to add product to cart" %}', 'error');
-                }
-                
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-                button.innerHTML = '<i class="fas fa-times me-2"></i>{% trans "Error" %}';
-                button.classList.remove('btn-primary-custom', 'btn-loading');
-                button.classList.add('btn-danger');
-                
-                showToast('{% trans "Network error. Please check your connection and try again." %}', 'error');
-            } finally {
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    button.className = originalClass;
-                }, 2000);
-            }
-        }
-
-        // Enhanced toast notification function
-        function showToast(message, type = 'info') {
-            // Remove existing toasts
-            document.querySelectorAll('.custom-toast').forEach(toast => {
-                toast.remove();
-            });
-            
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = `custom-toast alert alert-${type} alert-dismissible fade show`;
-            toast.innerHTML = `
-                <div class="d-flex align-items-center">
-                    ${type === 'success' ? '<i class="fas fa-check-circle me-3 text-success"></i>' : 
-                      type === 'error' ? '<i class="fas fa-exclamation-triangle me-3 text-danger"></i>' : 
-                      type === 'warning' ? '<i class="fas fa-exclamation-circle me-3 text-warning"></i>' :
-                      '<i class="fas fa-info-circle me-3 text-info"></i>'}
-                    <div class="flex-grow-1">${message}</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 5000);
-        }
-
-        // Initialize Advanced Search
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            new AdvancedSearch();
-            
             // Initialize cart count and set up periodic updates
             updateCartCount();
             setInterval(updateCartCount, 30000); // Update every 30 seconds
             
-            // Add fade-in animation to elements with data-animate attribute
-            const animatedElements = document.querySelectorAll('[data-animate]');
-            animatedElements.forEach(element => {
-                element.classList.add('fade-in-up');
+            // Add smooth animations to navbar elements
+            const navLinks = document.querySelectorAll('.nav-link-modern');
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Enhanced dropdown animations
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('show.bs.dropdown', function () {
+                    const menu = this.querySelector('.dropdown-menu');
+                    menu.style.animation = 'dropdownFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                });
             });
         });
 
-        // Helper function to get cookie
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
         // Global functions for use in other templates
-        window.addToCart = addToCart;
-        window.showToast = showToast;
         window.updateCartCount = updateCartCount;
     </script>
     

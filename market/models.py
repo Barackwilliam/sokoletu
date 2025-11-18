@@ -10,6 +10,8 @@ from django.contrib.postgres.indexes import GinIndex
 from django.core.cache import cache
 from django.utils import timezone
 from django.utils.functional import cached_property
+from .utils import apply_watermark
+
 import uuid
 
 User = get_user_model()
@@ -134,6 +136,13 @@ class Shop(models.Model):
     
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)
+
+    
+    def save(self, *args, **kwargs):
+        if self.banner:
+            watermarked = apply_watermark(self.banner)
+            self.image.save(self.banner.name, watermarked, save=False)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('shop')
@@ -411,6 +420,13 @@ class ProductImage(models.Model):
     order = models.PositiveIntegerField(_('order'), default=0)
     
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+
+    
+    def save(self, *args, **kwargs):
+        if self.image:
+            watermarked = apply_watermark(self.image)
+            self.image.save(self.image.name, watermarked, save=False)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('product image')

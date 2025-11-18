@@ -1,188 +1,1237 @@
 {% extends 'base.html' %}
 {% load i18n static %}
 
+{% block extra_css %}
+<style>
+/* OVERRIDE BOOTSTRAP STYLES - HII IWE KABLA YA STYLES ZETU */
+.text-dark { color: #000000 !important; }
+.text-black { color: #000000 !important; }
+.text-white { color: #ffffff !important; }
+.text-muted { color: #666666 !important; }
+
+.bg-dark { background-color: #333333 !important; }
+.bg-light { background-color: #fff9e6 !important; }
+.bg-white { background-color: #ffffff !important; }
+
+.btn-primary { 
+    background: linear-gradient(45deg, #f3c806ff, #FF6B35) !important;
+    border-color: #f3c806ff !important;
+    color: #000000 !important;
+}
+
+.btn-outline-primary {
+    border-color: #f3c806ff !important;
+    color: #f3c806ff !important;
+}
+
+.btn-outline-primary:hover {
+    background: #f3c806ff !important;
+    color: #000000 !important;
+}
+
+/* Verified Badge Styles */
+.verified-badge {
+    background: linear-gradient(45deg, #f3c806ff, #FF6B35) !important;
+    color: #000000 !important;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.verified-text {
+    color: #f3c806ff !important;
+    font-weight: 600;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section with Tech Background -->
+
+
+
+<!-- Hero Section with 3D Ads Rotation -->
 <section class="hero-section-tech">
     <div class="tech-particles" id="techParticles"></div>
+
     <div class="container">
-        <div class="row align-items-center min-vh-80">
+        <div class="row align-items-center min-vh-40">
+            
+            <!-- LEFT SIDE: Welcome Content -->
             <div class="col-lg-6">
                 <div class="hero-content">
-                    <h1 class="hero-title display-4 fw-bold mb-4">{{ welcome_message }}</h1>
-                    <p class="hero-subtitle lead mb-4">{{ tagline }}</p>
+                    <h1 class="hero-title display-4 fw-bold mb-3 text-black">
+                        {{ welcome_message }}
+                    </h1>
+
+                    <p class="hero-subtitle lead mb-3 text-dark">
+                        {{ tagline }}
+                    </p>
+
                     <div class="d-flex flex-wrap gap-3 hero-buttons">
-                        <a href="{% url 'market:product_list' %}" class="btn btn-tech-primary btn-lg pulse-animation">
-                            <i class="fas fa-shopping-bag me-2"></i> {% trans "Start Shopping" %}
+                        <a href="{% url 'market:product_list' %}"
+                           class="btn btn-tech-primary btn-lg pulse-animation">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            {% trans "Start Shopping" %}
                         </a>
+
                         {% if not user.is_authenticated or not user.is_seller %}
-                        <a href="{% url 'accounts:become_seller' %}" class="btn btn-tech-outline btn-lg">
-                            <i class="fas fa-store me-2"></i> {% trans "Sell on SokoLetu" %}
+                        <a href="{% url 'accounts:become_seller' %}"
+                           class="btn btn-tech-outline btn-lg">
+                            <i class="fas fa-store me-2"></i>
+                            {% trans "Sell on SokoLetu" %}
                         </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
+
+            <!-- RIGHT SIDE: 3D Ads -->
             <div class="col-lg-6 text-center">
                 <div class="hero-visual">
-                    <div class="floating-tech-icons">
-                        <i class="fas fa-microchip icon-float-1"></i>
-                        <i class="fas fa-robot icon-float-2"></i>
-                        <i class="fas fa-rocket icon-float-3"></i>
+
+                    <!-- 3D Ads Rotation -->
+                    <div class="ads-3d-container">
+                        
+                        <div class="ads-3d-track" id="ads3dTrack">
+
+                            {% for slide in sliders %}
+                            <div class="ads-3d-slide {% if forloop.first %}active{% endif %}"
+                                 data-slide-index="{{ forloop.counter0 }}">
+
+                                <div class="ads-3d-content">
+                                    
+                                    <div class="ads-3d-badge">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        {% trans "VERIFIED" %}
+                                    </div>
+
+                                    <img src="{{ slide.get_image_preview_url }}"
+                                         alt="{{ slide.title }}"
+                                         class="ads-3d-image">
+
+                                    <div class="ads-3d-overlay">
+                                        
+                                        {% if slide.title %}
+                                        <h5 class="ads-3d-title">
+                                            {{ slide.title }}
+                                        </h5>
+                                        {% endif %}
+
+                                        {% if slide.subtitle %}
+                                        <p class="ads-3d-desc">
+                                            {{ slide.subtitle }}
+                                        </p>
+                                        {% endif %}
+
+                                        <span class="ads-3d-cta">
+                                            {% trans "View Offer" %}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <!-- 3D Ads Indicators -->
+                        <div class="ads-3d-indicators">
+                            {% for slide in sliders %}
+                            <button class="ads-3d-indicator {% if forloop.first %}active{% endif %}"
+                                    data-slide="{{ forloop.counter0 }}">
+                            </button>
+                            {% endfor %}
+                        </div>
+
                     </div>
-                    <div class="hologram-container">
-                        <div class="hologram-card">
-                            <div class="hologram-content">
-                                <i class="fas fa-shopping-cart hologram-icon"></i>
-                                <h4 class="hologram-title">SokoLetu</h4>
-                                <p class="hologram-text">{% trans "Future of Shopping" %}</p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing sliders...');
+
+    // MWISHO WA TATIZO: Function zilikuwepo lakini hazikuitwa
+    init3DAds();
+    initTechParticles();
+});
+
+
+/* ============================
+   3D ADS SLIDER FUNCTIONALITY
+============================ */
+function init3DAds() {
+    const track = document.getElementById('ads3dTrack');
+    const slides = document.querySelectorAll('.ads-3d-slide');
+    const indicators = document.querySelectorAll('.ads-3d-indicator');
+    
+    if (!track || slides.length === 0) {
+        console.log('3D Ads elements not found');
+        return;
+    }
+    
+    let currentAd = 0;
+    let autoAdInterval;
+    const adCount = slides.length;
+    
+    console.log(`3D Ads: Found ${adCount} slides`);
+    
+    function showAd(index) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        indicators.forEach(indicator => indicator.classList.remove('active'));
+        
+        slides[index].classList.add('active');
+        if (indicators[index]) {
+            indicators[index].classList.add('active');
+        }
+        
+        startAutoAd();
+    }
+    
+    function nextAd() {
+        currentAd = (currentAd + 1) % adCount;
+        showAd(currentAd);
+    }
+    
+    function startAutoAd() {
+        clearInterval(autoAdInterval);
+        autoAdInterval = setInterval(nextAd, 5000);
+    }
+    
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            currentAd = index;
+            showAd(currentAd);
+        });
+    });
+    
+    if (track) {
+        track.addEventListener('mouseenter', () => clearInterval(autoAdInterval));
+        track.addEventListener('mouseleave', startAutoAd);
+    }
+    
+    startAutoAd();
+    showAd(currentAd);
+
+    console.log('3D Ads slider initialized successfully');
+}
+
+
+/* ============================
+   TECH PARTICLES BACKGROUND
+============================ */
+function initTechParticles() {
+    const container = document.getElementById('techParticles');
+    if (!container) return;
+    
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--tech-primary);
+            border-radius: 50%;
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            animation: particle-float ${10 + Math.random() * 20}s linear infinite;
+            opacity: ${0.2 + Math.random() * 0.5};
+        `;
+        container.appendChild(particle);
+    }
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes particle-float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(${Math.random()*100 - 50}px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log('Tech particles initialized');
+}
+</script>
+
+<style>
+/* 3D ADS STYLES */
+.ads-3d-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    perspective: 1000px;
+}
+
+.ads-3d-track {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.ads-3d-slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transform: rotateY(90deg);
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.ads-3d-slide.active {
+    opacity: 1;
+    transform: rotateY(0deg);
+}
+
+.ads-3d-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.ads-3d-slide.active .ads-3d-content {
+    transform: translateZ(20px);
+}
+
+.ads-3d-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    color: var(--text-primary);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+}
+
+.ads-3d-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.ads-3d-slide.active .ads-3d-image {
+    transform: scale(1.05);
+}
+
+.ads-3d-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 1.5rem;
+    color: white;
+    transform: translateZ(30px);
+}
+
+.ads-3d-title {
+    color: white !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.ads-3d-desc {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.ads-3d-cta {
+    background: var(--tech-primary);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.ads-3d-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+}
+
+.ads-3d-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ads-3d-indicator.active {
+    background: var(--tech-primary);
+    transform: scale(1.2);
+}
+
+/* HERO SECTION STYLES */
+.hero-section-tech {
+    background: linear-gradient(135deg, var(--tech-primary) 0%, var(--tech-secondary) 100%) !important;
+    position: relative;
+    overflow: hidden;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.min-vh-40 {
+    min-height: 40vh !important;
+}
+
+.hero-title {
+    font-size: 2.5rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 768px) {
+    .small-banner-section {
+        height: 50px;
+        margin-top: 70px;
+    }
+    
+    .small-banner-content {
+        padding: 0 0.5rem;
+    }
+    
+    .small-banner-text {
+        gap: 0.5rem;
+    }
+    
+    .ads-3d-container {
+        height: 250px;
+    }
+    
+    .hero-title {
+        font-size: 2rem !important;
+    }
+}
+</style>
+
+
+
+
+
+
+
+
+<!-- Enhanced Small Banner Section with Real Business Ads - SLIDER VERSION -->
+<section class="small-banner-slider-section">
+    <div class="container-fluid px-0">
+        <div class="small-banner-slider-container">
+            <div class="small-banner-slider-track" id="smallBannerSliderTrack">
+                
+                <!-- Ad 1: M-Pesa Promotion -->
+                <div class="small-banner-slide" data-style="mobile-money">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge">
+                            <i class="fas fa-mobile-alt me-1"></i>{% trans "OFFICIAL PARTNER" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "Lipa kwa M-Pesa & Pata 10% OFF!" %}</h4>
+                            <p class="slide-desc">{% trans "Tumia M-Pesa kupata punguzo la kipekee + usafiri wa bure" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=mpesa" class="btn btn-slider-primary btn-sm">
+                                {% trans "Lipa Sasa" %} <i class="fas fa-wallet ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="slide-logo">M-PESA</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ad 2: Tigo Pesa Offer -->
+                <div class="small-banner-slide" data-style="tigo">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge">
+                            <i class="fas fa-bolt me-1"></i>{% trans "TIGO PESA" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "Tumia Tigo Pesa - Pata Bonus!" %}</h4>
+                            <p class="slide-desc">{% trans "Malipo yako yanakua haraka + points za ziada" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=tigo" class="btn btn-slider-secondary btn-sm">
+                                {% trans "Chagua Tigo" %} <i class="fas fa-bolt ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="slide-logo">Tigo</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ad 3: Airtel Money Deal -->
+                <div class="small-banner-slide" data-style="airtel">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge">
+                            <i class="fas fa-signal me-1"></i>{% trans "AIRTEL MONEY" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "Airtel Money Inatoa Bei Nafuu!" %}</h4>
+                            <p class="slide-desc">{% trans "Punguzo la 5% kwa wateja wote wa Airtel Money" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=airtel" class="btn btn-slider-primary btn-sm">
+                                {% trans "Lipa Airtel" %} <i class="fas fa-mobile ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="slide-logo">Airtel</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ad 4: Halotel Promotion -->
+                <div class="small-banner-slide" data-style="halotel">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge urgent">
+                            <i class="fas fa-rocket me-1"></i>{% trans "HALOTEL" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "Halotel: Usafiri Bure Kila Ununuzi!" %}</h4>
+                            <p class="slide-desc">{% trans "Lipa kwa Halotel pesa upate huduma ya usafiri bure" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=halotel" class="btn btn-slider-urgent btn-sm">
+                                {% trans "Lipa Halotel" %} <i class="fas fa-shipping-fast ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="slide-progress">
+                                <div class="progress-bar" style="width: 65%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Modern Interactive Ads Slider -->
-{% if sliders %}
-<section class="modern-slider-section py-5">
-    <div class="container">
-        <div class="row justify-content-center mb-4">
-            <div class="col-lg-10 text-center">
-                <h2 class="slider-section-title fw-bold mb-3">{% trans "Featured Promotions" %}</h2>
-                <p class="slider-section-subtitle">{% trans "Discover amazing deals and offers" %}</p>
-            </div>
-        </div>
-        
-        <div class="modern-slider-container">
-            <div class="modern-slider-track" id="modernSliderTrack">
-                {% for slide in sliders %}
-                <div class="modern-slide {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}">
-                    <div class="slide-content-wrapper">
-                        {% if slide.url %}
-                        <a href="{{ slide.url }}" class="slide-link">
-                        {% endif %}
-                            <div class="slide-image-container">
-                                <img src="{{ slide.get_image_preview_url }}" 
-                                     class="slide-image" 
-                                     alt="{{ slide.title }}"
-                                     loading="lazy">
-                                <div class="slide-overlay"></div>
-                            </div>
-                            <div class="slide-content">
-                                {% if slide.title %}
-                                    <h3 class="slide-title">{{ slide.title }}</h3>
-                                {% endif %}
-                                {% if slide.subtitle %}
-                                    <p class="slide-description">{{ slide.subtitle }}</p>
-                                {% endif %}
-                                <div class="slide-cta">
-                                    <span class="cta-text">{% trans "View Offer" %}</span>
-                                    <i class="fas fa-arrow-right cta-icon"></i>
-                                </div>
-                            </div>
-                        {% if slide.url %}
-                        </a>
-                        {% endif %}
+                
+                <!-- Ad 5: T-Pesa Special -->
+                <div class="small-banner-slide" data-style="tpesa">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge">
+                            <i class="fas fa-gem me-1"></i>{% trans "T-PESA" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "T-Pesa: Points Za Ziada Kila Ununuzi!" %}</h4>
+                            <p class="slide-desc">{% trans "Kusanya points na kubadilisha kwa zawadi za kipekee" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=tpesa" class="btn btn-slider-secondary btn-sm">
+                                {% trans "Anza Kusanya" %} <i class="fas fa-gift ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="slide-logo">TPesa</div>
+                        </div>
                     </div>
                 </div>
-                {% endfor %}
+                
+                <!-- Ad 6: EzyPesa Offer -->
+                <div class="small-banner-slide" data-style="ezypesa">
+                    <div class="small-banner-slide-content">
+                        <div class="slide-badge vip">
+                            <i class="fas fa-crown me-1"></i>{% trans "EZYPESA" %}
+                        </div>
+                        <div class="slide-main-content">
+                            <h4 class="slide-title">{% trans "EzyPesa: Malipo Rahisi & Salama!" %}</h4>
+                            <p class="slide-desc">{% trans "Lipa kwa urahisi na upate uhakika wa usalama wa malipo" %}</p>
+                        </div>
+                        <div class="slide-cta">
+                            <a href="{% url 'market:product_list' %}?payment=ezypesa" class="btn btn-slider-vip btn-sm">
+                                {% trans "Lipa Rahisi" %} <i class="fas fa-shield-alt ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="slide-decoration">
+                            <div class="vip-glow"></div>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
             
             <!-- Slider Controls -->
-            <div class="slider-controls">
-                <button class="slider-control prev-control" id="prevSlide">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="slider-control next-control" id="nextSlide">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
+            <button class="slider-control prev-slider" id="prevSlider">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-control next-slider" id="nextSlider">
+                <i class="fas fa-chevron-right"></i>
+            </button>
             
-            <!-- Slider Indicators -->
-            <div class="slider-indicators" id="sliderIndicators">
-                {% for slide in sliders %}
-                <button class="indicator {% if forloop.first %}active{% endif %}" 
-                        data-slide-index="{{ forloop.counter0 }}"></button>
-                {% endfor %}
+            <!-- Slider Dots -->
+            <div class="slider-dots" id="sliderDots">
+                <!-- Dots will be generated by JavaScript -->
             </div>
             
             <!-- Progress Bar -->
             <div class="slider-progress">
-                <div class="progress-bar" id="sliderProgress"></div>
+                <div class="progress-fill" id="sliderProgress"></div>
             </div>
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- Interactive Tech Showcase -->
-<section class="tech-showcase-section py-5">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-lg-8 text-center">
-                <h2 class="section-title-tech fw-bold mb-3">{% trans "Experience the Future of Commerce" %}</h2>
-                <p class="section-subtitle-tech">{% trans "Powered by cutting-edge technology for seamless shopping" %}</p>
-            </div>
-        </div>
+<style>
+/* ENHANCED SLIDER STYLES */
+.small-banner-slider-section {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+    height: 130px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 80px;
+    width: 100%;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.small-banner-slider-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.small-banner-slider-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.small-banner-slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.small-banner-slide-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95%;
+    max-width: 1400px;
+    padding: 0 3rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Slide Badges */
+.slide-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #000;
+    padding: 10px 16px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    min-width: 160px;
+    text-align: center;
+    animation: badge-float 3s ease-in-out infinite;
+}
+
+.slide-badge.urgent {
+    background: linear-gradient(45deg, #e17055, #d63031);
+    color: white;
+    animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
+.slide-badge.vip {
+    background: linear-gradient(45deg, #fd79a8, #e84393);
+    color: white;
+    animation: vip-glow 2s ease-in-out infinite;
+}
+
+/* Slide Content */
+.slide-main-content {
+    flex: 1;
+    margin: 0 2rem;
+}
+
+.slide-title {
+    color: #000 !important;
+    font-size: 1.4rem !important;
+    font-weight: 900 !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
+}
+
+.slide-desc {
+    color: #000 !important;
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+    opacity: 0.95;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Slide CTA Buttons */
+.slide-cta .btn {
+    font-size: 0.85rem;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 150px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-slider-primary {
+    background: linear-gradient(45deg, #000, #333);
+    color: var(--primary) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-slider-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000 !important;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.btn-slider-urgent {
+    background: linear-gradient(45deg, #e17055, #d63031);
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(225, 112, 85, 0.4);
+    animation: button-pulse 1.5s ease-in-out infinite;
+}
+
+.btn-slider-vip {
+    background: linear-gradient(45deg, #fd79a8, #e84393);
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(253, 121, 168, 0.4);
+}
+
+.slide-cta .btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Slide Decorations */
+.slide-decoration {
+    position: relative;
+}
+
+.slide-logo {
+    background: rgba(255, 255, 255, 0.2);
+    color: #000;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 1rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: logo-bounce 2s ease-in-out infinite;
+}
+
+.slide-progress {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(45deg, #e17055, #d63031);
+    border-radius: 4px;
+    animation: progress-shrink 3s ease-in-out infinite alternate;
+}
+
+.vip-glow {
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle, rgba(253, 121, 168, 0.6) 0%, rgba(253, 121, 168, 0) 70%);
+    border-radius: 50%;
+    animation: glow-rotate 3s linear infinite;
+}
+
+/* Slider Controls */
+.slider-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(15px);
+    font-size: 1.1rem;
+    z-index: 20;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.slider-control:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-50%) scale(1.15);
+    color: var(--accent);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.prev-slider {
+    left: 20px;
+}
+
+.next-slider {
+    right: 20px;
+}
+
+/* Slider Dots */
+.slider-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 15;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.slider-dot.active {
+    background: var(--primary);
+    transform: scale(1.3);
+    box-shadow: 0 0 10px var(--primary);
+}
+
+.slider-dot:hover {
+    background: var(--accent);
+    transform: scale(1.2);
+}
+
+/* Progress Bar */
+.slider-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 10;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary), var(--accent));
+    width: 0%;
+    transition: width 4s linear;
+    border-radius: 0 2px 2px 0;
+}
+
+/* ANIMATIONS */
+@keyframes badge-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes badge-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(225, 112, 85, 0.4);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(225, 112, 85, 0.8);
+    }
+}
+
+@keyframes vip-glow {
+    0%, 100% { 
+        box-shadow: 0 0 0 rgba(253, 121, 168, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(253, 121, 168, 0.8);
+    }
+}
+
+@keyframes button-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes logo-bounce {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+@keyframes progress-shrink {
+    0% { width: 65%; }
+    100% { width: 30%; }
+}
+
+@keyframes glow-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Money Brand Specific Styles */
+[data-style="mobile-money"] .slide-badge {
+    background: linear-gradient(45deg, #00b894, #00cec9);
+    color: white;
+}
+
+[data-style="tigo"] .slide-badge {
+    background: linear-gradient(45deg, #ff9ff3, #f368e0);
+    color: white;
+}
+
+[data-style="airtel"] .slide-badge {
+    background: linear-gradient(45deg, #74b9ff, #0984e3);
+    color: white;
+}
+
+[data-style="halotel"] .slide-badge {
+    background: linear-gradient(45deg, #e17055, #d63031);
+    color: white;
+}
+
+[data-style="tpesa"] .slide-badge {
+    background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+    color: white;
+}
+
+[data-style="ezypesa"] .slide-badge {
+    background: linear-gradient(45deg, #fd79a8, #e84393);
+    color: white;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+    .small-banner-slider-section {
+        height: 120px;
+    }
+    
+    .small-banner-slide-content {
+        padding: 0 2rem;
+    }
+    
+    .slide-title {
+        font-size: 1.2rem !important;
+    }
+    
+    .slide-desc {
+        font-size: 0.85rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .small-banner-slider-section {
+        height: 110px;
+        margin-top: 70px;
+    }
+    
+    .small-banner-slide-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .slide-main-content {
+        margin: 0;
+        order: 2;
+    }
+    
+    .slide-badge {
+        order: 1;
+        min-width: 140px;
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+    
+    .slide-cta {
+        order: 3;
+    }
+    
+    .slide-title {
+        font-size: 1.1rem !important;
+    }
+    
+    .slide-desc {
+        font-size: 0.8rem !important;
+    }
+    
+    .slide-decoration {
+        display: none;
+    }
+    
+    .slider-control {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .prev-slider {
+        left: 10px;
+    }
+    
+    .next-slider {
+        right: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .small-banner-slider-section {
+        height: 100px;
+    }
+    
+    .slide-title {
+        font-size: 1rem !important;
+    }
+    
+    .slide-desc {
+        font-size: 0.75rem !important;
+    }
+    
+    .slide-badge {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+        min-width: 120px;
+    }
+    
+    .slide-cta .btn {
+        min-width: 130px;
+        font-size: 0.8rem;
+        padding: 10px 20px;
+    }
+    
+    .slider-dots {
+        bottom: 10px;
+    }
+    
+    .slider-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Mobile Money Ads Slider
+    initMobileMoneySlider();
+    
+    function initMobileMoneySlider() {
+        const track = document.getElementById('smallBannerSliderTrack');
+        const slides = document.querySelectorAll('.small-banner-slide');
+        const prevBtn = document.getElementById('prevSlider');
+        const nextBtn = document.getElementById('nextSlider');
+        const dotsContainer = document.getElementById('sliderDots');
+        const progressFill = document.getElementById('sliderProgress');
         
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="tech-feature-card" data-aos="fade-up">
-                    <div class="tech-icon-container">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h4 class="tech-feature-title">{% trans "AI-Powered Recommendations" %}</h4>
-                    <p class="tech-feature-desc">{% trans "Smart algorithms suggest products tailored just for you" %}</p>
-                    <div class="tech-feature-animation">
-                        <div class="pulse-dot"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="tech-feature-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="tech-icon-container">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h4 class="tech-feature-title">{% trans "Lightning Fast" %}</h4>
-                    <p class="tech-feature-desc">{% trans "Optimized performance for instant product discovery" %}</p>
-                    <div class="tech-feature-animation">
-                        <div class="signal-bars">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="tech-feature-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="tech-icon-container">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4 class="tech-feature-title">{% trans "Blockchain Security" %}</h4>
-                    <p class="tech-feature-desc">{% trans "Advanced encryption for your transactions and data" %}</p>
-                    <div class="tech-feature-animation">
-                        <div class="encryption-animation">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+        if (!track || slides.length === 0) {
+            console.log('Slider elements not found');
+            return;
+        }
+        
+        let currentSlide = 0;
+        let autoSlideInterval;
+        const slideCount = slides.length;
+        const slideDuration = 5000; // 5 seconds per slide
+        
+        console.log(`Mobile Money Slider: Found ${slideCount} ads`);
+        
+        // Create dots
+        function createDots() {
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < slideCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+        }
+        
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+            resetAutoSlide();
+        }
+        
+        function updateSlider() {
+            // Update track position
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update dots
+            document.querySelectorAll('.slider-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+            
+            // Reset and animate progress bar
+            progressFill.style.transition = 'none';
+            progressFill.style.width = '0%';
+            setTimeout(() => {
+                progressFill.style.transition = `width ${slideDuration}ms linear`;
+                progressFill.style.width = '100%';
+            }, 50);
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slideCount;
+            updateSlider();
+        }
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+            updateSlider();
+        }
+        
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, slideDuration);
+        }
+        
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+        
+        // Event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                resetAutoSlide();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                resetAutoSlide();
+            });
+        }
+        
+        // Pause on hover
+        if (track) {
+            track.addEventListener('mouseenter', () => {
+                clearInterval(autoSlideInterval);
+                progressFill.style.transition = 'none';
+            });
+            
+            track.addEventListener('mouseleave', () => {
+                resetAutoSlide();
+            });
+        }
+        
+        // Touch/swipe support for mobile
+        let startX = 0;
+        let endX = 0;
+        
+        track.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+        
+        track.addEventListener('touchmove', (e) => {
+            endX = e.touches[0].clientX;
+        });
+        
+        track.addEventListener('touchend', () => {
+            const diff = startX - endX;
+            if (Math.abs(diff) > 50) { // Minimum swipe distance
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+                resetAutoSlide();
+            }
+        });
+        
+        // Initialize
+        createDots();
+        startAutoSlide();
+        updateSlider();
+        
+        console.log('Mobile Money Ads Slider initialized successfully');
+    }
+});
+</script>
+
+
+
+
+
+
+
+
 
 <!-- Featured Categories Section -->
-<section class="categories-section-tech py-5">
+<section class="categories-section-tech py-5 bg-light">
     <div class="container">
         <div class="row mb-5">
             <div class="col-12 text-center">
-                <h2 class="section-title-tech fw-bold mb-3">{% trans "Shop by Category" %}</h2>
-                <p class="section-subtitle-tech">{% trans "Discover amazing products across various categories" %}</p>
+                <h2 class="section-title-tech fw-bold mb-3 text-black">{% trans "Shop by Category" %}</h2>
+                <p class="section-subtitle-tech text-dark">{% trans "Discover amazing products across various categories" %}</p>
             </div>
         </div>
         
@@ -196,15 +1245,18 @@
                                  class="img-fluid rounded tech-category-img">
                         {% else %}
                             <div class="tech-icon-placeholder">
-                                <i class="fas fa-folder"></i>
+                                <i class="fas fa-folder text-black"></i>
                             </div>
                         {% endif %}
                     </div>
-                    <h6 class="tech-category-title fw-bold mb-2">{{ category.name }}</h6>
-                    <p class="tech-category-count">
+                    <h6 class="tech-category-title fw-bold mb-2 text-black">{{ category.name }}</h6>
+                    <p class="tech-category-count text-dark">
                         {{ category.product_count }} {% trans "products" %}
                     </p>
-                    <a href="{{ category.get_absolute_url }}" class="tech-category-btn">
+                    <div class="tech-category-verified">
+                        <i class="fas fa-check-circle me-1"></i> {% trans "VERIFIED CATEGORY" %}
+                    </div>
+                    <a href="{{ category.get_absolute_url }}" class="tech-category-btn text-decoration-none">
                         {% trans "Browse" %} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                     <div class="tech-category-hover-effect"></div>
@@ -213,9 +1265,9 @@
             {% empty %}
             <div class="col-12 text-center">
                 <div class="py-4">
-                    <i class="fas fa-folder-open fa-3x tech-placeholder-icon mb-3"></i>
-                    <h4 class="tech-placeholder-text">{% trans "No categories available yet" %}</h4>
-                    <p class="tech-placeholder-subtext">{% trans "Categories will be available soon" %}</p>
+                    <i class="fas fa-folder-open fa-3x tech-placeholder-icon mb-3 text-warning"></i>
+                    <h4 class="tech-placeholder-text text-black">{% trans "No categories available yet" %}</h4>
+                    <p class="tech-placeholder-subtext text-dark">{% trans "Categories will be available soon" %}</p>
                 </div>
             </div>
             {% endfor %}
@@ -232,17 +1284,17 @@
 
 <!-- Featured Products Section -->
 {% if featured_products %}
-<section class="products-section-tech py-5">
+<section class="products-section-tech py-5 bg-white">
     <div class="container">
         <div class="row mb-5">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="section-title-tech fw-bold mb-0">{% trans "Featured Products" %}</h2>
+                    <h2 class="section-title-tech fw-bold mb-0 text-black">{% trans "Featured Products" %}</h2>
                     <a href="{% url 'market:featured_products' %}" class="btn btn-tech-outline btn-sm">
                         {% trans "View All" %} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
-                <p class="section-subtitle-tech">{% trans "Handpicked products just for you" %}</p>
+                <p class="section-subtitle-tech text-dark">{% trans "Handpicked products just for you" %}</p>
             </div>
         </div>
         
@@ -261,45 +1313,48 @@
                         <!-- Badges -->
                         <div class="product-tech-badges">
                             {% if product.is_featured %}
-                            <span class="tech-badge featured-badge">
+                            <span class="tech-badge featured-badge text-black">
                                 <i class="fas fa-star me-1"></i>{% trans "Featured" %}
                             </span>
                             {% endif %}
                             {% if product.discount_percentage %}
-                            <span class="tech-badge discount-badge">
+                            <span class="tech-badge discount-badge text-white">
                                 -{{ product.discount_percentage }}%
                             </span>
                             {% endif %}
+                            <span class="tech-badge verified-badge text-black">
+                                <i class="fas fa-check-circle me-1"></i>{% trans "VERIFIED" %}
+                            </span>
                         </div>
                     </div>
 
                     <!-- Card Body -->
                     <div class="tech-product-body">
                         <!-- Category -->
-                        <small class="tech-product-category d-block mb-1">
+                        <small class="tech-product-category d-block mb-1 text-dark">
                             <i class="fas fa-tag me-1"></i>{{ product.category.name }}
                         </small>
                         
                         <!-- Product Name -->
-                        <h6 class="tech-product-title fw-bold">
-                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                        <h6 class="tech-product-title fw-bold text-black">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-black">
                                 {{ product.name|truncatewords:4 }}
                             </a>
                         </h6>
                         
                         <!-- Shop -->
-                        <small class="tech-product-shop d-block mb-2">
+                        <small class="tech-product-shop d-block mb-2 text-dark">
                             <i class="fas fa-store me-1"></i>{{ product.shop.name }}
                         </small>
                         
                         <!-- Price -->
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div>
-                                <span class="tech-product-price h5 fw-bold mb-0">
+                                <span class="tech-product-price h5 fw-bold mb-0 text-warning">
                                     TSh {{ product.price|floatformat:0 }}
                                 </span>
                                 {% if product.compare_price %}
-                                <small class="tech-product-compare-price text-decoration-line-through ms-1">
+                                <small class="tech-product-compare-price text-decoration-line-through ms-1 text-dark">
                                     TSh {{ product.compare_price|floatformat:0 }}
                                 </small>
                                 {% endif %}
@@ -310,18 +1365,18 @@
                         <div class="tech-stock-status">
                             {% if product.is_in_stock %}
                                 {% if product.is_low_stock %}
-                                <div class="stock-indicator low-stock">
+                                <div class="stock-indicator low-stock text-warning">
                                     <div class="stock-pulse"></div>
                                     <span>{% trans "Low Stock" %}</span>
                                 </div>
                                 {% else %}
-                                <div class="stock-indicator in-stock">
+                                <div class="stock-indicator in-stock text-success">
                                     <i class="fas fa-check-circle me-1"></i>
                                     <span>{% trans "In Stock" %}</span>
                                 </div>
                                 {% endif %}
                             {% else %}
-                                <div class="stock-indicator out-of-stock">
+                                <div class="stock-indicator out-of-stock text-danger">
                                     <i class="fas fa-times-circle me-1"></i>
                                     <span>{% trans "Out of Stock" %}</span>
                                 </div>
@@ -359,111 +1414,695 @@
 </section>
 {% endif %}
 
-<!-- Interactive Stats Section -->
-<section class="stats-section-tech py-5">
-    <div class="container">
-        <div class="row g-4 text-center">
-            <div class="col-md-3 col-6">
-                <div class="tech-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3 class="stat-number" data-count="10000">0</h3>
-                    <p class="stat-label">{% trans "Happy Customers" %}</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="tech-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-box-open"></i>
-                    </div>
-                    <h3 class="stat-number" data-count="5000">0</h3>
-                    <p class="stat-label">{% trans "Products Available" %}</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="tech-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-store"></i>
-                    </div>
-                    <h3 class="stat-number" data-count="250">0</h3>
-                    <p class="stat-label">{% trans "Active Sellers" %}</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="tech-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-shipping-fast"></i>
-                    </div>
-                    <h3 class="stat-number" data-count="98">0</h3>
-                    <p class="stat-label">{% trans "Delivery Success" %} %</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <style>
 :root {
-    --tech-primary: #00f5ff;
-    --tech-secondary: #7b68ee;
-    --tech-accent: #ff00ff;
-    --tech-dark: #0a0a1f;
-    --tech-darker: #050510;
-    --tech-card-bg: rgba(16, 18, 37, 0.8);
-    --tech-glass: rgba(255, 255, 255, 0.05);
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0d0;
-    --text-muted: #8a8aa8;
+    --tech-primary: #f3c806ff !important;      /* Yellow */
+    --tech-secondary: #FF6B35 !important;      /* Orange */
+    --tech-accent: #FFD166 !important;         /* Light Yellow */
+    --tech-dark: #333333 !important;           /* Dark Gray */
+    --tech-darker: #1a1a1a !important;         /* Darker Gray */
+    --tech-card-bg: rgba(255, 255, 255, 0.95) !important;
+    --tech-glass: rgba(255, 255, 255, 0.1) !important;
+    --text-primary: #000000 !important;        /* Black text */
+    --text-secondary: #333333 !important;      /* Dark Gray text */
+    --text-muted: #666666 !important;          /* Medium Gray text */
 }
 
-/* Base Styles */
-body {
-    background-color: var(--tech-darker);
-    color: var(--text-primary);
-    font-family: 'Exo 2', sans-serif;
-}
+/* OVERRIDE ALL BOOTSTRAP COLORS */
+.text-dark { color: var(--text-secondary) !important; }
+.text-black { color: var(--text-primary) !important; }
+.text-white { color: #ffffff !important; }
+.text-muted { color: var(--text-muted) !important; }
 
-/* Hero Section */
-.hero-section-tech {
-    background: linear-gradient(135deg, var(--tech-darker) 0%, var(--tech-dark) 50%, #1a1a2e 100%);
+.bg-dark { background-color: var(--tech-dark) !important; }
+.bg-light { background-color: #fff9e6 !important; }
+.bg-white { background-color: #ffffff !important; }
+
+/* Small Banner Styles - Quarter Height */
+.small-banner-section {
+    background: linear-gradient(135deg, var(--tech-primary) 0%, var(--tech-secondary) 100%) !important;
+    height: 60px; /* Quarter of original height */
     position: relative;
     overflow: hidden;
-    min-height: 90vh;
+    margin-top: 80px; /* Account for fixed navbar */
+    width: 100%;
+}
+
+.small-banner-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
 }
 
-.tech-particles {
-    position: absolute;
-    top: 0;
-    left: 0;
+.small-banner-track {
+    display: flex;
     width: 100%;
     height: 100%;
-    pointer-events: none;
+    transition: transform 0.5s ease;
 }
 
-.hero-content {
+.small-banner-slide {
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.small-banner-slide.active {
+    opacity: 1;
+}
+
+.small-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+    padding: 0 1rem;
+}
+
+.small-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.verified-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.small-banner-title {
+    color: var(--text-primary) !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.small-banner-desc {
+    color: var(--text-primary) !important;
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.small-banner-cta .btn {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+}
+
+.small-banner-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    font-size: 0.8rem;
+}
+
+.small-banner-control:hover {
+    background: var(--tech-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-small-banner {
+    left: 5px;
+}
+
+.next-small-banner {
+    right: 5px;
+}
+
+/* Hero Section - Half Height */
+.hero-section-tech {
+    background: linear-gradient(135deg, var(--tech-primary) 0%, var(--tech-secondary) 100%) !important;
     position: relative;
-    z-index: 2;
+    overflow: hidden;
+    min-height: 50vh; /* Half of original height */
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.min-vh-40 {
+    min-height: 40vh !important;
 }
 
 .hero-title {
-    color: var(--text-primary);
-    font-weight: 700;
+    font-size: 2.5rem !important; /* Smaller font size */
+    margin-bottom: 1rem !important;
     line-height: 1.2;
-    margin-bottom: 1.5rem;
 }
 
 .hero-subtitle {
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    line-height: 1.6;
+    font-size: 1rem !important; /* Smaller font size */
+    margin-bottom: 1.5rem !important;
 }
 
-/* Modern Slider Styles */
+/* 3D Ads Rotation Styles */
+.ads-3d-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    perspective: 1000px;
+}
+
+.ads-3d-track {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.ads-3d-slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transform: rotateY(90deg);
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.ads-3d-slide.active {
+    opacity: 1;
+    transform: rotateY(0deg);
+}
+
+.ads-3d-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.ads-3d-slide.active .ads-3d-content {
+    transform: translateZ(20px);
+}
+
+.ads-3d-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    color: var(--text-primary);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+}
+
+.ads-3d-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.ads-3d-slide.active .ads-3d-image {
+    transform: scale(1.05);
+}
+
+.ads-3d-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 1.5rem;
+    color: white;
+    transform: translateZ(30px);
+}
+
+.ads-3d-title {
+    color: white !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.ads-3d-desc {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.ads-3d-cta {
+    background: var(--tech-primary);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.ads-3d-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+}
+
+.ads-3d-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ads-3d-indicator.active {
+    background: var(--tech-primary);
+    transform: scale(1.2);
+}
+
+/* Verified Badges throughout the site */
+.slide-verified,
+.tech-feature-verified,
+.tech-category-verified,
+.stat-verified {
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
+    color: var(--text-primary);
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Rest of existing styles remain the same but with verified badges added */
+.tech-feature-card {
+    background: var(--tech-card-bg) !important;
+    border: 1px solid rgba(243, 200, 6, 0.2) !important;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.tech-feature-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--tech-primary) !important;
+    box-shadow: 0 15px 35px rgba(243, 200, 6, 0.2);
+}
+
+.tech-icon-container {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary)) !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: var(--text-primary) !important;
+}
+
+.tech-feature-title {
+    color: var(--text-primary) !important;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tech-feature-desc {
+    color: var(--text-secondary) !important;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+/* Buttons */
+.btn-tech-primary {
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary)) !important;
+    border: none;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(243, 200, 6, 0.3);
+}
+
+.btn-tech-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(243, 200, 6, 0.5);
+    color: var(--text-primary) !important;
+}
+
+.btn-tech-outline {
+    border: 2px solid var(--tech-primary) !important;
+    color: var(--tech-primary) !important;
+    background: transparent;
+    padding: 10px 25px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.btn-tech-outline:hover {
+    background: var(--tech-primary) !important;
+    color: var(--text-primary) !important;
+    transform: translateY(-3px);
+}
+
+/* Category Cards */
+.tech-category-card {
+    background: var(--tech-card-bg) !important;
+    border: 1px solid rgba(243, 200, 6, 0.2) !important;
+    border-radius: 15px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tech-category-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--tech-primary) !important;
+    box-shadow: 0 10px 25px rgba(243, 200, 6, 0.2);
+}
+
+.tech-category-img {
+    height: 50px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.tech-icon-placeholder {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary)) !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: var(--text-primary) !important;
+    font-size: 1.2rem;
+}
+
+.tech-category-title {
+    color: var(--text-primary) !important;
+    margin: 0.8rem 0 0.3rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.tech-category-count {
+    color: var(--text-secondary) !important;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.tech-category-btn {
+    color: var(--tech-primary) !important;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.tech-category-btn:hover {
+    color: var(--tech-secondary) !important;
+}
+
+/* Product Cards */
+.tech-product-card {
+    background: var(--tech-card-bg) !important;
+    border: 1px solid rgba(243, 200, 6, 0.2) !important;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tech-product-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--tech-primary) !important;
+    box-shadow: 0 10px 25px rgba(243, 200, 6, 0.2);
+}
+
+.tech-product-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.tech-product-card:hover .tech-product-img {
+    transform: scale(1.05);
+}
+
+.tech-product-body {
+    padding: 1.2rem;
+}
+
+.tech-product-title a {
+    color: var(--text-primary) !important;
+    transition: color 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.tech-product-title a:hover {
+    color: var(--tech-primary) !important;
+}
+
+.tech-product-price {
+    color: var(--tech-primary) !important;
+    font-size: 1rem;
+}
+
+.tech-product-compare-price {
+    color: var(--text-muted) !important;
+    font-size: 0.8rem;
+}
+
+.tech-product-footer {
+    padding: 0 1.2rem 1.2rem;
+}
+
+/* Stats Section */
+.stats-section-tech {
+    background: linear-gradient(135deg, var(--tech-primary) 0%, var(--tech-secondary) 100%) !important;
+}
+
+.tech-stat-card {
+    padding: 1.5rem 0.5rem;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.8rem;
+    font-size: 1.5rem;
+    color: var(--text-primary) !important;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary) !important;
+    margin-bottom: 0.3rem;
+}
+
+.stat-label {
+    color: var(--text-primary) !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Animations */
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Product Badges */
+.product-tech-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tech-badge {
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border: none;
+}
+
+.featured-badge {
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent)) !important;
+    color: var(--text-primary) !important;
+}
+
+.discount-badge {
+    background: var(--tech-secondary) !important;
+    color: white !important;
+}
+
+/* Stock Indicators */
+.stock-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.stock-pulse {
+    width: 6px;
+    height: 6px;
+    background: #f39c12;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse 1.5s infinite;
+}
+
+/* Tech Feature Animations */
+.tech-feature-animation {
+    margin-top: 0.8rem;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--tech-primary);
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: pulse 2s infinite;
+}
+
+.signal-bars {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    gap: 2px;
+    height: 16px;
+}
+
+.signal-bars span {
+    width: 3px;
+    background: var(--tech-primary);
+    border-radius: 2px;
+    animation: signal 1.5s infinite;
+}
+
+.signal-bars span:nth-child(1) { height: 4px; animation-delay: 0s; }
+.signal-bars span:nth-child(2) { height: 8px; animation-delay: 0.2s; }
+.signal-bars span:nth-child(3) { height: 12px; animation-delay: 0.4s; }
+.signal-bars span:nth-child(4) { height: 16px; animation-delay: 0.6s; }
+
+@keyframes signal {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.encryption-animation {
+    animation: encrypt 3s infinite;
+}
+
+@keyframes encrypt {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Category Hover Effect */
+.tech-category-hover-effect {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(243, 200, 6, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.tech-category-card:hover .tech-category-hover-effect {
+    left: 100%;
+}
+
+/* Placeholder Styles */
+.tech-placeholder-icon {
+    color: var(--tech-primary) !important;
+}
+
+.tech-placeholder-text {
+    color: var(--text-primary) !important;
+    font-size: 1.2rem;
+}
+
+.tech-placeholder-subtext {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+}
+
+/* Additional Utility Classes */
+.text-white-80 {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Modern Slider Styles (existing but with verified) */
 .modern-slider-section {
-    background: var(--tech-dark);
+    background: #fff9e6 !important;
     position: relative;
 }
 
@@ -471,15 +2110,15 @@ body {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
 .modern-slider-track {
     display: flex;
     transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
-    height: 500px;
+    height: 400px;
 }
 
 .modern-slide {
@@ -532,9 +2171,9 @@ body {
     bottom: 0;
     background: linear-gradient(
         45deg,
-        rgba(0, 245, 255, 0.1) 0%,
-        rgba(123, 104, 238, 0.2) 50%,
-        rgba(255, 0, 255, 0.1) 100%
+        rgba(243, 200, 6, 0.1) 0%,
+        rgba(255, 107, 53, 0.2) 50%,
+        rgba(255, 209, 102, 0.1) 100%
     );
 }
 
@@ -543,42 +2182,44 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 3rem;
-    background: linear-gradient(transparent, rgba(10, 10, 31, 0.9));
-    color: var(--text-primary);
+    padding: 2rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: white;
 }
 
 .slide-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
+    margin-bottom: 0.8rem;
+    color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .slide-description {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    line-height: 1.5;
 }
 
 .slide-cta {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
-    color: var(--tech-dark);
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary)) !important;
+    color: var(--text-primary) !important;
     text-decoration: none;
-    border-radius: 25px;
+    border-radius: 20px;
     font-weight: 600;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
 }
 
 .slide-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 245, 255, 0.4);
+    box-shadow: 0 5px 15px rgba(243, 200, 6, 0.4);
+    color: var(--text-primary) !important;
 }
 
 /* Slider Controls */
@@ -589,20 +2230,20 @@ body {
     right: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     transform: translateY(-50%);
     z-index: 10;
 }
 
 .slider-control {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border: none;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1) !important;
     backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    font-size: 1.2rem;
+    color: var(--text-primary) !important;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -611,15 +2252,15 @@ body {
 }
 
 .slider-control:hover {
-    background: var(--tech-primary);
-    color: var(--tech-dark);
+    background: var(--tech-primary) !important;
+    color: var(--text-primary) !important;
     transform: scale(1.1);
 }
 
 /* Slider Indicators */
 .slider-indicators {
     position: absolute;
-    bottom: 2rem;
+    bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -628,17 +2269,17 @@ body {
 }
 
 .indicator {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     border: none;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .indicator.active {
-    background: var(--tech-primary);
+    background: var(--tech-primary) !important;
     transform: scale(1.2);
 }
 
@@ -649,12 +2290,12 @@ body {
     left: 0;
     right: 0;
     height: 3px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary)) !important;
     width: 0%;
     transition: width 0.1s linear;
 }
@@ -662,9 +2303,9 @@ body {
 /* Section Titles */
 .slider-section-title,
 .section-title-tech {
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     font-weight: 700;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
+    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -672,377 +2313,109 @@ body {
 
 .slider-section-subtitle,
 .section-subtitle-tech {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-}
-
-/* Tech Cards */
-.tech-feature-card {
-    background: var(--tech-card-bg);
-    border: 1px solid rgba(0, 245, 255, 0.1);
-    border-radius: 15px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.tech-feature-card:hover {
-    transform: translateY(-10px);
-    border-color: var(--tech-primary);
-    box-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
-}
-
-.tech-icon-container {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    font-size: 2rem;
-    color: white;
-}
-
-.tech-feature-title {
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-weight: 600;
-}
-
-.tech-feature-desc {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-/* Buttons */
-.btn-tech-primary {
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
-    border: none;
-    color: white;
-    font-weight: 600;
-    padding: 12px 30px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 245, 255, 0.3);
-}
-
-.btn-tech-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 245, 255, 0.5);
-    color: white;
-}
-
-.btn-tech-outline {
-    border: 2px solid var(--tech-primary);
-    color: var(--tech-primary);
-    background: transparent;
-    padding: 12px 30px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-}
-
-.btn-tech-outline:hover {
-    background: var(--tech-primary);
-    color: var(--tech-dark);
-    transform: translateY(-3px);
-}
-
-/* Category Cards */
-.tech-category-card {
-    background: var(--tech-card-bg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.tech-category-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--tech-primary);
-}
-
-.tech-category-img {
-    height: 60px;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-.tech-icon-placeholder {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    color: white;
-    font-size: 1.5rem;
-}
-
-.tech-category-title {
-    color: var(--text-primary);
-    margin: 1rem 0 0.5rem;
-    font-weight: 600;
-}
-
-.tech-category-count {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.tech-category-btn {
-    color: var(--tech-primary);
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.tech-category-btn:hover {
-    color: var(--tech-accent);
-}
-
-/* Product Cards */
-.tech-product-card {
-    background: var(--tech-card-bg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    position: relative;
-    backdrop-filter: blur(10px);
-}
-
-.tech-product-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--tech-primary);
-    box-shadow: 0 10px 25px rgba(0, 245, 255, 0.2);
-}
-
-.tech-product-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.tech-product-card:hover .tech-product-img {
-    transform: scale(1.05);
-}
-
-.tech-product-body {
-    padding: 1.5rem;
-}
-
-.tech-product-title a {
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-    text-decoration: none;
-}
-
-.tech-product-title a:hover {
-    color: var(--tech-primary);
-}
-
-.tech-product-price {
-    color: var(--tech-primary);
-}
-
-.tech-product-compare-price {
-    color: var(--text-muted);
-}
-
-.tech-product-footer {
-    padding: 0 1.5rem 1.5rem;
-}
-
-/* Stats Section */
-.stats-section-tech {
-    background: linear-gradient(135deg, var(--tech-darker) 0%, var(--tech-dark) 100%);
-}
-
-.tech-stat-card {
-    padding: 2rem 1rem;
-}
-
-.stat-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-secondary));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    font-size: 2rem;
-    color: white;
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    background: linear-gradient(45deg, var(--tech-primary), var(--tech-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     font-size: 1rem;
-}
-
-/* Animations */
-.pulse-animation {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Floating Icons */
-.floating-tech-icons {
-    position: relative;
-    height: 300px;
-}
-
-.icon-float-1, .icon-float-2, .icon-float-3 {
-    position: absolute;
-    font-size: 3rem;
-    color: var(--tech-primary);
-    opacity: 0.7;
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(10deg); }
-}
-
-/* Hologram Card */
-.hologram-container {
-    perspective: 1000px;
-}
-
-.hologram-card {
-    width: 250px;
-    height: 300px;
-    margin: 0 auto;
-    position: relative;
-    transform-style: preserve-3d;
-    animation: hologram-rotate 20s linear infinite;
-}
-
-.hologram-content {
-    background: linear-gradient(135deg, 
-        rgba(0, 245, 255, 0.1) 0%, 
-        rgba(123, 104, 238, 0.1) 50%, 
-        rgba(255, 0, 255, 0.1) 100%);
-    border: 1px solid rgba(0, 245, 255, 0.3);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 2rem;
-    text-align: center;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 50px rgba(0, 245, 255, 0.2);
-}
-
-.hologram-icon {
-    font-size: 4rem;
-    color: var(--tech-primary);
-    margin-bottom: 1rem;
-}
-
-.hologram-title {
-    color: var(--text-primary);
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.hologram-text {
-    color: var(--text-secondary);
-}
-
-@keyframes hologram-rotate {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(360deg); }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .small-banner-section {
+        height: 50px;
+        margin-top: 70px;
+    }
+    
+    .small-banner-content {
+        padding: 0 0.5rem;
+    }
+    
+    .small-banner-text {
+        gap: 0.5rem;
+    }
+    
+    .verified-badge {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+    }
+    
+    .small-banner-title {
+        font-size: 0.8rem;
+    }
+    
+    .small-banner-desc {
+        font-size: 0.7rem;
+    }
+    
+    .small-banner-control {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+    }
+    
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+    
+    .ads-3d-container {
+        height: 200px;
     }
     
     .modern-slider-track {
-        height: 400px;
+        height: 300px;
     }
     
     .slide-content {
-        padding: 2rem;
+        padding: 1.5rem;
     }
     
     .slide-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
     
     .slide-description {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
-    .slider-controls {
-        padding: 0 1rem;
+    .tech-feature-card {
+        padding: 1rem;
     }
     
-    .slider-control {
-        width: 40px;
-        height: 40px;
+    .tech-icon-container {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
     }
 }
 
-.min-vh-80 {
-    min-height: 80vh;
-}
-
-/* Ensure text visibility */
-.tech-product-category,
-.tech-product-shop {
-    color: var(--text-secondary);
-}
-
-.tech-stock-status {
-    color: var(--text-secondary);
-}
-
-.stock-indicator.in-stock {
-    color: #00d9ff;
-}
-
-.stock-indicator.low-stock {
-    color: #ffd700;
-}
-
-.stock-indicator.out-of-stock {
-    color: #ff4757;
+@media (max-width: 576px) {
+    .small-banner-content {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .small-banner-text {
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: center;
+    }
+    
+    .hero-section-tech {
+        min-height: 60vh;
+        padding: 1rem 0;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 250px;
+    }
 }
 </style>
 
@@ -1056,11 +2429,113 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize modern slider
     initModernSlider();
     
+    // Initialize small banner
+    initSmallBanner();
+    
+    // Initialize 3D ads
+    init3DAds();
+    
     // Initialize animations
     initAnimations();
     
     // Initialize counter animations
     initCounters();
+    
+    // Small Banner Functionality
+    function initSmallBanner() {
+        const track = document.getElementById('smallBannerTrack');
+        const slides = document.querySelectorAll('.small-banner-slide');
+        const prevBtn = document.getElementById('prevSmallBanner');
+        const nextBtn = document.getElementById('nextSmallBanner');
+        
+        let currentSlide = 0;
+        let autoSlideInterval;
+        const slideCount = slides.length;
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            track.style.transform = `translateX(-${index * 100}%)`;
+            startAutoSlide();
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slideCount;
+            showSlide(currentSlide);
+        }
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
+            showSlide(currentSlide);
+        }
+        
+        function startAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 4000);
+        }
+        
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+        
+        // Pause on hover
+        track.addEventListener('mouseenter', () => {
+            clearInterval(autoSlideInterval);
+        });
+        
+        track.addEventListener('mouseleave', startAutoSlide);
+        
+        startAutoSlide();
+        showSlide(currentSlide);
+    }
+    
+    // 3D Ads Functionality
+    function init3DAds() {
+        const track = document.getElementById('ads3dTrack');
+        const slides = document.querySelectorAll('.ads-3d-slide');
+        const indicators = document.querySelectorAll('.ads-3d-indicator');
+        
+        let currentAd = 0;
+        let autoAdInterval;
+        const adCount = slides.length;
+        
+        function showAd(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            
+            startAutoAd();
+        }
+        
+        function nextAd() {
+            currentAd = (currentAd + 1) % adCount;
+            showAd(currentAd);
+        }
+        
+        function startAutoAd() {
+            clearInterval(autoAdInterval);
+            autoAdInterval = setInterval(nextAd, 5000);
+        }
+        
+        // Indicator clicks
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                currentAd = index;
+                showAd(currentAd);
+            });
+        });
+        
+        // Pause on hover
+        track.addEventListener('mouseenter', () => {
+            clearInterval(autoAdInterval);
+        });
+        
+        track.addEventListener('mouseleave', startAutoAd);
+        
+        startAutoAd();
+        showAd(currentAd);
+    }
     
     // Modern Slider Functionality
     function initModernSlider() {
@@ -1075,53 +2550,38 @@ document.addEventListener('DOMContentLoaded', function() {
         let autoSlideInterval;
         const slideCount = slides.length;
         
-        // Function to show slide
         function showSlide(index) {
-            // Remove active class from all slides and indicators
             slides.forEach(slide => slide.classList.remove('active'));
             indicators.forEach(indicator => indicator.classList.remove('active'));
             
-            // Add active class to current slide and indicator
             slides[index].classList.add('active');
             indicators[index].classList.add('active');
             
-            // Update track position
             track.style.transform = `translateX(-${index * 100}%)`;
-            
-            // Reset progress bar
             progressBar.style.width = '0%';
-            
-            // Restart auto slide
             startAutoSlide();
         }
         
-        // Next slide function
         function nextSlide() {
             currentSlide = (currentSlide + 1) % slideCount;
             showSlide(currentSlide);
         }
         
-        // Previous slide function
         function prevSlide() {
             currentSlide = (currentSlide - 1 + slideCount) % slideCount;
             showSlide(currentSlide);
         }
         
-        // Auto slide function
         function startAutoSlide() {
             clearInterval(autoSlideInterval);
             autoSlideInterval = setInterval(nextSlide, 5000);
-            
-            // Animate progress bar
             progressBar.style.transition = 'width 5s linear';
             progressBar.style.width = '100%';
         }
         
-        // Event listeners
         nextBtn.addEventListener('click', nextSlide);
         prevBtn.addEventListener('click', prevSlide);
         
-        // Indicator clicks
         indicators.forEach((indicator, index) => {
             indicator.addEventListener('click', () => {
                 currentSlide = index;
@@ -1129,7 +2589,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Pause on hover
         track.addEventListener('mouseenter', () => {
             clearInterval(autoSlideInterval);
             progressBar.style.transition = 'none';
@@ -1137,16 +2596,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         track.addEventListener('mouseleave', startAutoSlide);
         
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') prevSlide();
             if (e.key === 'ArrowRight') nextSlide();
         });
         
-        // Start auto slide
         startAutoSlide();
-        
-        // Initialize first slide
         showSlide(currentSlide);
     }
     
@@ -1171,7 +2626,6 @@ document.addEventListener('DOMContentLoaded', function() {
             container.appendChild(particle);
         }
         
-        // Add CSS for particle animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes particle-float {
@@ -1186,7 +2640,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize animations
     function initAnimations() {
-        // Add intersection observer for scroll animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1196,7 +2649,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Observe elements for animation
         document.querySelectorAll('.tech-feature-card, .tech-product-card').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
@@ -1245,7 +2697,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const productId = this.dataset.productId;
             
-            // Check if user is authenticated
             {% if not user.is_authenticated %}
             window.location.href = "{% url 'accounts:login' %}?next={{ request.path }}";
             return;
@@ -1256,13 +2707,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Show loading state
             const originalText = this.innerHTML;
             this.innerHTML = '<i class="fas fa-atom fa-spin me-1"></i>{% trans "Adding..." %}';
             this.disabled = true;
             
             try {
-                // Get CSRF token
                 function getCSRFToken() {
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
                     if (csrfToken) return csrfToken.value;
@@ -1301,10 +2750,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.classList.remove('btn-tech-primary');
                     this.classList.add('btn-success');
                     
-                    // Add particle effect
                     createParticleEffect(this);
-                    
-                    // Update cart count
                     await updateCartCount();
                     
                     showTechToast(data.message || '{% trans "Product added to cart successfully!" %}', 'success');
@@ -1345,21 +2791,26 @@ document.addEventListener('DOMContentLoaded', function() {
             z-index: 1060; 
             min-width: 300px;
             background: var(--tech-card-bg);
-            border: 1px solid ${type === 'success' ? 'var(--tech-primary)' : type === 'error' ? '#ff4757' : type === 'warning' ? '#ffa502' : 'var(--tech-secondary)'};
-            color: white;
+            border: 1px solid ${type === 'success' ? 'var(--tech-primary)' : type === 'error' ? '#e74c3c' : type === 'warning' ? '#f39c12' : 'var(--tech-secondary)'};
+            color: var(--text-primary);
             backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         `;
         
         const icon = type === 'success' ? 'fa-check-circle' : 
                     type === 'error' ? 'fa-exclamation-triangle' : 
                     type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle';
         
+        const iconColor = type === 'success' ? 'var(--tech-primary)' : 
+                         type === 'error' ? '#e74c3c' : 
+                         type === 'warning' ? '#f39c12' : 'var(--tech-secondary)';
+        
         toast.innerHTML = `
             <div class="d-flex align-items-center">
-                <i class="fas ${icon} me-2" style="color: ${type === 'success' ? 'var(--tech-primary)' : type === 'error' ? '#ff4757' : type === 'warning' ? '#ffa502' : 'var(--tech-secondary)'}"></i>
+                <i class="fas ${icon} me-2" style="color: ${iconColor}"></i>
                 <div>${message}</div>
             </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         
         document.body.appendChild(toast);

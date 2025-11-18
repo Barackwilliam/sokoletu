@@ -31,7 +31,8 @@ urlpatterns = [
     # Featured & Sponsored
     path('featured/', views.featured_products, name='featured_products'),
     path('sponsored/', views.sponsored_products, name='sponsored_products'),
-    
+    path('shops/', views.shop_list, name='shop_list'),
+
     # Marketplace homepage and shop detail - KEEP THESE LAST
     # path('shop/<slug:slug>/', views.shop_detail, name='shop_detail'), 
 ]

@@ -1,0 +1,815 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Premium Shops - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="shop-list-container">
+    <!-- Hero Section -->
+    <section class="shop-hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="hero-title">Our Premium Shops</h1>
+                <p class="hero-subtitle">Discover exceptional products from trusted sellers</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ shops.count }}</span>
+                        <span class="stat-label">Active Shops</span>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Shops Grid -->
+    <section class="shops-grid-section">
+        <div class="container">
+            <div class="shops-grid" id="shopsGrid">
+                {% for shop in shops %}
+                <article class="shop-card" data-rating="{{ shop.rating }}" data-verified="{{ shop.is_verified|lower }}">
+                    <!-- Shop Header with Banner -->
+                    <div class="shop-header">
+                        {% if shop.banner %}
+                        <img src="{{ shop.logo }}" 
+                             alt="{{ shop.name }} banner" 
+                             class="shop-banner">
+                        {% else %}
+                        <div class="shop-banner-placeholder">
+                            <i class="fas fa-store banner-icon"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Verified Badge -->
+                        {% if shop.is_verified %}
+                        <div class="verified-badge">
+                            <i class="fas fa-check"></i>
+                            Verified Seller
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Shop Logo -->
+                        <div class="shop-logo-container">
+                            {% if shop.logo %}
+                            <img src="{{ shop.get_logo_url }}" 
+                                 alt="{{ shop.name }} logo" 
+                                 class="shop-logo">
+                            {% else %}
+                            <div class="shop-logo-placeholder">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Shop Content -->
+                    <div class="shop-content">
+                        <div class="shop-meta">
+                            <div class="rating-container">
+                                <div class="stars">
+                                    {% with rating=shop.rating %}
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= rating|add:"0" %}
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <span class="rating-value">{{ shop.rating }}</span>
+                            </div>
+                            <span class="product-count">{{ shop.product_count }} products</span>
+                        </div>
+
+                        <h3 class="shop-name">
+                            <a href="{{ shop.get_absolute_url }}">{{ shop.name }}</a>
+                        </h3>
+
+                        <p class="shop-description">
+                            {{ shop.description|truncatewords:20 }}
+                        </p>
+
+                        <!-- Location & Contact -->
+                        <div class="shop-details">
+                            {% if shop.region %}
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ shop.region }}{% if shop.district %}, {{ shop.district }}{% endif %}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if shop.phone %}
+                            <div class="detail-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ shop.phone }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Social Links -->
+                        {% if shop.website or shop.facebook or shop.instagram %}
+                        <div class="social-links">
+                            {% if shop.website %}
+                            <a href="{{ shop.website }}" class="social-link" target="_blank" title="Website">
+                                <i class="fas fa-globe"></i>
+                            </a>
+                            {% endif %}
+                            {% if shop.facebook %}
+                            <a href="{{ shop.facebook }}" class="social-link" target="_blank" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            {% endif %}
+                            {% if shop.instagram %}
+                            <a href="{{ shop.instagram }}" class="social-link" target="_blank" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Shop Footer -->
+                    <div class="shop-footer">
+                        <a href="{{ shop.get_absolute_url }}" class="shop-button">
+                            Explore Shop
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+                {% empty %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-store-slash"></i>
+                    </div>
+                    <h3>No Shops Available</h3>
+                    <p>There are currently no active shops in our marketplace.</p>
+                    <button class="cta-button">Become a Seller</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+:root {
+    --primary: #f3c806ff;      /* Yellow - Primary color */
+    --secondary: #FF6B35;      /* Orange - Secondary color */
+    --accent: #FFD166;         /* Light Yellow - Accent color */
+    --danger: #dc3545;         /* Red - Danger color */
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    /* --bg-light: #ffffff; */
+    --bg-light: #fff9e6;          
+    --border-light: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Hero Section */
+.shop-hero-section {
+    background: white;
+    color: var(--text-dark);
+    padding: 80px 0 60px;
+    position: relative;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+    position: relative;
+}
+
+.hero-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 3rem;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+}
+
+.stat-item {
+    text-align: center;
+    position: relative;
+}
+
+.stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 40px;
+    background: var(--border-light);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* Filter Section */
+.filter-section {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.filter-label {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    background: white;
+    color: var(--text-dark);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(243, 200, 6, 0.1);
+}
+
+.category-filters {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.category-filter {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-light);
+    border-radius: 25px;
+    background: white;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.category-filter.active,
+.category-filter:hover {
+    background: var(--primary);
+    color: var(--text-dark);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Shops Grid */
+.shops-grid-section {
+    padding: 4rem 0;
+    background: var(--bg-light);
+}
+
+.shops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2.5rem;
+}
+
+/* Shop Card */
+.shop-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    border: 1px solid var(--border-light);
+}
+
+.shop-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary);
+}
+
+.shop-header {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.shop-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.shop-card:hover .shop-banner {
+    transform: scale(1.1);
+}
+
+.shop-banner-placeholder {
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.shop-banner-placeholder::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.banner-icon {
+    font-size: 3rem;
+    color: white;
+    position: relative;
+    z-index: 2;
+}
+
+.verified-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, var(--secondary) 0%, #ff8c42 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-md);
+    z-index: 3;
+}
+
+.shop-logo-container {
+    position: absolute;
+    bottom: -25px;
+    left: 1.5rem;
+    z-index: 3;
+}
+
+.shop-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    border: 4px solid white;
+    background: white;
+    object-fit: cover;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+}
+
+.shop-card:hover .shop-logo {
+    transform: scale(1.1) rotate(5deg);
+    border-color: var(--primary);
+}
+
+.shop-logo-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    border: 4px solid white;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+}
+
+.shop-card:hover .shop-logo-placeholder {
+    transform: scale(1.1) rotate(5deg);
+    border-color: var(--primary);
+}
+
+/* Shop Content */
+.shop-content {
+    padding: 3rem 1.5rem 1.5rem;
+    position: relative;
+}
+
+.shop-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stars {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.rating-value {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.product-count {
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--bg-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.shop-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--text-dark);
+}
+
+.shop-name a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.shop-name a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.shop-name a:hover::after {
+    width: 100%;
+}
+
+.shop-name a:hover {
+    color: var(--primary);
+}
+
+.shop-description {
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.shop-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.detail-item i {
+    width: 16px;
+    color: var(--primary);
+    font-size: 0.8rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.social-link {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-light);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-light);
+}
+
+.social-link:hover {
+    background: var(--primary);
+    color: var(--text-dark);
+    transform: translateY(-3px) scale(1.1);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+
+/* Shop Footer */
+.shop-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-light);
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.shop-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: var(--text-dark);
+    text-decoration: none;
+    border-radius: 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.shop-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.shop-button:hover::before {
+    left: 100%;
+}
+
+.shop-button:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    color: var(--text-dark);
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.empty-state p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.cta-button {
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: var(--text-dark);
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        gap: 2rem;
+    }
+    
+    .stat-item:not(:last-child)::after {
+        display: none;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+    
+    .shops-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .shop-header {
+        height: 180px;
+    }
+    
+    .shop-logo {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .shop-logo-placeholder {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .category-filters {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .shop-content {
+        padding: 2.5rem 1.25rem 1.25rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('sortSelect');
+    const categoryFilters = document.querySelectorAll('.category-filter');
+    const shopCards = document.querySelectorAll('.shop-card');
+    
+    // Add hover effects with delay
+    shopCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Sort functionality
+    sortSelect.addEventListener('change', function() {
+        const sortBy = this.value;
+        // Implement sorting logic here
+        console.log('Sort by:', sortBy);
+    });
+    
+    // Category filter functionality
+    categoryFilters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            // Remove active class from all filters
+            categoryFilters.forEach(f => f.classList.remove('active'));
+            // Add active class to clicked filter
+            this.classList.add('active');
+            
+            const category = this.dataset.category;
+            // Implement filtering logic here
+            console.log('Filter category:', category);
+        });
+    });
+
+    // Add intersection observer for animation
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe shop cards for animation
+    shopCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}
