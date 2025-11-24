@@ -422,11 +422,11 @@ class ProductImage(models.Model):
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
 
     
-    def save(self, *args, **kwargs):
-        if self.image:
-            watermarked = apply_watermark(self.image)
-            self.image.save(self.image.name, watermarked, save=False)
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.image:
+    #         watermarked = apply_watermark(self.image)
+    #         self.image.save(self.image.name, watermarked, save=False)
+    #     super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('product image')

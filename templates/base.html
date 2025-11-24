@@ -570,10 +570,20 @@
     <!-- Mobile Sidebar -->
     <div class="sidebar-modern" id="sidebar">
         <div class="sidebar-header-modern">
-            <h4 class="text-dark mb-0 d-flex align-items-center">
+            <!-- <h4 class="text-dark mb-0 d-flex align-items-center">
                 <i class="fas fa-store me-3"></i>
                 <span>SokoLetu</span>
+            </h4> -->
+
+
+
+              <h4 class="text-dark mb-0 d-flex align-items-center">
+    <img src="{% static 'image/logo.png' %}" 
+         alt="SokoLetu Logo"
+         style="height:60px; width:auto;">
             </h4>
+
+
             <small class="text-dark opacity-75">{% trans "Tanzanian Online Marketplace" %}</small>
         </div>
         <div class="sidebar-menu-modern">
@@ -639,7 +649,7 @@
                     <i class="fas fa-question-circle"></i> {% trans "Help" %}
                 </a>
             {% endif %}
-            
+             {% comment %}
             <!-- Mobile Language Selector -->
             <div class="mobile-language-selector mt-4 mx-3 p-4 bg-light rounded-3">
                 <small class="text-dark opacity-75 mb-3 d-block fw-bold">{% trans "Select Language:" %}</small>
@@ -656,6 +666,10 @@
                     </form>
                 </div>
             </div>
+
+       {% endcomment %}
+
+
         </div>
     </div>
     
@@ -671,10 +685,16 @@
             </button>
             
             <!-- Brand -->
-            <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="{% url 'core:home' %}">
+            <!-- <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="{% url 'core:home' %}">
                 <i class="fas fa-store me-2"></i>
                 <span>SokoLetu</span>
-            </a>
+            </a> -->
+            <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="{% url 'core:home' %}">
+            <img src="{% static 'image/logo.png' %}" 
+                alt="Sokoletu Logo"
+                style="height:60px; width:auto;">
+             </a>
+
 
             <!-- Desktop Menu -->
             <div class="collapse navbar-collapse">
@@ -728,6 +748,8 @@
 
                 <!-- Right Icons -->
                 <ul class="navbar-nav align-items-center">
+
+                     {% comment %}
                     <!-- Language Selector -->
                     <li class="nav-item dropdown me-3">
                         <a class="nav-link d-flex align-items-center language-selector-modern" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
@@ -759,7 +781,9 @@
                                 </form>
                             </li>
                         </ul>
-                    </li>       <!-- Cart -->
+                    </li>                                    
+                                 {% endcomment %}
+                                 
                         <li class="nav-item me-3 position-relative">
                             <a class="nav-link position-relative cart-icon-modern" href="{% url 'orders:cart' %}">
                                 <i class="fas fa-shopping-cart"></i>
@@ -929,6 +953,10 @@
                         </li>
                     {% endif %}
                 </ul>
+
+
+
+
             </div>
         </div>
     </nav>

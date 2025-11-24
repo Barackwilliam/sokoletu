@@ -549,26 +549,26 @@ def shop_dashboard(request):
 
 
     
-@login_required
-def shop_dashboard(request):
-    """Shop management dashboard"""
-    if not request.user.is_seller:
-        messages.error(request, 'Unahtaji kuwa muuzaji kufikia ukurasa huu!')
-        return redirect('accounts:upgrade_seller')
+# @login_required
+# def shop_dashboard(request):
+#     """Shop management dashboard"""
+#     if not request.user.is_seller:
+#         messages.error(request, 'Unahtaji kuwa muuzaji kufikia ukurasa huu!')
+#         return redirect('accounts:upgrade_seller')
     
-    try:
-        # FIXED: using seller instead of user
-        shop = Shop.objects.get(seller=request.user)
-    except Shop.DoesNotExist:
-        return redirect('market:create_shop')
+#     try:
+#         # FIXED: using seller instead of user
+#         shop = Shop.objects.get(seller=request.user)
+#     except Shop.DoesNotExist:
+#         return redirect('market:create_shop')
     
-    products = Product.objects.filter(shop=shop)
+#     products = Product.objects.filter(shop=shop)
     
-    context = {
-        'shop': shop,
-        'products': products,
-    }
-    return render(request, 'market/shop_dashboard.html', context)
+#     context = {
+#         'shop': shop,
+#         'products': products,
+#     }
+#     return render(request, 'market/shop_dashboard.html', context)
 
 @login_required
 def product_list(request):

@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import User, SellerProfile
 
 # Uploadcare Public Key
-UPLOADCARE_PUBLIC_KEY = '5ff964c3b9a85a1e2697' 
+UPLOADCARE_PUBLIC_KEY = '07d87a25986725d72cf5' 
 class UserRegistrationForm(UserCreationForm):
     user_type = forms.ChoiceField(
         choices=User.USER_TYPE_CHOICES,

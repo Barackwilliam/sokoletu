@@ -10,7 +10,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = 'django-insecure-your-secret-key-here'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -210,6 +210,8 @@ PRODUCT_RECOMMENDATIONS_CACHE = 'recommendations_{user_id}_{session_key}'
 CATEGORY_PRODUCTS_CACHE = 'category_products_{category_slug}'
 
 UPLOADCARE = {
-    'pub_key': '5ff964c3b9a85a1e2697',
-    'secret': '3842ddaed74fa5026064',
+    'pub_key': '07d87a25986725d72cf5',
+    'secret': '29d427d884f6fc7fed8e',
 }
+
+

@@ -47,7 +47,7 @@ class ProductImageForm(forms.ModelForm):
             'image': forms.TextInput(attrs={
                 'class': 'form-control',
                 'role': 'uploadcare-uploader',
-                'data-public-key': '5ff964c3b9a85a1e2697',
+                'data-public-key': '07d87a25986725d72cf5',
                 'data-images-only': 'true',
             }),
             'alt_text': forms.TextInput(attrs={'class': 'form-control'}),
@@ -117,7 +117,7 @@ class HomeSliderForm(forms.ModelForm):
             'image': forms.TextInput(attrs={
                 'class': 'form-control',
                 'role': 'uploadcare-uploader',
-                'data-public-key': '5ff964c3b9a85a1e2697',
+                'data-public-key': '07d87a25986725d72cf5',
                 'data-images-only': 'true',
                 'data-multiple': 'false',
                 'data-tabs': 'file camera url',

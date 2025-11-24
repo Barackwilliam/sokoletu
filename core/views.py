@@ -2,12 +2,13 @@
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 from market.models import Category, Product,HomeSlider
+from core.models import SmallBannerAd
 
 def home(request):
     # Get featured categories and products
     featured_categories = Category.objects.filter(is_active=True)[:6]
     sliders = HomeSlider.objects.filter(is_active=True).order_by('order')
-
+    ads = SmallBannerAd.objects.all()
     featured_products = Product.objects.filter(
         is_active=True, 
         status='published',
@@ -26,6 +27,7 @@ def home(request):
         'featured_categories': featured_categories,
         'featured_products': featured_products,
         'sponsored_products': sponsored_products,
-        'sliders':sliders
+        'sliders':sliders,
+        'ads': ads
     }
     return render(request, 'home.html', context)

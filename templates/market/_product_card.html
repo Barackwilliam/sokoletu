@@ -198,20 +198,6 @@
     <div class="card-footer bg-transparent border-top-0 pt-0">
         <div class="d-grid gap-2">
             <!-- UPDATED: AJAX Add to Cart Button with better loading states -->
-
-            <button class="btn btn-gold btn-sm add-to-cart-ajax" 
-                    data-product-id="{{ product.id }}"
-                    {% if not product.is_in_stock %}disabled{% endif %}>
-                <i class="fas fa-shopping-cart me-1"></i>
-                {% if product.is_in_stock %}
-                    {% trans "Add to Cart" %}
-                {% else %}
-                    {% trans "Notify When Available" %}
-                {% endif %}
-            </button>
-           
-
-  {% comment %}
             {% if user.is_authenticated %}
             <button class="btn btn-gold btn-sm add-to-cart-ajax" 
                     data-product-id="{{ product.id }}"
@@ -229,8 +215,6 @@
                 {% trans "Login to Purchase" %}
             </a>
             {% endif %}
-            
-  {% endcomment %}
 
             
             <div class="d-flex gap-1">

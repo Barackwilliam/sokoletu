@@ -6,7 +6,7 @@ from .models import (
 )
 
 # Uploadcare Public Key
-UPLOADCARE_PUBLIC_KEY = '5ff964c3b9a85a1e2697'
+UPLOADCARE_PUBLIC_KEY = '07d87a25986725d72cf5'
 
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):

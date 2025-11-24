@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import Category, Shop, Product, ProductImage, ProductView, SponsoredRequest, SearchHistory,HomeSlider
 from .forms import CategoryAdminForm, ShopAdminForm, ProductImageForm,HomeSliderForm
 # Uploadcare Public Key - Replace with your actual key
-UPLOADCARE_PUBLIC_KEY = '5ff964c3b9a85a1e2697'
+UPLOADCARE_PUBLIC_KEY = '07d87a25986725d72cf5'
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
