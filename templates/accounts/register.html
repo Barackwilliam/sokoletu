@@ -372,10 +372,17 @@
 </div>
 
 <style>
+:root {
+    --primary: #f3c806ff;      /* Yellow - Primary color */
+    --secondary: hsl(16, 100%, 60%);      /* Orange - Secondary color */
+    --accent: #FFD166;  
+    --white: #FFFFFF;
+}
+
 .register-wrapper {
     position: relative;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     overflow: hidden;
 }
 
@@ -442,8 +449,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 30% 70%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 70% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%);
+    background: radial-gradient(circle at 30% 70%, rgba(243, 200, 6, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 20%, rgba(255, 107, 53, 0.2) 0%, transparent 50%);
 }
 
 @keyframes float {
@@ -495,10 +502,10 @@
 }
 
 .step.active .step-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-color: var(--primary);
     color: white;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 20px rgba(243, 200, 6, 0.3);
 }
 
 .step-label {
@@ -525,7 +532,7 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     width: 33.33%;
     transition: width 0.3s ease;
     border-radius: 2px;
@@ -540,7 +547,7 @@
 
 /* Visual Section */
 .visual-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     padding: 3rem;
     display: flex;
@@ -630,7 +637,7 @@
 }
 
 .highlight {
-    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    background: linear-gradient(45deg, var(--accent), #ffed4e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -667,7 +674,7 @@
 .feature-icon {
     font-size: 1.5rem;
     margin-right: 1rem;
-    color: #ffd700;
+    color: var(--accent);
 }
 
 .feature-content h4 {
@@ -697,7 +704,7 @@
 
 .trust-icon {
     margin-right: 0.5rem;
-    color: #ffd700;
+    color: var(--accent);
 }
 
 /* Form Section */
@@ -775,8 +782,8 @@
 }
 
 .form-group.floating input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(243, 200, 6, 0.1);
 }
 
 .form-group.floating input:focus + label,
@@ -786,7 +793,7 @@
     font-size: 0.8rem;
     background: white;
     padding: 0 0.5rem;
-    color: #667eea;
+    color: var(--primary);
 }
 
 .form-icon {
@@ -799,7 +806,7 @@
 }
 
 .form-group.floating input:focus ~ .form-icon {
-    color: #667eea;
+    color: var(--primary);
 }
 
 /* Account Type Selector */
@@ -829,13 +836,13 @@
 }
 
 .account-type-input:checked + .account-type-card {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(243, 200, 6, 0.08) 0%, rgba(255, 107, 53, 0.08) 100%);
+    box-shadow: 0 8px 25px rgba(243, 200, 6, 0.15);
 }
 
 .account-type-card:hover {
-    border-color: #667eea;
+    border-color: var(--primary);
     transform: translateY(-2px);
 }
 
@@ -849,7 +856,7 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -874,7 +881,7 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
@@ -896,7 +903,7 @@
 }
 
 .password-toggle:hover {
-    color: #667eea;
+    color: var(--primary);
 }
 
 /* Password Strength */
@@ -933,13 +940,14 @@
 }
 
 .terms-link {
-    color: #667eea;
+    color: var(--primary);
     text-decoration: none;
     font-weight: 500;
 }
 
 .terms-link:hover {
     text-decoration: underline;
+    color: var(--secondary);
 }
 
 /* Form Actions */
@@ -950,7 +958,7 @@
 .btn-register {
     width: 100%;
     padding: 1.25rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border: none;
     border-radius: 12px;
     color: white;
@@ -963,7 +971,7 @@
 
 .btn-register:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 12px 30px rgba(243, 200, 6, 0.4);
 }
 
 .btn-loader {
@@ -1033,8 +1041,9 @@
 }
 
 .btn-social:hover {
-    border-color: #667eea;
+    border-color: var(--primary);
     transform: translateY(-1px);
+    color: var(--primary);
 }
 
 .btn-google:hover {
@@ -1055,7 +1064,7 @@
 }
 
 .login-link {
-    color: #667eea;
+    color: var(--primary);
     text-decoration: none;
     font-weight: 600;
     display: inline-flex;
@@ -1064,6 +1073,7 @@
 
 .login-link:hover {
     text-decoration: underline;
+    color: var(--secondary);
 }
 
 /* Responsive Design */
@@ -1121,6 +1131,25 @@
 .alert-content p {
     margin: 0;
     font-weight: 500;
+}
+
+/* Checkbox Styling */
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(243, 200, 6, 0.25);
+}
+
+/* Focus states for better accessibility */
+.form-group.floating input:focus,
+.account-type-input:focus + .account-type-card {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(243, 200, 6, 0.1);
 }
 </style>
 

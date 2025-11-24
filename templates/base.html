@@ -14,12 +14,12 @@
     <style>
         :root {
             --primary: #f3c806ff;      /* Yellow - Primary color */
-            --secondary: #FF6B35;      /* Orange - Secondary color */
-            --accent: #FFD166;         /* Light Yellow - Accent color */
+            --secondary: hsl(16, 100%, 60%);      /* Orange - Secondary color */
+            --accent: #FFD166;  
+            --white: #FFFFFF;
             --dark: #333333;           /* Dark Gray - Dark color */
             --light: #fff9e6;          /* Light Yellow - Light background */
             --gray: #6C757D;           /* Bootstrap Gray */
-            --white: #FFFFFF;
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
@@ -733,18 +733,19 @@
                 </ul>
 
                 <!-- Search Form -->
-                <div class="search-container-modern me-4">
-                    <form method="get" action="{% url 'market:product_search' %}" class="position-relative">
-                        <input type="text" name="q" class="form-control search-input-modern" 
-                               placeholder="{% trans 'Search products, categories...' %}" 
-                               value="{{ request.GET.q }}" 
-                               id="searchInput"
-                               autocomplete="off">
-                        <button class="btn search-btn-modern" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
+               <div class="search-container-modern me-4">
+    <form method="get" action="{% url 'market:product_search' %}" class="position-relative">
+        <input type="text" name="q" class="form-control search-input-modern" 
+               placeholder=""
+               value="{{ request.GET.q }}" 
+               id="searchInput"
+               autocomplete="off">
+        <button class="btn search-btn-modern" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>
+
 
                 <!-- Right Icons -->
                 <ul class="navbar-nav align-items-center">
@@ -783,7 +784,7 @@
                         </ul>
                     </li>                                    
                                  {% endcomment %}
-                                 
+
                         <li class="nav-item me-3 position-relative">
                             <a class="nav-link position-relative cart-icon-modern" href="{% url 'orders:cart' %}">
                                 <i class="fas fa-shopping-cart"></i>
@@ -1177,5 +1178,56 @@
     {% block extra_css %}
     <!-- Additional CSS for specific pages -->
     {% endblock %}
+
+
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("searchInput");
+
+    // Maneno unayotaka ya-rotate
+    const texts = [
+        "Search products here...",
+        "What do you need.?",
+        "Just Write here...",
+        "Looking for smartphone..?",
+        "Or You need a laptop..?",
+        "Search Every item you need...",
+        "There is alot of product for you..."
+    ];
+
+    let textIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function typeEffect() {
+        const currentText = texts[textIndex];
+
+        if (!isDeleting) {
+            // Kuandika taratibu
+            input.placeholder = currentText.substring(0, charIndex + 1);
+            charIndex++;
+
+            if (charIndex === currentText.length) {
+                setTimeout(() => (isDeleting = true), 1000); // pause kidogo kabla ya kufuta
+            }
+        } else {
+            // Kufuta taratibu
+            input.placeholder = currentText.substring(0, charIndex - 1);
+            charIndex--;
+
+            if (charIndex === 0) {
+                isDeleting = false;
+                textIndex = (textIndex + 1) % texts.length;
+            }
+        }
+
+        setTimeout(typeEffect, isDeleting ? 60 : 100);
+    }
+
+    typeEffect();
+});
+</script>
+
 </body>
 </html>
