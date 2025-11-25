@@ -2,10 +2,10 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container py-5">
+<div class="profile-container" style="min-height: 100vh; padding: 20px;">
     <!-- Profile Completion Alert -->
     {% if not user.has_completed_profile %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius: 10px; border-left: 4px solid #f3c806;">
         <i class="fas fa-exclamation-triangle me-2"></i>
         <strong>{% trans "Profile Incomplete!" %}</strong>
         {% trans "Please complete your profile to access all features." %}
@@ -16,42 +16,48 @@
     <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
                     <!-- Profile Picture -->
                     <div class="mb-3">
                         {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" 
-                             class="rounded-circle img-thumbnail" width="120" height="120">
+                        <img src="{{ user.get_image_url }}" 
+                             alt="{{ user.get_full_name }}" 
+                             class="rounded-circle img-thumbnail" 
+                             style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #f3c806;"
+                             onerror="handleImageError(this)">
                         {% else %}
-                        <div class="rounded-circle bg-light-custom d-inline-flex align-items-center justify-content-center" 
-                             style="width: 120px; height: 120px;">
-                            <i class="fas fa-user-circle fa-4x text-muted"></i>
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" 
+                             style="width: 120px; height: 120px; background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%));">
+                            <i class="fas fa-user-circle fa-3x text-white"></i>
                         </div>
                         {% endif %}
                     </div>
                     
                     <!-- User Info -->
-                    <h5 class="card-title text-dark-custom">{{ user.get_full_name|default:user.email }}</h5>
-                    <p class="text-muted mb-2">{{ user.email }}</p>
+                    <h5 class="card-title fw-bold text-dark mb-2">{{ user.get_full_name|default:user.email }}</h5>
+                    <p class="text-muted mb-3 small">{{ user.email }}</p>
                     
                     <!-- User Type Badge -->
-                    <span class="badge {% if user.is_seller %}bg-success{% else %}bg-primary-custom{% endif %} mb-3">
+                    <span class="badge mb-4" style="background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%)); color: #000; padding: 8px 16px; border-radius: 20px;">
                         <i class="fas {% if user.is_seller %}fa-store{% else %}fa-shopping-bag{% endif %} me-1"></i>
                         {{ user.get_user_type_display }}
                     </span>
 
                     <!-- Navigation -->
-                    <div class="list-group list-group-flush">
-                        <a href="#personal-info" class="list-group-item list-group-item-action active">
+                    <div class="list-group list-group-flush border-0">
+                        <a href="#personal-info" class="list-group-item list-group-item-action border-0 mb-2 active" 
+                           style="border-radius: 10px; background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%)); color: #000; border: none;">
                             <i class="fas fa-user me-2"></i>{% trans "Personal Info" %}
                         </a>
                         {% if user.is_seller %}
-                        <a href="#seller-info" class="list-group-item list-group-item-action">
+                        <a href="#seller-info" class="list-group-item list-group-item-action border-0 mb-2" 
+                           style="border-radius: 10px; background: #f8f9fa; color: #333; border: none; transition: all 0.3s ease;">
                             <i class="fas fa-store me-2"></i>{% trans "Seller Profile" %}
                         </a>
                         {% endif %}
-                        <a href="#security" class="list-group-item list-group-item-action">
+                        <a href="#security" class="list-group-item list-group-item-action border-0 mb-2" 
+                           style="border-radius: 10px; background: #f8f9fa; color: #333; border: none; transition: all 0.3s ease;">
                             <i class="fas fa-shield-alt me-2"></i>{% trans "Security" %}
                         </a>
                     </div>
@@ -62,50 +68,96 @@
         <!-- Main Content -->
         <div class="col-lg-9">
             <!-- Personal Information -->
-            <div class="card shadow-sm border-0 mb-4" id="personal-info">
-                <div class="card-header bg-primary-custom text-white">
-                    <h5 class="mb-0">
+            <div class="card shadow-sm border-0 mb-4" id="personal-info" style="border-radius: 15px;">
+                <div class="card-header border-0" style="border-radius: 15px 15px 0 0; background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%));">
+                    <h5 class="mb-0 text-dark fw-bold">
                         <i class="fas fa-user me-2"></i>{% trans "Personal Information" %}
                     </h5>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="profile-form">
                         {% csrf_token %}
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "First Name" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "First Name" %}</label>
                                 {{ user_form.first_name }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Last Name" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Last Name" %}</label>
                                 {{ user_form.last_name }}
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Phone Number" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Phone Number" %}</label>
                                 {{ user_form.phone_number }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Date of Birth" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Date of Birth" %}</label>
                                 {{ user_form.date_of_birth }}
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">{% trans "Profile Picture" %}</label>
-                            {{ user_form.profile_picture }}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">{% trans "Profile Picture" %}</label>
+                            
+                            <!-- Uploadcare Widget Container -->
+                            <div id="uploadcare-container" class="mb-3">
+                                {{ user_form.profile_picture }}
+                            </div>
+                            
+                            <!-- Current Profile Picture Preview -->
+                            {% if user.profile_picture %}
+                            <div class="current-image-preview mt-3">
+                                <p class="fw-bold text-dark mb-2">{% trans "Current Profile Picture:" %}</p>
+                                <img src="{{ user.get_image_url }}" 
+                                     alt="Current Profile Picture" 
+                                     class="img-thumbnail rounded" 
+                                     style="width: 150px; border: 2px solid #f3c806;"
+                                     onerror="handleImageError(this)">
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        {% trans "Upload new image to replace current one" %}
+                                    </small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% trans "No profile picture set. Please upload one to complete your profile." %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Upload Instructions -->
+                            <div class="alert alert-info mt-3" style="border-radius: 10px; border-left: 4px solid #f3c806;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle me-2" style="color: #f3c806;"></i>
+                                    <div>
+                                        <strong>{% trans "Upload Instructions:" %}</strong>
+                                        <ul class="mb-0 mt-1 small">
+                                            <li>{% trans "Click the upload button above" %}</li>
+                                            <li>{% trans "Select from computer, camera, or cloud storage" %}</li>
+                                            <li>{% trans "Crop and edit your image if needed" %}</li>
+                                            <li>{% trans "Click 'Apply' to confirm your selection" %}</li>
+                                            <li>{% trans "Don't forget to click 'Save Changes' below" %}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary-custom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn fw-bold" 
+                                    style="background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%)); color: #000; border: none; padding: 12px 30px; border-radius: 10px;">
                                 <i class="fas fa-save me-2"></i>{% trans "Save Changes" %}
                             </button>
                             
                             {% if not user.is_seller %}
-                            <a href="{% url 'accounts:become_seller' %}" class="btn btn-outline-success">
+                            <a href="{% url 'accounts:become_seller' %}" class="btn btn-outline-warning fw-bold" 
+                               style="border: 2px solid #f3c806; color: #000; padding: 12px 30px; border-radius: 10px;">
                                 <i class="fas fa-store me-2"></i>{% trans "Become a Seller" %}
                             </a>
                             {% endif %}
@@ -116,19 +168,19 @@
 
             <!-- Seller Profile -->
             {% if user.is_seller and seller_form %}
-            <div class="card shadow-sm border-0 mb-4" id="seller-info">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
+            <div class="card shadow-sm border-0 mb-4" id="seller-info" style="border-radius: 15px;">
+                <div class="card-header border-0" style="border-radius: 15px 15px 0 0; background: linear-gradient(135deg, hsl(16, 100%, 60%), #e65c00);">
+                    <h5 class="mb-0 text-white fw-bold">
                         <i class="fas fa-store me-2"></i>{% trans "Seller Profile" %}
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Store Name" %} *</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Store Name" %} *</label>
                                 {{ seller_form.store_name }}
                                 {% if seller_form.store_name.errors %}
                                 <div class="text-danger small mt-1">
@@ -139,104 +191,119 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Business License" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Business License" %}</label>
                                 {{ seller_form.business_license }}
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">{% trans "Store Description" %}</label>
+                            <label class="form-label fw-bold text-dark">{% trans "Store Description" %}</label>
                             {{ seller_form.store_description }}
                             <div class="form-text">{% trans "Tell customers about your store and what makes it special." %}</div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Store Logo" %}</label>
-                                {{ seller_form.store_logo }}
+                                <label class="form-label fw-bold text-dark">{% trans "Store Logo" %}</label>
+                                <div id="store-logo-uploadcare">
+                                    {{ seller_form.store_logo }}
+                                </div>
                                 {% if seller_profile.store_logo %}
                                 <div class="mt-2">
-                                    <img src="{{ seller_profile.store_logo.url }}" alt="Store Logo" class="img-thumbnail" width="100">
+                                    <p class="fw-bold text-dark mb-1">{% trans "Current Logo:" %}</p>
+                                    <img src="{{ seller_profile.store_logo }}" 
+                                         alt="Store Logo" 
+                                         class="img-thumbnail rounded" 
+                                         style="width: 100px; border: 2px solid #f3c806;"
+                                         onerror="handleImageError(this)">
                                 </div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Store Banner" %}</label>
-                                {{ seller_form.store_banner }}
+                                <label class="form-label fw-bold text-dark">{% trans "Store Banner" %}</label>
+                                <div id="store-banner-uploadcare">
+                                    {{ seller_form.store_banner }}
+                                </div>
                                 {% if seller_profile.store_banner %}
                                 <div class="mt-2">
-                                    <img src="{{ seller_profile.store_banner.url }}" alt="Store Banner" class="img-thumbnail" width="150">
+                                    <p class="fw-bold text-dark mb-1">{% trans "Current Banner:" %}</p>
+                                    <img src="{{ seller_profile.store_banner }}" 
+                                         alt="Store Banner" 
+                                         class="img-thumbnail rounded" 
+                                         style="width: 150px; border: 2px solid #f3c806;"
+                                         onerror="handleImageError(this)">
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
 
-                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
-                            <i class="fas fa-map-marker-alt me-2"></i>{% trans "Business Location" %}
+                        <h6 class="mt-4 mb-3 fw-bold text-dark">
+                            <i class="fas fa-map-marker-alt me-2" style="color: #f3c806;"></i>{% trans "Business Location" %}
                         </h6>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">{% trans "Region" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Region" %}</label>
                                 {{ seller_form.region }}
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">{% trans "District" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "District" %}</label>
                                 {{ seller_form.district }}
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">{% trans "Ward" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Ward" %}</label>
                                 {{ seller_form.ward }}
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">{% trans "Street Address" %}</label>
+                            <label class="form-label fw-bold text-dark">{% trans "Street Address" %}</label>
                             {{ seller_form.street_address }}
                         </div>
 
-                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
-                            <i class="fas fa-id-card me-2"></i>{% trans "Business Information" %}
+                        <h6 class="mt-4 mb-3 fw-bold text-dark">
+                            <i class="fas fa-id-card me-2" style="color: #f3c806;"></i>{% trans "Business Information" %}
                         </h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Tax ID" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Tax ID" %}</label>
                                 {{ seller_form.tax_id }}
                             </div>
                         </div>
 
-                        <h6 class="mt-4 mb-3 text-primary-custom fw-bold">
-                            <i class="fas fa-share-alt me-2"></i>{% trans "Social Media & Links" %}
+                        <h6 class="mt-4 mb-3 fw-bold text-dark">
+                            <i class="fas fa-share-alt me-2" style="color: #f3c806;"></i>{% trans "Social Media & Links" %}
                         </h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Website" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Website" %}</label>
                                 {{ seller_form.website }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Facebook" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Facebook" %}</label>
                                 {{ seller_form.facebook }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Instagram" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Instagram" %}</label>
                                 {{ seller_form.instagram }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">{% trans "Twitter" %}</label>
+                                <label class="form-label fw-bold text-dark">{% trans "Twitter" %}</label>
                                 {{ seller_form.twitter }}
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn fw-bold" 
+                                    style="background: linear-gradient(135deg, hsl(16, 100%, 60%), #e65c00); color: white; border: none; padding: 12px 30px; border-radius: 10px;">
                                 <i class="fas fa-save me-2"></i>{% trans "Save Seller Profile" %}
                             </button>
                             
                             {% if seller_profile.has_complete_business_info %}
-                            <span class="badge bg-success">
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
                                 <i class="fas fa-check me-1"></i>{% trans "Profile Complete" %}
                             </span>
                             {% else %}
-                            <span class="badge bg-warning">
+                            <span class="badge bg-warning px-3 py-2 rounded-pill text-dark">
                                 <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Profile Incomplete" %}
                             </span>
                             {% endif %}
@@ -247,81 +314,106 @@
             {% endif %}
 
             <!-- Security Settings -->
-            <div class="card shadow-sm border-0" id="security">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
+            <div class="card shadow-sm border-0" id="security" style="border-radius: 15px;">
+                <div class="card-header border-0" style="border-radius: 15px 15px 0 0; background: linear-gradient(135deg, #FFD166, #f3c806);">
+                    <h5 class="mb-0 text-dark fw-bold">
                         <i class="fas fa-shield-alt me-2"></i>{% trans "Security Settings" %}
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row">
                         <!-- Password Change -->
                         <div class="col-md-6 mb-4">
-                            <h6 class="text-primary-custom fw-bold mb-3">
-                                <i class="fas fa-key me-2"></i>{% trans "Password" %}
-                            </h6>
-                            <p class="text-muted mb-3">{% trans "Change your password regularly to keep your account secure." %}</p>
-                            <a href="{% url 'accounts:password_reset' %}" class="btn btn-outline-primary-custom">
-                                <i class="fas fa-sync-alt me-2"></i>{% trans "Change Password" %}
-                            </a>
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 10px;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle p-3 me-3" style="background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%));">
+                                            <i class="fas fa-key text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">{% trans "Password" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Change your password regularly to keep your account secure." %}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'accounts:password_reset' %}" class="btn btn-outline-warning w-100 fw-bold" 
+                                       style="border: 2px solid #f3c806; color: #000; border-radius: 10px;">
+                                        <i class="fas fa-sync-alt me-2"></i>{% trans "Change Password" %}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Account Status -->
                         <div class="col-md-6 mb-4">
-                            <h6 class="text-primary-custom fw-bold mb-3">
-                                <i class="fas fa-user-shield me-2"></i>{% trans "Account Status" %}
-                            </h6>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold">{% trans "Email Verification:" %}</span>
-                                {% if user.is_email_verified %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>{% trans "Verified" %}
-                                </span>
-                                {% else %}
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-times me-1"></i>{% trans "Not Verified" %}
-                                </span>
-                                {% endif %}
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 10px;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-circle p-3 me-3" style="background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%));">
+                                            <i class="fas fa-user-shield text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">{% trans "Account Status" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Check your account verification status" %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="status-list">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: #f8f9fa;">
+                                            <span class="fw-bold small">{% trans "Email Verification:" %}</span>
+                                            {% if user.is_email_verified %}
+                                            <span class="badge bg-success px-2 py-1 rounded-pill">
+                                                <i class="fas fa-check me-1"></i>{% trans "Verified" %}
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-warning px-2 py-1 rounded-pill text-dark">
+                                                <i class="fas fa-times me-1"></i>{% trans "Not Verified" %}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: #f8f9fa;">
+                                            <span class="fw-bold small">{% trans "Profile Completion:" %}</span>
+                                            {% if user.has_completed_profile %}
+                                            <span class="badge bg-success px-2 py-1 rounded-pill">
+                                                <i class="fas fa-check me-1"></i>{% trans "Complete" %}
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-warning px-2 py-1 rounded-pill text-dark">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Incomplete" %}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        {% if user.is_seller %}
+                                        <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: #f8f9fa;">
+                                            <span class="fw-bold small">{% trans "Seller Verification:" %}</span>
+                                            {% if seller_profile.is_verified %}
+                                            <span class="badge bg-success px-2 py-1 rounded-pill">
+                                                <i class="fas fa-check me-1"></i>{% trans "Verified" %}
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-warning px-2 py-1 rounded-pill text-dark">
+                                                <i class="fas fa-clock me-1"></i>{% trans "Pending" %}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold">{% trans "Profile Completion:" %}</span>
-                                {% if user.has_completed_profile %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>{% trans "Complete" %}
-                                </span>
-                                {% else %}
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Incomplete" %}
-                                </span>
-                                {% endif %}
-                            </div>
-                            {% if user.is_seller %}
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">{% trans "Seller Verification:" %}</span>
-                                {% if seller_profile.is_verified %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>{% trans "Verified" %}
-                                </span>
-                                {% else %}
-                                <span class="badge bg-warning">
-                                    <i class="fas fa-clock me-1"></i>{% trans "Pending" %}
-                                </span>
-                                {% endif %}
-                            </div>
-                            {% endif %}
                         </div>
                     </div>
 
                     <!-- Session Management -->
                     <div class="mt-4 pt-4 border-top">
-                        <h6 class="text-primary-custom fw-bold mb-3">
-                            <i class="fas fa-laptop me-2"></i>{% trans "Session Management" %}
-                        </h6>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-laptop me-2" style="color: #f3c806; font-size: 1.2rem;"></i>
+                            <h6 class="fw-bold text-dark mb-0">{% trans "Session Management" %}</h6>
+                        </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="#" class="btn btn-outline-info btn-sm">
+                            <a href="#" class="btn btn-outline-warning fw-bold" 
+                               style="border: 2px solid #f3c806; color: #000; border-radius: 10px; padding: 10px 20px;">
                                 <i class="fas fa-desktop me-1"></i>{% trans "Active Sessions" %}
                             </a>
-                            <a href="#" class="btn btn-outline-danger btn-sm">
+                            <a href="#" class="btn btn-outline-danger fw-bold" 
+                               style="border: 2px solid #dc3545; color: #dc3545; border-radius: 10px; padding: 10px 20px;">
                                 <i class="fas fa-sign-out-alt me-1"></i>{% trans "Logout All Devices" %}
                             </a>
                         </div>
@@ -329,14 +421,17 @@
 
                     <!-- Account Actions -->
                     <div class="mt-4 pt-4 border-top">
-                        <h6 class="text-primary-custom fw-bold mb-3">
-                            <i class="fas fa-cog me-2"></i>{% trans "Account Actions" %}
-                        </h6>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-cog me-2" style="color: #f3c806; font-size: 1.2rem;"></i>
+                            <h6 class="fw-bold text-dark mb-0">{% trans "Account Actions" %}</h6>
+                        </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                            <a href="#" class="btn btn-outline-secondary fw-bold" 
+                               style="border: 2px solid #6c757d; color: #6c757d; border-radius: 10px; padding: 10px 20px;">
                                 <i class="fas fa-download me-1"></i>{% trans "Export Data" %}
                             </a>
-                            <a href="#" class="btn btn-outline-danger btn-sm">
+                            <a href="#" class="btn btn-outline-danger fw-bold" 
+                               style="border: 2px solid #dc3545; color: #dc3545; border-radius: 10px; padding: 10px 20px;">
                                 <i class="fas fa-trash me-1"></i>{% trans "Delete Account" %}
                             </a>
                         </div>
@@ -347,148 +442,304 @@
     </div>
 </div>
 
-<!-- JavaScript for smooth scrolling and form handling -->
+<style>
+/* Scoped styles that won't affect navbar */
+.profile-container .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.profile-container .form-control:focus {
+    border-color: #f3c806;
+    box-shadow: 0 0 0 0.2rem rgba(243, 200, 6, 0.25);
+    transform: translateY(-1px);
+}
+
+.profile-container .list-group-item {
+    transition: all 0.3s ease;
+}
+
+.profile-container .list-group-item:hover {
+    background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%)) !important;
+    color: #000 !important;
+    transform: translateX(5px);
+}
+
+.profile-container .btn {
+    transition: all 0.3s ease;
+}
+
+.profile-container .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(243, 200, 6, 0.3);
+}
+
+/* Uploadcare Widget Styling */
+.profile-container .uploadcare-widget-button {
+    background: linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%)) !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    color: #000 !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.profile-container .uploadcare-widget-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(243, 200, 6, 0.3) !important;
+}
+
+/* Image preview styling */
+.profile-container .img-thumbnail {
+    transition: all 0.3s ease;
+}
+
+.profile-container .img-thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 10px;
+    }
+    
+    .profile-container .card-body {
+        padding: 20px !important;
+    }
+    
+    .profile-container .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .profile-container .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-container {
+        padding: 5px;
+    }
+    
+    .profile-container .card-body {
+        padding: 15px !important;
+    }
+}
+</style>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Smooth scrolling for sidebar navigation
-        document.querySelectorAll('.list-group-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
+// Uploadcare Widget Configuration
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Profile page loaded - Initializing Uploadcare...');
+    
+    // Test current image
+    {% if user.profile_picture %}
+    console.log('Current profile picture:', '{{ user.profile_picture }}');
+    console.log('Generated URL:', '{{ user.get_image_url }}');
+    {% endif %}
+
+    // Initialize Uploadcare widgets if available
+    if (typeof uploadcare !== 'undefined') {
+        console.log('Uploadcare loaded successfully');
+        
+        // Profile picture widget
+        const profilePictureWidget = uploadcare.Widget('[role="uploadcare-uploader"]');
+        
+        profilePictureWidget.onReady(function() {
+            console.log('Uploadcare widget ready for profile picture');
+        });
+        
+        // Handle file selection and upload
+        profilePictureWidget.onChange(function(file) {
+            if (file) {
+                console.log('File selected, starting upload...');
                 
-                // Remove active class from all items
-                document.querySelectorAll('.list-group-item').forEach(i => {
-                    i.classList.remove('active');
+                file.done(function(fileInfo) {
+                    console.log('✅ Upload completed successfully!');
+                    console.log('📁 File Info:', fileInfo);
+                    console.log('🔗 CDN URL:', fileInfo.cdnUrl);
+                    console.log('🆔 UUID:', fileInfo.uuid);
+                    
+                    // The widget automatically updates the input value with the CDN URL
+                    // Show preview to user
+                    showImagePreview(fileInfo.cdnUrl);
+                    
+                    // Show success message
+                    showNotification('{% trans "Profile picture uploaded successfully! Click Save Changes to update your profile." %}', 'success');
+                    
+                }).fail(function(error) {
+                    console.error('❌ Upload failed:', error);
+                    showNotification('{% trans "Upload failed. Please try again." %}', 'error');
                 });
-                
-                // Add active class to clicked item
-                this.classList.add('active');
-                
-                // Scroll to target section
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+            }
         });
+        
+    } else {
+        console.error('Uploadcare widget not loaded');
+        showNotification('{% trans "Upload service not available. Please refresh the page." %}', 'error');
+    }
 
-        // Form submission handling
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitButton = this.querySelector('button[type="submit"]');
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Saving..." %}';
-                }
-            });
-        });
+    // Function to show image preview
+    function showImagePreview(imageUrl) {
+        const container = document.getElementById('uploadcare-container');
+        
+        // Remove existing preview
+        const existingPreview = container.querySelector('.uploadcare-preview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        // Create new preview
+        const preview = document.createElement('div');
+        preview.className = 'uploadcare-preview mt-3';
+        preview.innerHTML = `
+            <div class="alert alert-success border-0" style="background: rgba(34, 197, 94, 0.1); border-left: 4px solid #22c55e;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle me-2 text-success"></i>
+                    <strong class="text-success">{% trans "New Image Ready!" %}</strong>
+                </div>
+                <p class="mb-0 mt-1 small text-success">{% trans "Preview of your new profile picture:" %}</p>
+            </div>
+            <div class="text-center mt-2">
+                <img src="${imageUrl}" 
+                     alt="New Profile Picture" 
+                     class="img-thumbnail rounded" 
+                     style="width: 150px; border: 2px solid #22c55e;"
+                     onerror="handleImageError(this)">
+                <p class="text-muted small mt-2">{% trans "Don't forget to click Save Changes below" %}</p>
+            </div>
+        `;
+        
+        container.appendChild(preview);
+        
+        // Scroll to preview
+        preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-        // Image preview for file inputs
-        const fileInputs = document.querySelectorAll('input[type="file"]');
-        fileInputs.forEach(input => {
-            input.addEventListener('change', function(e) {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.createElement('img');
-                        preview.src = e.target.result;
-                        preview.className = 'img-thumbnail mt-2';
-                        preview.style.maxWidth = '150px';
-                        
-                        const existingPreview = input.parentNode.querySelector('img');
-                        if (existingPreview) {
-                            existingPreview.remove();
-                        }
-                        
-                        input.parentNode.appendChild(preview);
-                    };
-                    reader.readAsDataURL(file);
-                }
+    // Function to show notification
+    function showNotification(message, type = 'info') {
+        // Remove existing notifications
+        document.querySelectorAll('.custom-notification').forEach(note => note.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `custom-notification alert alert-${type} position-fixed`;
+        notification.style.cssText = `
+            top: 20px; 
+            right: 20px; 
+            z-index: 10000; 
+            min-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        `;
+        
+        const icon = type === 'success' ? 'fa-check-circle' : 
+                     type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${icon} me-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Smooth scrolling for navigation
+    document.querySelectorAll('.list-group-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all items
+            document.querySelectorAll('.list-group-item').forEach(i => {
+                i.classList.remove('active');
+                i.style.background = '#f8f9fa';
+                i.style.color = '#333';
             });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            this.style.background = 'linear-gradient(135deg, #f3c806, hsl(16, 100%, 60%))';
+            this.style.color = '#000';
+            
+            // Scroll to target section
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     });
+
+    // Form submission handling
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitButton = this.querySelector('button[type="submit"]');
+            if (submitButton && !submitButton.disabled) {
+                submitButton.disabled = true;
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Saving..." %}';
+                
+                // Re-enable after 5 seconds in case of error
+                setTimeout(() => {
+                    if (submitButton.disabled) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    }
+                }, 5000);
+            }
+        });
+    });
+});
+
+// Global function to handle image errors
+function handleImageError(img) {
+    console.warn('Image failed to load:', img.src);
+    img.onerror = null;
+    img.src = 'https://via.placeholder.com/150x150/f8f9fa/6c757d?text=Image+Not+Found';
+    img.style.border = '2px solid #dc3545';
+}
+
+// Test image loading on page load
+window.addEventListener('load', function() {
+    // Test all profile images
+    document.querySelectorAll('img[src*="ucarecdn"], img[src*="ucarecd"]').forEach(img => {
+        const testImg = new Image();
+        testImg.onload = function() {
+            console.log('✅ Image loads successfully:', img.src);
+        };
+        testImg.onerror = function() {
+            console.error('❌ Image failed to load:', img.src);
+        };
+        testImg.src = img.src;
+    });
+});
 </script>
 
-<style>
-    .card {
-        border: none;
-        border-radius: 15px;
-    }
-    
-    .card-header {
-        border-radius: 15px 15px 0 0 !important;
-        border: none;
-        padding: 20px;
-    }
-    
-    .list-group-item {
-        border: none;
-        border-radius: 8px !important;
-        margin-bottom: 5px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-    
-    .list-group-item:hover,
-    .list-group-item.active {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-        color: white;
-        transform: translateX(5px);
-    }
-    
-    .form-control {
-        border-radius: 8px;
-        border: 2px solid #e9ecef;
-        padding: 12px 15px;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
-    }
-    
-    .img-thumbnail {
-        border: 2px solid var(--primary);
-        border-radius: 10px;
-    }
-    
-    .btn-primary-custom {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
-    }
-    
-    .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(46, 139, 87, 0.4);
-        color: white;
-    }
-    
-    .btn-outline-primary-custom {
-        border: 2px solid var(--primary);
-        color: var(--primary);
-        background: transparent;
-        padding: 10px 20px;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-outline-primary-custom:hover {
-        background: var(--primary);
-        color: white;
-        transform: translateY(-2px);
-    }
-</style>
+<!-- Uploadcare Script -->
+<script>
+UPLOADCARE_PUBLIC_KEY = "{{ UPLOADCARE_PUBLIC_KEY }}";
+UPLOADCARE_LOCALE = "en";
+UPLOADCARE_LIVE = false;
+</script>
+<script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" charset="utf-8"></script>
 {% endblock %}

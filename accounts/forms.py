@@ -35,6 +35,25 @@ class UserLoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _('Password')})
     )
 
+# class UserProfileForm(forms.ModelForm):
+#     class Meta:
+#         model = User
+#         fields = ['first_name', 'last_name', 'phone_number', 'date_of_birth', 'profile_picture']
+#         widgets = {
+#             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+#             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+#             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+#             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+#             # CHANGED: Using custom widget for Uploadcare
+#             'profile_picture': forms.TextInput(attrs={
+#                 'class': 'form-control',
+#                 'role': 'uploadcare-uploader',
+#                 'data-public-key': UPLOADCARE_PUBLIC_KEY,
+#                 'data-images-only': 'true',
+#                 'placeholder': _('Select profile picture')
+#             }),
+#         }
+
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
@@ -44,15 +63,20 @@ class UserProfileForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            # CHANGED: Using custom widget for Uploadcare
+            # ✅ UPLOADCARE WIDGET - Configured for full URLs
             'profile_picture': forms.TextInput(attrs={
                 'class': 'form-control',
                 'role': 'uploadcare-uploader',
                 'data-public-key': UPLOADCARE_PUBLIC_KEY,
                 'data-images-only': 'true',
+                'data-multiple': 'false',
+                'data-store': 'true',
+                'data-preview-step': 'true',
+                'data-crop': '1:1,free',
                 'placeholder': _('Select profile picture')
             }),
         }
+
 
 class SellerProfileForm(forms.ModelForm):
     class Meta:

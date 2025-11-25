@@ -17,8 +17,8 @@ class User(AbstractUser):
     user_type = models.CharField(_('user type'), max_length=10, choices=USER_TYPE_CHOICES, default='buyer')
     phone_number = models.CharField(_('phone number'), max_length=15, blank=True)
     
-    # ✅ Uploadcare UUID-based image
-    profile_picture = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('profile picture'))
+    # ✅ STORE FULL UPLOADCARE URLs
+    profile_picture = models.TextField(blank=True, null=True, verbose_name=_('profile picture'))
     
     date_of_birth = models.DateField(_('date of birth'), blank=True, null=True)
     is_email_verified = models.BooleanField(_('email verified'), default=False)
@@ -36,7 +36,7 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
-    # ✅ IMAGE HELPERS
+    # ✅ UPDATED IMAGE HELPERS - Handle both full URLs and UUIDs
     def get_image_url(self):
         """Return proper Uploadcare image URL."""
         if not self.profile_picture:
@@ -44,26 +44,23 @@ class User(AbstractUser):
 
         image_str = str(self.profile_picture).strip()
 
-        # Kama ni full link sahihi
+        # Kama ni full link sahihi (https://2mx6f9ykbq.ucarecd.net/...)
         if image_str.startswith('http'):
             return image_str
 
-        # Kama ni UUID pekee
-        project_domain = "32b2svpniy.ucarecd.net"
+        # Kama ni UUID pekee - fallback domain
+        project_domain = "ucarecdn.com"  # Universal domain
         return f"https://{project_domain}/{image_str}/"
 
     def get_thumbnail_url(self):
         """Return smaller thumbnail version."""
-        if not self.profile_picture:
-            return None
-
-        image_str = str(self.profile_picture).strip()
-
-        if image_str.startswith('http'):
-            return f"{image_str}-/resize/300x300/-/format/auto/-/quality/70/"
-
-        project_domain = "32b2svpniy.ucarecd.net"
-        return f"https://{project_domain}/{image_str}/-/resize/300x300/-/format/auto/-/quality/70/"
+        url = self.get_image_url()
+        if url:
+            # Add resize parameters to existing URL
+            if '/-/preview/' in url or '/-/resize/' in url:
+                return url
+            return f"{url}-/resize/300x300/-/format/auto/-/quality/70/"
+        return None
 
     @property
     def shop(self):
@@ -85,6 +82,7 @@ class User(AbstractUser):
         return all([self.first_name, self.last_name, self.phone_number, self.profile_picture])
 
 
+        
 class SellerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seller_profile',
                                 limit_choices_to={'user_type__in': ['seller', 'both']})
